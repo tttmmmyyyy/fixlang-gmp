@@ -1,0 +1,58 @@
+module GMPZ;
+
+type MPZ = unbox struct { _data : Destructor Ptr };
+
+namespace MPZ {
+
+    _make : () -> MPZ;
+    _make = |_| (
+        let ptr = CALL_C[Ptr fix_mpz_init()];
+        let dtor = |ptr| (
+            CALL_C[() fix_mpz_clear(Ptr), ptr]
+        );
+        MPZ { _data : Destructor::make(ptr, dtor) }
+    );
+
+    zero : MPZ;
+    zero = MPZ::_make();
+
+    _get_ptr : MPZ -> Ptr;
+    _get_ptr = |num| num.@_data.value;
+
+    _is_unique_data : MPZ -> (Bool, MPZ);
+    _is_unique_data = |num| num.@_data.is_unique.mod_1(|data| MPZ { _data : data });
+
+    force_unique : MPZ -> MPZ;
+    force_unique = |src| (
+        let (is_unique, src) = src._is_unique_data;
+        if is_unique { src };
+        let dst = MPZ::_make();
+        let _ = CALL_C[() fix_mpz_set(Ptr, Ptr), dst._get_ptr, src._get_ptr];
+        dst
+    );
+
+    set_decimal : String -> MPZ -> Option MPZ;
+    set_decimal = |dec, num| (
+        let num = num.force_unique;
+        let ptr = num._get_ptr;
+        let suc = dec.call_with_c_str(|c_str| (
+            CALL_C[I64 fix_mpz_set_str(Ptr, Ptr, I64), ptr, c_str, 10];
+        ));
+        if suc == -1 { Option::none() };
+        Option::some $ num
+    );
+
+    from_decimal : String -> Option MPZ;
+    from_decimal = |dec| MPZ::zero.set_decimal(dec);
+
+}
+
+impl MPZ : ToString {
+
+    to_string = |num| (
+        let len_base = CALL_C[I64, fix_mpz_sizeinbase(Ptr, I64), num._get_ptr, 10];
+        let len = len_base + 2;
+        
+    );
+
+}
