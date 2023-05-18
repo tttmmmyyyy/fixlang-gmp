@@ -1,4 +1,10 @@
 module Main;
 
-import gmp.fix;
+import gmpz.fix;
 
+main : IO ();
+main = (
+    let num = MPZ::from_decimal("012345678990123456789").as_some;
+    let _ = assert_eq("case 1", num.to_string, "12345678990123456789");
+    pure()
+);
