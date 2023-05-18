@@ -11,3 +11,4 @@ clean :
 
 install : libgmpfix.so
 	cp libgmpfix.so /usr/local/lib
+	@echo "libgmpfix.so has been installed in: /usr/local/lib"

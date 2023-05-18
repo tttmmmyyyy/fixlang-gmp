@@ -6,5 +6,12 @@ main : IO ();
 main = (
     let num = MPZ::from_decimal("012345678990123456789").as_some;
     let _ = assert_eq("case 1", num.to_string, "12345678990123456789");
+
+    let num = MPZ::from_I64(-12345);
+    let _ = assert_eq("case 2", num.to_string, "-12345");
+
+    let num = MPZ::from_U64(31415_U64);
+    let _ = assert_eq("case 3", num.to_string, "31415");
+
     pure()
 );

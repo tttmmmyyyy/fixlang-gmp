@@ -4,6 +4,7 @@ type MPZ = unbox struct { _data : Destructor Ptr };
 
 namespace MPZ {
 
+    // Private or internal functions 
     _make : () -> MPZ;
     _make = |_| (
         let ptr = CALL_C[Ptr fix_mpz_init()];
@@ -13,8 +14,11 @@ namespace MPZ {
         MPZ { _data : Destructor::make(ptr, dtor) }
     );
 
-    zero : MPZ;
-    zero = MPZ::_make();
+    _is_unique_data : MPZ -> (Bool, MPZ);
+    _is_unique_data = |num| (
+        let (is_unique, data) = num.@_data.is_unique;
+        (is_unique, MPZ { _data : data })
+    );
 
     borrow_ptr : (Ptr -> a) -> MPZ -> a;
     borrow_ptr = |proc, num| (
@@ -23,13 +27,6 @@ namespace MPZ {
         res
     );
 
-    _is_unique_data : MPZ -> (Bool, MPZ);
-    _is_unique_data = |num| (
-        let (is_unique, data) = num.@_data.is_unique;
-        (is_unique, MPZ { _data : data })
-    );
-
-    // MPZ itelf is unboxed, but ...
     force_unique : MPZ -> MPZ;
     force_unique = |src| (
         let (is_unique, src) = src._is_unique_data;
@@ -43,9 +40,24 @@ namespace MPZ {
         dst
     );
 
+    // Return the argument itself if it is unique, or return zero otherwise.
+    zero_if_non_unique : MPZ -> MPZ;
+    zero_if_non_unique = |src| (
+        let (is_unique, src) = src._is_unique_data;
+        if is_unique { src };
+        MPZ::_make()
+    );
+
+    // Initializations
+
+    zero : MPZ;
+    zero = MPZ::_make();
+
+    // Assining strings
+
     set_decimal : String -> MPZ -> Option MPZ;
     set_decimal = |dec, num| (
-        let num = num.force_unique;
+        let num = num.zero_if_non_unique;
         num.borrow_ptr(|ptr| (
             let suc = dec.call_with_c_str(|c_str| (
                 CALL_C[I64 fix_mpz_set_str(Ptr, Ptr, I64), ptr, c_str, 10]
@@ -57,6 +69,28 @@ namespace MPZ {
 
     from_decimal : String -> Option MPZ;
     from_decimal = |dec| MPZ::zero.set_decimal(dec);
+
+    // Assining integers
+
+    set_I64 : I64 -> MPZ -> MPZ;
+    set_I64 = |val, num| (
+        let num = num.zero_if_non_unique;
+        let _ = num.borrow_ptr(|ptr| CALL_C[() fix_mpz_set_si(Ptr, I64), ptr, val]);
+        num
+    );
+
+    from_I64 : I64 -> MPZ;
+    from_I64 = |val| MPZ::zero.set_I64(val);
+
+    set_U64 : U64 -> MPZ -> MPZ;
+    set_U64 = |val, num| (
+        let num = num.zero_if_non_unique;
+        let _ = num.borrow_ptr(|ptr| CALL_C[() fix_mpz_set_ui(Ptr, U64), ptr, val]);
+        num
+    );
+
+    from_U64 : U64 -> MPZ;
+    from_U64 = |val| MPZ::zero.set_U64(val);
 
 }
 
