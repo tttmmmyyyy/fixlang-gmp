@@ -75,7 +75,7 @@ namespace MPQ {
         MPQ::zero.set_I64(numer, denom)
     );
 
-    // Get numerator / denominator
+    // Get numerator, denominator
 
     get_num : MPQ -> MPZ;
     get_num = |q| (
@@ -98,7 +98,6 @@ namespace MPQ {
         ));
         den
     );
-
 }
 
 impl MPQ : Add {
@@ -141,6 +140,18 @@ impl MPQ : Div {
             ))
         ));
         out
+    );
+
+}
+
+impl MPQ : Eq {
+
+    eq = |lhs, rhs| (
+        lhs.borrow_ptr(|lhs_ptr| (
+            rhs.borrow_ptr(|rhs_ptr| (
+                CALL_C[I64 fix_mpq_equal(Ptr, Ptr), lhs_ptr, rhs_ptr] > 0
+            ))
+        ))
     );
 
 }

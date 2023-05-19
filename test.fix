@@ -23,5 +23,13 @@ main = (
     let num = MPQ::from_I64(3, 5) / MPQ::from_I64(9, 10);
     let _ = assert_eq("case 6", num.to_string, "2/3");
 
+    let lhs = MPQ::from_I64(3, 5);
+    let rhs = MPQ::from_I64(6, 10);
+    let _ = assert_eq("case 7", lhs == rhs, true);
+
+    let lhs = MPQ::from_I64(3, 5);
+    let rhs = MPQ::from_I64(7, 10);
+    let _ = assert_eq("case 8", lhs == rhs, false);
+
     pure()
 );

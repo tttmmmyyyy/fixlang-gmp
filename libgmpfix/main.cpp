@@ -98,3 +98,9 @@ extern "C" void fix_mpq_add(mpq_t* sum, const mpq_t* addend1, const mpq_t* adden
 extern "C" void fix_mpq_div(mpq_t* sum, const mpq_t* addend1, const mpq_t* addend2) {
     mpq_div(*sum, *addend1, *addend2);
 }
+
+// Comparison
+
+extern "C" int64_t fix_mpq_equal(mpq_t* lhs, const mpq_t* rhs) {
+    return (int64_t)mpq_equal(*lhs, *rhs);
+}
