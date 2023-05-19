@@ -156,6 +156,30 @@ impl MPQ : Eq {
 
 }
 
+impl MPQ : LessThan {
+
+    less_than = |lhs, rhs| (
+        lhs.borrow_ptr(|lhs_ptr| (
+            rhs.borrow_ptr(|rhs_ptr| (
+                CALL_C[I64 fix_mpq_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] < 0
+            ))
+        ))
+    );
+
+}
+
+impl MPQ : LessThanOrEq {
+
+    less_than_or_eq = |lhs, rhs| (
+        lhs.borrow_ptr(|lhs_ptr| (
+            rhs.borrow_ptr(|rhs_ptr| (
+                CALL_C[I64 fix_mpq_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] <= 0
+            ))
+        ))
+    );
+
+}
+
 impl MPQ : ToString {
 
     to_string = |q| (

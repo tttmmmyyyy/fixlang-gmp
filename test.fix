@@ -31,5 +31,13 @@ main = (
     let rhs = MPQ::from_I64(7, 10);
     let _ = assert_eq("case 8", lhs == rhs, false);
 
+    let lhs = MPQ::from_I64(3, 5);
+    let rhs = MPQ::from_I64(7, 10);
+    let _ = assert_eq("case 9", lhs < rhs, true);
+
+    let lhs = MPQ::from_I64(3, 5);
+    let rhs = MPQ::from_I64(6, 10);
+    let _ = assert_eq("case 10", lhs >= rhs, true);
+
     pure()
 );

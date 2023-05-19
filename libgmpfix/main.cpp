@@ -91,16 +91,20 @@ extern "C" void fix_mpq_get_den(mpz_t* den, mpq_t* q) {
 
 // Operations
 
-extern "C" void fix_mpq_add(mpq_t* sum, const mpq_t* addend1, const mpq_t* addend2) {
+extern "C" void fix_mpq_add(mpq_t* sum, mpq_t* addend1, mpq_t* addend2) {
     mpq_add(*sum, *addend1, *addend2);
 }
 
-extern "C" void fix_mpq_div(mpq_t* sum, const mpq_t* addend1, const mpq_t* addend2) {
+extern "C" void fix_mpq_div(mpq_t* sum, mpq_t* addend1, mpq_t* addend2) {
     mpq_div(*sum, *addend1, *addend2);
 }
 
 // Comparison
 
-extern "C" int64_t fix_mpq_equal(mpq_t* lhs, const mpq_t* rhs) {
+extern "C" int64_t fix_mpq_equal(mpq_t* lhs, mpq_t* rhs) {
     return (int64_t)mpq_equal(*lhs, *rhs);
+}
+
+extern "C" int64_t fix_mpq_cmp(mpq_t* lhs, mpq_t* rhs) {
+    return (int64_t)mpq_cmp(*lhs, *rhs);
 }
