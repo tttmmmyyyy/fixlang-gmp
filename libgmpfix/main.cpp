@@ -91,12 +91,20 @@ extern "C" void fix_mpq_get_den(mpz_t* den, mpq_t* q) {
 
 // Operations
 
-extern "C" void fix_mpq_add(mpq_t* sum, mpq_t* addend1, mpq_t* addend2) {
-    mpq_add(*sum, *addend1, *addend2);
+extern "C" void fix_mpq_add(mpq_t* res, mpq_t* lhs, mpq_t* rhs) {
+    mpq_add(*res, *lhs, *rhs);
 }
 
-extern "C" void fix_mpq_div(mpq_t* sum, mpq_t* addend1, mpq_t* addend2) {
-    mpq_div(*sum, *addend1, *addend2);
+extern "C" void fix_mpq_sub(mpq_t* res, mpq_t* lhs, mpq_t* rhs) {
+    mpq_sub(*res, *lhs, *rhs);
+}
+
+extern "C" void fix_mpq_mul(mpq_t* res, mpq_t* lhs, mpq_t* rhs) {
+    mpq_mul(*res, *lhs, *rhs);
+}
+
+extern "C" void fix_mpq_div(mpq_t* res, mpq_t* lhs, mpq_t* rhs) {
+    mpq_div(*res, *lhs, *rhs);
 }
 
 // Comparison

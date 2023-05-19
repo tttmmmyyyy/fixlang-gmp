@@ -122,6 +122,50 @@ impl MPQ : Add {
 
 }
 
+impl MPQ : Sub {
+
+    sub = |lhs, rhs| (
+        let out = (
+            let (lhs_is_unique, lhs) = lhs._is_unique_data;
+            if lhs_is_unique { lhs };
+            let (rhs_is_unique, rhs) = rhs._is_unique_data;
+            if rhs_is_unique { rhs };
+            MPQ::_make()
+        );
+        let _ = lhs.borrow_ptr(|lhs_ptr| (
+            rhs.borrow_ptr(|rhs_ptr| (
+                out.borrow_ptr(|out_ptr| (
+                    CALL_C[() fix_mpq_sub(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
+                ))
+            ))
+        ));
+        out
+    );
+
+}
+
+impl MPQ : Mul {
+
+    mul = |lhs, rhs| (
+        let out = (
+            let (lhs_is_unique, lhs) = lhs._is_unique_data;
+            if lhs_is_unique { lhs };
+            let (rhs_is_unique, rhs) = rhs._is_unique_data;
+            if rhs_is_unique { rhs };
+            MPQ::_make()
+        );
+        let _ = lhs.borrow_ptr(|lhs_ptr| (
+            rhs.borrow_ptr(|rhs_ptr| (
+                out.borrow_ptr(|out_ptr| (
+                    CALL_C[() fix_mpq_mul(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
+                ))
+            ))
+        ));
+        out
+    );
+
+}
+
 impl MPQ : Div {
 
     div = |lhs, rhs| (
