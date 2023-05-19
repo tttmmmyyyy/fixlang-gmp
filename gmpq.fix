@@ -54,6 +54,9 @@ namespace MPQ {
     zero : MPQ;
     zero = MPQ::_make();
 
+    one : MPQ;
+    one = MPQ::from_I64(1, 1);
+
     // Assining integers
 
     set_I64 : I64 -> I64 -> MPQ -> MPQ;
