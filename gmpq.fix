@@ -149,3 +149,9 @@ impl MPQ : ToString {
     );
 
 }
+
+impl MPQ : Hash {
+
+    hash = to_string >> hash;
+
+}

@@ -109,3 +109,9 @@ impl MPZ : ToString {
     );
 
 }
+
+impl MPZ : Hash {
+
+    hash = to_string >> hash;
+
+}
