@@ -41,8 +41,8 @@ namespace MPZ {
     );
 
     // Return the argument itself if it is unique, or return zero otherwise.
-    zero_if_non_unique : MPZ -> MPZ;
-    zero_if_non_unique = |src| (
+    make_zero_if_non_unique : MPZ -> MPZ;
+    make_zero_if_non_unique = |src| (
         let (is_unique, src) = src._is_unique_data;
         if is_unique { src };
         MPZ::_make()
@@ -57,7 +57,7 @@ namespace MPZ {
 
     set_decimal : String -> MPZ -> Option MPZ;
     set_decimal = |dec, num| (
-        let num = num.zero_if_non_unique;
+        let num = num.make_zero_if_non_unique;
         num.borrow_ptr(|ptr| (
             let suc = dec.call_with_c_str(|c_str| (
                 CALL_C[I64 fix_mpz_set_str(Ptr, Ptr, I64), ptr, c_str, 10]
@@ -74,7 +74,7 @@ namespace MPZ {
 
     set_I64 : I64 -> MPZ -> MPZ;
     set_I64 = |val, num| (
-        let num = num.zero_if_non_unique;
+        let num = num.make_zero_if_non_unique;
         let _ = num.borrow_ptr(|ptr| CALL_C[() fix_mpz_set_si(Ptr, I64), ptr, val]);
         num
     );
@@ -84,7 +84,7 @@ namespace MPZ {
 
     set_U64 : U64 -> MPZ -> MPZ;
     set_U64 = |val, num| (
-        let num = num.zero_if_non_unique;
+        let num = num.make_zero_if_non_unique;
         let _ = num.borrow_ptr(|ptr| CALL_C[() fix_mpz_set_ui(Ptr, U64), ptr, val]);
         num
     );

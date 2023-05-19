@@ -47,3 +47,54 @@ extern "C" void fix_mpz_set_si(mpz_t* num, int64_t val) {
 extern "C" void fix_mpz_set_ui(mpz_t* num, uint64_t val) {
     mpz_set_ui(*num, val);
 }
+
+// MPQ
+
+// Init and clear
+
+extern "C" mpq_t* fix_mpq_init() {
+    mpq_t* num = (mpq_t*)malloc(sizeof(mpq_t));
+    mpq_init(*num);
+    return num;
+}
+
+extern "C" void fix_mpq_clear(mpq_t* num) {
+    mpq_clear(*num);
+    free(num);
+}
+
+// Canonicalize
+
+extern "C" void fix_mpq_canonicalize(mpq_t* num) {
+    mpq_canonicalize(*num);
+}
+
+// Assigning integers
+
+extern "C" void fix_mpq_set(mpq_t* dst, mpq_t* src) {
+    mpq_set(*dst, *src);
+}
+
+extern "C" void fix_mpq_set_si(mpq_t* num, int64_t numer, uint64_t denom) {
+    mpq_set_si(*num, numer, denom);
+}
+
+// Get numerator / denominator
+
+extern "C" void fix_mpq_get_num(mpz_t* num, mpq_t* q) {
+    mpq_get_num(*num, *q);
+}
+
+extern "C" void fix_mpq_get_den(mpz_t* den, mpq_t* q) {
+    mpq_get_den(*den, *q);
+}
+
+// Operations
+
+extern "C" void fix_mpq_add(mpq_t* sum, const mpq_t* addend1, const mpq_t* addend2) {
+    mpq_add(*sum, *addend1, *addend2);
+}
+
+extern "C" void fix_mpq_div(mpq_t* sum, const mpq_t* addend1, const mpq_t* addend2) {
+    mpq_div(*sum, *addend1, *addend2);
+}

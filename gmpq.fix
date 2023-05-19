@@ -1,0 +1,151 @@
+module GMPQ;
+import ./gmpz.fix;
+
+type MPQ = unbox struct { _data : Destructor Ptr };
+
+namespace MPQ {
+
+    // Private or internal functions 
+    _make : () -> MPQ;
+    _make = |_| (
+        let ptr = CALL_C[Ptr fix_mpq_init()];
+        let dtor = |ptr| (
+            CALL_C[() fix_mpq_clear(Ptr), ptr]
+        );
+        MPQ { _data : Destructor::make(ptr, dtor) }
+    );
+
+    _is_unique_data : MPQ -> (Bool, MPQ);
+    _is_unique_data = |num| (
+        let (is_unique, data) = num.@_data.is_unique;
+        (is_unique, MPQ { _data : data })
+    );
+
+    borrow_ptr : (Ptr -> a) -> MPQ -> a;
+    borrow_ptr = |proc, num| (
+        let res = proc(num.@_data.@value);
+        let _ = num; // use num
+        res
+    );
+
+    force_unique : MPQ -> MPQ;
+    force_unique = |src| (
+        let (is_unique, src) = src._is_unique_data;
+        if is_unique { src };
+        let dst = MPQ::_make();
+        let _ = dst.borrow_ptr(|dst_ptr| (
+            src.borrow_ptr(|src_ptr| (
+                CALL_C[() fix_mpq_set(Ptr, Ptr), dst_ptr, src_ptr]
+            ))
+        ));
+        dst
+    );
+
+    // Return the argument itself if it is unique, or return zero otherwise.
+    make_zero_if_non_unique : MPQ -> MPQ;
+    make_zero_if_non_unique = |src| (
+        let (is_unique, src) = src._is_unique_data;
+        if is_unique { src };
+        MPQ::_make()
+    );
+
+    // Initializations
+
+    zero : MPQ;
+    zero = MPQ::_make();
+
+    // Assining integers
+
+    set_I64 : I64 -> I64 -> MPQ -> MPQ;
+    set_I64 = |numer, denom, num| (
+        let num = num.make_zero_if_non_unique;
+        let _ = num.borrow_ptr(|ptr| (
+            let _ = CALL_C[() fix_mpq_set_si(Ptr, I64, I64), ptr, numer, denom];
+            CALL_C[() fix_mpq_canonicalize(Ptr), ptr]
+        ));
+        num
+    );
+
+    from_I64 : I64 -> I64 -> MPQ;
+    from_I64 = |numer, denom| (
+        let (numer, denom) = if denom > 0 { (numer, denom) } else { (-numer, -denom) };
+        MPQ::zero.set_I64(numer, denom)
+    );
+
+    // Get numerator / denominator
+
+    get_num : MPQ -> MPZ;
+    get_num = |q| (
+        let num = MPZ::_make();
+        let _ = num.borrow_ptr(|num_ptr| (
+            q.borrow_ptr(|q_ptr| (
+                CALL_C[() fix_mpq_get_num(Ptr, Ptr), num_ptr, q_ptr]
+            ))
+        ));
+        num
+    );
+
+    get_den : MPQ -> MPZ;
+    get_den = |q| (
+        let den = MPZ::_make();
+        let _ = den.borrow_ptr(|den_ptr| (
+            q.borrow_ptr(|q_ptr| (
+                CALL_C[() fix_mpq_get_den(Ptr, Ptr), den_ptr, q_ptr]
+            ))
+        ));
+        den
+    );
+
+}
+
+impl MPQ : Add {
+
+    add = |lhs, rhs| (
+        let out = (
+            let (lhs_is_unique, lhs) = lhs._is_unique_data;
+            if lhs_is_unique { lhs };
+            let (rhs_is_unique, rhs) = rhs._is_unique_data;
+            if rhs_is_unique { rhs };
+            MPQ::_make()
+        );
+        let _ = lhs.borrow_ptr(|lhs_ptr| (
+            rhs.borrow_ptr(|rhs_ptr| (
+                out.borrow_ptr(|out_ptr| (
+                    CALL_C[() fix_mpq_add(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
+                ))
+            ))
+        ));
+        out
+    );
+
+}
+
+impl MPQ : Div {
+
+    div = |lhs, rhs| (
+        let out = (
+            let (lhs_is_unique, lhs) = lhs._is_unique_data;
+            if lhs_is_unique { lhs };
+            let (rhs_is_unique, rhs) = rhs._is_unique_data;
+            if rhs_is_unique { rhs };
+            MPQ::_make()
+        );
+        let _ = lhs.borrow_ptr(|lhs_ptr| (
+            rhs.borrow_ptr(|rhs_ptr| (
+                out.borrow_ptr(|out_ptr| (
+                    CALL_C[() fix_mpq_div(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
+                ))
+            ))
+        ));
+        out
+    );
+
+}
+
+impl MPQ : ToString {
+
+    to_string = |q| (
+        q.get_num.to_string + "/" + q.get_den.to_string
+    );
+
+}
