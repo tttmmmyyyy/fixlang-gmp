@@ -75,6 +75,21 @@ namespace MPQ {
         MPQ::zero.set_I64(numer, denom)
     );
 
+    from_MPZ : MPZ -> MPZ -> MPQ;
+    from_MPZ = |numer, denom| (
+        let res = MPQ::_make();
+        numer.borrow_ptr(|num_ptr| (
+            denom.borrow_ptr(|den_ptr| (
+                res.borrow_ptr(|res_ptr| (
+                    let _ = CALL_C[() fix_mpq_set_num(Ptr, Ptr), res_ptr, num_ptr];
+                    let _ = CALL_C[() fix_mpq_set_den(Ptr, Ptr), res_ptr, den_ptr];
+                    let _ = CALL_C[() fix_mpq_canonicalize(Ptr), res_ptr];
+                    res
+                ))
+            ))
+        ))
+    );
+
     // Get numerator, denominator
 
     get_num : MPQ -> MPZ;

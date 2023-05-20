@@ -53,6 +53,9 @@ namespace MPZ {
     zero : MPZ;
     zero = MPZ::_make();
 
+    one : MPZ;
+    one = from_I64(1);
+
     // Assining strings
 
     set_decimal : String -> MPZ -> Option MPZ;
@@ -91,6 +94,192 @@ namespace MPZ {
 
     from_U64 : U64 -> MPZ;
     from_U64 = |val| MPZ::zero.set_U64(val);
+
+    // Divisions
+
+    is_divisible_by : MPZ -> MPZ -> Bool;
+    is_divisible_by = |d, n| (
+        d.borrow_ptr(|d_ptr| (
+            n.borrow_ptr(|n_ptr| (
+                CALL_C[I64 fix_mpz_divisible_p(Ptr, Ptr), n_ptr, d_ptr] != 0
+            ))
+        ))
+    );
+
+    divide_exactly_by : MPZ -> MPZ -> MPZ;
+    divide_exactly_by = |d, n| (
+        let out = (
+            let (d_is_unique, d) = d._is_unique_data;
+            if d_is_unique { d };
+            let (n_is_unique, n) = n._is_unique_data;
+            if n_is_unique { n };
+            MPZ::_make()
+        );
+        let _ = d.borrow_ptr(|d_ptr| (
+            n.borrow_ptr(|n_ptr| (
+                out.borrow_ptr(|out_ptr| (
+                    CALL_C[() fix_mpz_divexact(Ptr, Ptr, Ptr), out_ptr, n_ptr, d_ptr]
+                ))
+            ))
+        ));
+        out
+    );
+
+    // Arithmetics
+
+    get_gcd : MPZ -> MPZ -> MPZ;
+    get_gcd = |lhs, rhs| (
+        let out = (
+            let (lhs_is_unique, lhs) = lhs._is_unique_data;
+            if lhs_is_unique { lhs };
+            let (rhs_is_unique, rhs) = rhs._is_unique_data;
+            if rhs_is_unique { rhs };
+            MPZ::_make()
+        );
+        lhs.borrow_ptr(|lhs_ptr| (
+            rhs.borrow_ptr(|rhs_ptr| (
+                out.borrow_ptr(|out_ptr| (
+                    let _ = CALL_C[() fix_mpz_gcd(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr];
+                    out
+                ))
+            ))
+        ))
+    );
+
+    get_binomial : I64 -> MPZ -> MPZ;
+    get_binomial = |k, n| (
+        if k < 0 { MPZ::zero };
+        let out = (
+            let (n_is_unique, n) = n._is_unique_data;
+            if n_is_unique { n };
+            MPZ::_make()
+        );
+        n.borrow_ptr(|n_ptr| (
+            out.borrow_ptr(|out_ptr| (
+                let _ = CALL_C[() fix_mpz_bin_ui(Ptr, Ptr, I64), out_ptr, n_ptr, k];
+                out
+            ))
+        ))
+    );
+
+    get_power : I64 -> MPZ -> MPZ;
+    get_power = |exp, n| (
+        let _ = assert("In get_pow, exp should be non-negative.", exp >= 0);
+        let out = (
+            let (n_is_unique, n) = n._is_unique_data;
+            if n_is_unique { n };
+            MPZ::_make()
+        );
+        n.borrow_ptr(|n_ptr| (
+            out.borrow_ptr(|out_ptr| (
+                let _ = CALL_C[() fix_mpz_pow_ui(Ptr, Ptr, I64), out_ptr, n_ptr, exp];
+                out
+            ))
+        ))
+    );
+
+}
+
+
+impl MPZ : Add {
+
+    add = |lhs, rhs| (
+        let out = (
+            let (lhs_is_unique, lhs) = lhs._is_unique_data;
+            if lhs_is_unique { lhs };
+            let (rhs_is_unique, rhs) = rhs._is_unique_data;
+            if rhs_is_unique { rhs };
+            MPZ::_make()
+        );
+        let _ = lhs.borrow_ptr(|lhs_ptr| (
+            rhs.borrow_ptr(|rhs_ptr| (
+                out.borrow_ptr(|out_ptr| (
+                    CALL_C[() fix_mpz_add(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
+                ))
+            ))
+        ));
+        out
+    );
+
+}
+
+impl MPZ : Sub {
+
+    sub = |lhs, rhs| (
+        let out = (
+            let (lhs_is_unique, lhs) = lhs._is_unique_data;
+            if lhs_is_unique { lhs };
+            let (rhs_is_unique, rhs) = rhs._is_unique_data;
+            if rhs_is_unique { rhs };
+            MPZ::_make()
+        );
+        let _ = lhs.borrow_ptr(|lhs_ptr| (
+            rhs.borrow_ptr(|rhs_ptr| (
+                out.borrow_ptr(|out_ptr| (
+                    CALL_C[() fix_mpz_sub(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
+                ))
+            ))
+        ));
+        out
+    );
+
+}
+
+impl MPZ : Mul {
+
+    mul = |lhs, rhs| (
+        let out = (
+            let (lhs_is_unique, lhs) = lhs._is_unique_data;
+            if lhs_is_unique { lhs };
+            let (rhs_is_unique, rhs) = rhs._is_unique_data;
+            if rhs_is_unique { rhs };
+            MPZ::_make()
+        );
+        let _ = lhs.borrow_ptr(|lhs_ptr| (
+            rhs.borrow_ptr(|rhs_ptr| (
+                out.borrow_ptr(|out_ptr| (
+                    CALL_C[() fix_mpz_mul(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
+                ))
+            ))
+        ));
+        out
+    );
+
+}
+
+impl MPZ : Eq {
+
+    eq = |lhs, rhs| (
+        lhs.borrow_ptr(|lhs_ptr| (
+            rhs.borrow_ptr(|rhs_ptr| (
+                CALL_C[I64 fix_mpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] == 0
+            ))
+        ))
+    );
+
+}
+
+impl MPZ : LessThan {
+
+    less_than = |lhs, rhs| (
+        lhs.borrow_ptr(|lhs_ptr| (
+            rhs.borrow_ptr(|rhs_ptr| (
+                CALL_C[I64 fix_mpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] < 0
+            ))
+        ))
+    );
+
+}
+
+impl MPZ : LessThanOrEq {
+
+    less_than_or_eq = |lhs, rhs| (
+        lhs.borrow_ptr(|lhs_ptr| (
+            rhs.borrow_ptr(|rhs_ptr| (
+                CALL_C[I64 fix_mpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] <= 0
+            ))
+        ))
+    );
 
 }
 

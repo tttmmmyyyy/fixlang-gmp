@@ -5,7 +5,7 @@
 
 using namespace std;
 
-// MPZ
+///// MPZ /////
 
 // Init and clear
 
@@ -48,7 +48,49 @@ extern "C" void fix_mpz_set_ui(mpz_t* num, uint64_t val) {
     mpz_set_ui(*num, val);
 }
 
-// MPQ
+// Operations
+
+extern "C" void fix_mpz_add(mpz_t* res, mpz_t* lhs, mpz_t* rhs) {
+    mpz_add(*res, *lhs, *rhs);
+}
+
+extern "C" void fix_mpz_sub(mpz_t* res, mpz_t* lhs, mpz_t* rhs) {
+    mpz_sub(*res, *lhs, *rhs);
+}
+
+extern "C" void fix_mpz_mul(mpz_t* res, mpz_t* lhs, mpz_t* rhs) {
+    mpz_mul(*res, *lhs, *rhs);
+}
+
+extern "C" int64_t fix_mpz_divisible_p(mpz_t* n, mpz_t* d) {
+    return (int64_t)mpz_divisible_p(*n, *d);
+}
+
+extern "C" void fix_mpz_divexact(mpz_t* res, mpz_t* n, mpz_t* d) {
+    mpz_divexact(*res, *n, *d);
+}
+
+// Arithmetics
+
+extern "C" void fix_mpz_gcd(mpz_t* res, mpz_t* lhs, mpz_t* rhs) {
+    mpz_gcd(*res, *lhs, *rhs);
+}
+
+extern "C" void fix_mpz_bin_ui(mpz_t* res, mpz_t* n, int64_t k) {
+    mpz_bin_ui(*res, *n, k);
+}
+
+extern "C" void fix_mpz_pow_ui(mpz_t* res, mpz_t* base, int64_t exp) {
+    mpz_pow_ui(*res, *base, exp);
+}
+
+// Comparisons
+
+extern "C" int64_t fix_mpz_cmp(mpz_t* lhs, mpz_t* rhs) {
+    return (int64_t)mpz_cmp(*lhs, *rhs);
+}
+
+///// MPQ /////
 
 // Init and clear
 
@@ -79,7 +121,7 @@ extern "C" void fix_mpq_set_si(mpq_t* num, int64_t numer, uint64_t denom) {
     mpq_set_si(*num, numer, denom);
 }
 
-// Get numerator / denominator
+// Get numerator, denominator
 
 extern "C" void fix_mpq_get_num(mpz_t* num, mpq_t* q) {
     mpq_get_num(*num, *q);
@@ -88,6 +130,16 @@ extern "C" void fix_mpq_get_num(mpz_t* num, mpq_t* q) {
 extern "C" void fix_mpq_get_den(mpz_t* den, mpq_t* q) {
     mpq_get_den(*den, *q);
 }
+
+// Set numerator, denominator
+
+extern "C" void fix_mpq_set_num(mpq_t* q, mpz_t* n) {
+    mpq_set_num(*q, *n);
+} 
+
+extern "C" void fix_mpq_set_den(mpq_t* q, mpz_t* d) {
+    mpq_set_den(*q, *d);
+} 
 
 // Operations
 
