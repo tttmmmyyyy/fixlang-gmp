@@ -62,7 +62,7 @@ namespace MPZ {
     set_decimal = |dec, num| (
         let num = num.make_zero_if_non_unique;
         num.borrow_ptr(|ptr| (
-            let suc = dec.call_with_c_str(|c_str| (
+            let suc = dec.borrow_c_str(|c_str| (
                 CALL_C[I64 fix_mpz_set_str(Ptr, Ptr, I64), ptr, c_str, 10]
             ));
             if suc == -1 { Option::none() };
@@ -140,6 +140,25 @@ namespace MPZ {
             rhs.borrow_ptr(|rhs_ptr| (
                 out.borrow_ptr(|out_ptr| (
                     let _ = CALL_C[() fix_mpz_gcd(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr];
+                    out
+                ))
+            ))
+        ))
+    );
+
+    get_lcm : MPZ -> MPZ -> MPZ;
+    get_lcm = |lhs, rhs| (
+        let out = (
+            let (lhs_is_unique, lhs) = lhs._is_unique_data;
+            if lhs_is_unique { lhs };
+            let (rhs_is_unique, rhs) = rhs._is_unique_data;
+            if rhs_is_unique { rhs };
+            MPZ::_make()
+        );
+        lhs.borrow_ptr(|lhs_ptr| (
+            rhs.borrow_ptr(|rhs_ptr| (
+                out.borrow_ptr(|out_ptr| (
+                    let _ = CALL_C[() fix_mpz_lcm(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr];
                     out
                 ))
             ))
@@ -290,7 +309,7 @@ impl MPZ : ToString {
             let len_base = CALL_C[I64 fix_mpz_sizeinbase(Ptr, I64), num_ptr, 10];
             let len = len_base + 2;
             let buf = Array::fill(len, 0_U8);
-            let _ = buf.call_with_ptr(|ptr| (
+            let _ = buf.borrow_ptr(|ptr| (
                 CALL_C[Ptr fix_mpz_get_str(Ptr, I64, Ptr), ptr, 10, num_ptr]
             ));
             String::from_c_str(buf)

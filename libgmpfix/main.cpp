@@ -76,6 +76,10 @@ extern "C" void fix_mpz_gcd(mpz_t* res, mpz_t* lhs, mpz_t* rhs) {
     mpz_gcd(*res, *lhs, *rhs);
 }
 
+extern "C" void fix_mpz_lcm(mpz_t* res, mpz_t* lhs, mpz_t* rhs) {
+    mpz_lcm(*res, *lhs, *rhs);
+}
+
 extern "C" void fix_mpz_bin_ui(mpz_t* res, mpz_t* n, int64_t k) {
     mpz_bin_ui(*res, *n, k);
 }
