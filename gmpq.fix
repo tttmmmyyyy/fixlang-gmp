@@ -1,5 +1,6 @@
 module GMPQ;
-import ./gmpz.fix;
+
+import GMPZ;
 
 type MPQ = unbox struct { _data : Destructor Ptr };
 
