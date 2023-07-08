@@ -1,5 +1,7 @@
 module GMPZ;
 
+import Hash;
+
 type MPZ = unbox struct { _data : Destructor Ptr };
 
 namespace MPZ {
