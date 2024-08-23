@@ -88,6 +88,11 @@ extern "C" void fix_mpz_pow_ui(mpz_t* res, mpz_t* base, int64_t exp) {
     mpz_pow_ui(*res, *base, exp);
 }
 
+// Bit operations
+extern "C" int32_t fix_mpz_tstbit(mpz_t* op, uint32_t bit_index) {
+    return (int32_t)mpz_tstbit(*op, (mp_bitcnt_t)bit_index);
+}
+
 // Comparisons
 
 extern "C" int64_t fix_mpz_cmp(mpz_t* lhs, mpz_t* rhs) {

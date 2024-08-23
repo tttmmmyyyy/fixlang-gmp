@@ -18,13 +18,13 @@ namespace MPZ {
 
     _is_unique_data : MPZ -> (Bool, MPZ);
     _is_unique_data = |num| (
-        let (is_unique, data) = num.@_data.is_unique;
+        let (is_unique, data) = num.@_data.unsafe_is_unique;
         (is_unique, MPZ { _data : data })
     );
 
     borrow_ptr : (Ptr -> a) -> MPZ -> a;
     borrow_ptr = |proc, num| (
-        let res = proc(num.@_data.@value);
+        let res = proc(num.@_data.@_value);
         let _ = num; // use num
         res
     );
@@ -199,6 +199,14 @@ namespace MPZ {
         ))
     );
 
+    // Bit operations
+    
+    get_bit : I64 -> MPZ -> I32;
+    get_bit = |bit, num| (
+        num.borrow_ptr(|num_ptr| (
+            CALL_C[I32 fix_mpz_tstbit(Ptr, I64), num_ptr, bit]
+        ))
+    );
 }
 
 

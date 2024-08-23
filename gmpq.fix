@@ -19,13 +19,13 @@ namespace MPQ {
 
     _is_unique_data : MPQ -> (Bool, MPQ);
     _is_unique_data = |num| (
-        let (is_unique, data) = num.@_data.is_unique;
+        let (is_unique, data) = num.@_data.unsafe_is_unique;
         (is_unique, MPQ { _data : data })
     );
 
     borrow_ptr : (Ptr -> a) -> MPQ -> a;
     borrow_ptr = |proc, num| (
-        let res = proc(num.@_data.@value);
+        let res = proc(num.@_data.@_value);
         let _ = num; // use num
         res
     );
