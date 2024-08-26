@@ -1,6 +1,5 @@
-# fix build test.fix --dynamic-link gmp --dynamic-link gmpfix && ./test
 cd libgmpfix
 sudo make install
 cd ..
-fix run test.fix --dynamic-link gmp --dynamic-link gmpfix
+fix run -f test.fix gmpz.fix gmpq.fix -d gmpfix
 echo "test end."

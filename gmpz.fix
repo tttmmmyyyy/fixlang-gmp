@@ -322,7 +322,7 @@ impl MPZ : ToString {
             let _ = buf.borrow_ptr(|ptr| (
                 CALL_C[Ptr fix_mpz_get_str(Ptr, I64, Ptr), ptr, 10, num_ptr]
             ));
-            String::from_c_str(buf)
+            String::_unsafe_from_c_str(buf)
         ))
     );
 
