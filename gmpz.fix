@@ -1,6 +1,7 @@
 module GMPZ;
 
 import Hash;
+import Debug;
 
 type MPZ = unbox struct { _data : Destructor Ptr };
 
@@ -9,9 +10,9 @@ namespace MPZ {
     // Private or internal functions 
     _make : () -> MPZ;
     _make = |_| (
-        let ptr = CALL_C[Ptr fix_mpz_init()];
+        let ptr = FFI_CALL[Ptr fix_mpz_init()];
         let dtor = |ptr| (
-            CALL_C[() fix_mpz_clear(Ptr), ptr]
+            FFI_CALL[() fix_mpz_clear(Ptr), ptr]
         );
         MPZ { _data : Destructor::make(ptr, dtor) }
     );
@@ -36,7 +37,7 @@ namespace MPZ {
         let dst = MPZ::_make();
         let _ = dst.borrow_ptr(|dst_ptr| (
             src.borrow_ptr(|src_ptr| (
-                CALL_C[() fix_mpz_set(Ptr, Ptr), dst_ptr, src_ptr]
+                FFI_CALL[() fix_mpz_set(Ptr, Ptr), dst_ptr, src_ptr]
             ))
         ));
         dst
@@ -65,7 +66,7 @@ namespace MPZ {
         let num = num.make_zero_if_non_unique;
         num.borrow_ptr(|ptr| (
             let suc = dec.borrow_c_str(|c_str| (
-                CALL_C[I64 fix_mpz_set_str(Ptr, Ptr, I64), ptr, c_str, 10]
+                FFI_CALL[I64 fix_mpz_set_str(Ptr, Ptr, I64), ptr, c_str, 10]
             ));
             if suc == -1 { Option::none() };
             Option::some $ num
@@ -80,7 +81,7 @@ namespace MPZ {
     set_I64 : I64 -> MPZ -> MPZ;
     set_I64 = |val, num| (
         let num = num.make_zero_if_non_unique;
-        let _ = num.borrow_ptr(|ptr| CALL_C[() fix_mpz_set_si(Ptr, I64), ptr, val]);
+        let _ = num.borrow_ptr(|ptr| FFI_CALL[() fix_mpz_set_si(Ptr, I64), ptr, val]);
         num
     );
 
@@ -90,7 +91,7 @@ namespace MPZ {
     set_U64 : U64 -> MPZ -> MPZ;
     set_U64 = |val, num| (
         let num = num.make_zero_if_non_unique;
-        let _ = num.borrow_ptr(|ptr| CALL_C[() fix_mpz_set_ui(Ptr, U64), ptr, val]);
+        let _ = num.borrow_ptr(|ptr| FFI_CALL[() fix_mpz_set_ui(Ptr, U64), ptr, val]);
         num
     );
 
@@ -103,7 +104,7 @@ namespace MPZ {
     is_divisible_by = |d, n| (
         d.borrow_ptr(|d_ptr| (
             n.borrow_ptr(|n_ptr| (
-                CALL_C[I64 fix_mpz_divisible_p(Ptr, Ptr), n_ptr, d_ptr] != 0
+                FFI_CALL[I64 fix_mpz_divisible_p(Ptr, Ptr), n_ptr, d_ptr] != 0
             ))
         ))
     );
@@ -120,7 +121,7 @@ namespace MPZ {
         let _ = d.borrow_ptr(|d_ptr| (
             n.borrow_ptr(|n_ptr| (
                 out.borrow_ptr(|out_ptr| (
-                    CALL_C[() fix_mpz_divexact(Ptr, Ptr, Ptr), out_ptr, n_ptr, d_ptr]
+                    FFI_CALL[() fix_mpz_divexact(Ptr, Ptr, Ptr), out_ptr, n_ptr, d_ptr]
                 ))
             ))
         ));
@@ -141,7 +142,7 @@ namespace MPZ {
         lhs.borrow_ptr(|lhs_ptr| (
             rhs.borrow_ptr(|rhs_ptr| (
                 out.borrow_ptr(|out_ptr| (
-                    let _ = CALL_C[() fix_mpz_gcd(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr];
+                    let _ = FFI_CALL[() fix_mpz_gcd(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr];
                     out
                 ))
             ))
@@ -160,7 +161,7 @@ namespace MPZ {
         lhs.borrow_ptr(|lhs_ptr| (
             rhs.borrow_ptr(|rhs_ptr| (
                 out.borrow_ptr(|out_ptr| (
-                    let _ = CALL_C[() fix_mpz_lcm(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr];
+                    let _ = FFI_CALL[() fix_mpz_lcm(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr];
                     out
                 ))
             ))
@@ -177,7 +178,7 @@ namespace MPZ {
         );
         n.borrow_ptr(|n_ptr| (
             out.borrow_ptr(|out_ptr| (
-                let _ = CALL_C[() fix_mpz_bin_ui(Ptr, Ptr, I64), out_ptr, n_ptr, k];
+                let _ = FFI_CALL[() fix_mpz_bin_ui(Ptr, Ptr, I64), out_ptr, n_ptr, k];
                 out
             ))
         ))
@@ -185,7 +186,7 @@ namespace MPZ {
 
     get_power : I64 -> MPZ -> MPZ;
     get_power = |exp, n| (
-        let _ = assert("In get_pow, exp should be non-negative.", exp >= 0);
+        let _ = assert(|_|"In get_pow, exp should be non-negative.", exp >= 0);
         let out = (
             let (n_is_unique, n) = n._is_unique_data;
             if n_is_unique { n };
@@ -193,7 +194,7 @@ namespace MPZ {
         );
         n.borrow_ptr(|n_ptr| (
             out.borrow_ptr(|out_ptr| (
-                let _ = CALL_C[() fix_mpz_pow_ui(Ptr, Ptr, I64), out_ptr, n_ptr, exp];
+                let _ = FFI_CALL[() fix_mpz_pow_ui(Ptr, Ptr, I64), out_ptr, n_ptr, exp];
                 out
             ))
         ))
@@ -204,7 +205,7 @@ namespace MPZ {
     get_bit : I64 -> MPZ -> I32;
     get_bit = |bit, num| (
         num.borrow_ptr(|num_ptr| (
-            CALL_C[I32 fix_mpz_tstbit(Ptr, I64), num_ptr, bit]
+            FFI_CALL[I32 fix_mpz_tstbit(Ptr, I64), num_ptr, bit]
         ))
     );
 }
@@ -223,7 +224,7 @@ impl MPZ : Add {
         let _ = lhs.borrow_ptr(|lhs_ptr| (
             rhs.borrow_ptr(|rhs_ptr| (
                 out.borrow_ptr(|out_ptr| (
-                    CALL_C[() fix_mpz_add(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
+                    FFI_CALL[() fix_mpz_add(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
                 ))
             ))
         ));
@@ -245,7 +246,7 @@ impl MPZ : Sub {
         let _ = lhs.borrow_ptr(|lhs_ptr| (
             rhs.borrow_ptr(|rhs_ptr| (
                 out.borrow_ptr(|out_ptr| (
-                    CALL_C[() fix_mpz_sub(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
+                    FFI_CALL[() fix_mpz_sub(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
                 ))
             ))
         ));
@@ -267,7 +268,7 @@ impl MPZ : Mul {
         let _ = lhs.borrow_ptr(|lhs_ptr| (
             rhs.borrow_ptr(|rhs_ptr| (
                 out.borrow_ptr(|out_ptr| (
-                    CALL_C[() fix_mpz_mul(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
+                    FFI_CALL[() fix_mpz_mul(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
                 ))
             ))
         ));
@@ -281,7 +282,7 @@ impl MPZ : Eq {
     eq = |lhs, rhs| (
         lhs.borrow_ptr(|lhs_ptr| (
             rhs.borrow_ptr(|rhs_ptr| (
-                CALL_C[I64 fix_mpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] == 0
+                FFI_CALL[I64 fix_mpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] == 0
             ))
         ))
     );
@@ -293,7 +294,7 @@ impl MPZ : LessThan {
     less_than = |lhs, rhs| (
         lhs.borrow_ptr(|lhs_ptr| (
             rhs.borrow_ptr(|rhs_ptr| (
-                CALL_C[I64 fix_mpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] < 0
+                FFI_CALL[I64 fix_mpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] < 0
             ))
         ))
     );
@@ -305,7 +306,7 @@ impl MPZ : LessThanOrEq {
     less_than_or_eq = |lhs, rhs| (
         lhs.borrow_ptr(|lhs_ptr| (
             rhs.borrow_ptr(|rhs_ptr| (
-                CALL_C[I64 fix_mpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] <= 0
+                FFI_CALL[I64 fix_mpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] <= 0
             ))
         ))
     );
@@ -316,11 +317,11 @@ impl MPZ : ToString {
 
     to_string = |num| (
         num.borrow_ptr(|num_ptr| (
-            let len_base = CALL_C[I64 fix_mpz_sizeinbase(Ptr, I64), num_ptr, 10];
+            let len_base = FFI_CALL[I64 fix_mpz_sizeinbase(Ptr, I64), num_ptr, 10];
             let len = len_base + 2;
             let buf = Array::fill(len, 0_U8);
             let _ = buf.borrow_ptr(|ptr| (
-                CALL_C[Ptr fix_mpz_get_str(Ptr, I64, Ptr), ptr, 10, num_ptr]
+                FFI_CALL[Ptr fix_mpz_get_str(Ptr, I64, Ptr), ptr, 10, num_ptr]
             ));
             String::_unsafe_from_c_str(buf)
         ))
