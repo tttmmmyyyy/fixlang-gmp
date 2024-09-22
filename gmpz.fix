@@ -1,4 +1,4 @@
-module GMPZ;
+module GMP.Z;
 
 import Hash;
 import Debug;

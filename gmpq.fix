@@ -1,6 +1,6 @@
-module GMPQ;
+module GMP.Q;
 
-import GMPZ;
+import GMP.Z;
 import Hash;
 
 type MPQ = unbox struct { _data : Destructor Ptr };

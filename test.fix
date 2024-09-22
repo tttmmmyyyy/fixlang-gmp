@@ -1,8 +1,8 @@
 module Main;
 
 import Debug;
-import GMPZ;
-import GMPQ;
+import GMP.Z;
+import GMP.Q;
 
 main : IO ();
 main = (
