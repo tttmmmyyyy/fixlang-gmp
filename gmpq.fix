@@ -10,9 +10,9 @@ namespace MPQ {
     // Private or internal functions 
     _make : () -> MPQ;
     _make = |_| (
-        let ptr = CALL_C[Ptr fix_mpq_init()];
+        let ptr = FFI_CALL[Ptr fix_mpq_init()];
         let dtor = |ptr| (
-            CALL_C[() fix_mpq_clear(Ptr), ptr]
+            FFI_CALL[() fix_mpq_clear(Ptr), ptr]
         );
         MPQ { _data : Destructor::make(ptr, dtor) }
     );
@@ -37,7 +37,7 @@ namespace MPQ {
         let dst = MPQ::_make();
         let _ = dst.borrow_ptr(|dst_ptr| (
             src.borrow_ptr(|src_ptr| (
-                CALL_C[() fix_mpq_set(Ptr, Ptr), dst_ptr, src_ptr]
+                FFI_CALL[() fix_mpq_set(Ptr, Ptr), dst_ptr, src_ptr]
             ))
         ));
         dst
@@ -65,8 +65,8 @@ namespace MPQ {
     set_I64 = |numer, denom, num| (
         let num = num.make_zero_if_non_unique;
         let _ = num.borrow_ptr(|ptr| (
-            let _ = CALL_C[() fix_mpq_set_si(Ptr, I64, I64), ptr, numer, denom];
-            CALL_C[() fix_mpq_canonicalize(Ptr), ptr]
+            let _ = FFI_CALL[() fix_mpq_set_si(Ptr, I64, I64), ptr, numer, denom];
+            FFI_CALL[() fix_mpq_canonicalize(Ptr), ptr]
         ));
         num
     );
@@ -83,9 +83,9 @@ namespace MPQ {
         numer.borrow_ptr(|num_ptr| (
             denom.borrow_ptr(|den_ptr| (
                 res.borrow_ptr(|res_ptr| (
-                    let _ = CALL_C[() fix_mpq_set_num(Ptr, Ptr), res_ptr, num_ptr];
-                    let _ = CALL_C[() fix_mpq_set_den(Ptr, Ptr), res_ptr, den_ptr];
-                    let _ = CALL_C[() fix_mpq_canonicalize(Ptr), res_ptr];
+                    let _ = FFI_CALL[() fix_mpq_set_num(Ptr, Ptr), res_ptr, num_ptr];
+                    let _ = FFI_CALL[() fix_mpq_set_den(Ptr, Ptr), res_ptr, den_ptr];
+                    let _ = FFI_CALL[() fix_mpq_canonicalize(Ptr), res_ptr];
                     res
                 ))
             ))
@@ -99,7 +99,7 @@ namespace MPQ {
         let num = MPZ::_make();
         let _ = num.borrow_ptr(|num_ptr| (
             q.borrow_ptr(|q_ptr| (
-                CALL_C[() fix_mpq_get_num(Ptr, Ptr), num_ptr, q_ptr]
+                FFI_CALL[() fix_mpq_get_num(Ptr, Ptr), num_ptr, q_ptr]
             ))
         ));
         num
@@ -110,7 +110,7 @@ namespace MPQ {
         let den = MPZ::_make();
         let _ = den.borrow_ptr(|den_ptr| (
             q.borrow_ptr(|q_ptr| (
-                CALL_C[() fix_mpq_get_den(Ptr, Ptr), den_ptr, q_ptr]
+                FFI_CALL[() fix_mpq_get_den(Ptr, Ptr), den_ptr, q_ptr]
             ))
         ));
         den
@@ -130,7 +130,7 @@ impl MPQ : Add {
         let _ = lhs.borrow_ptr(|lhs_ptr| (
             rhs.borrow_ptr(|rhs_ptr| (
                 out.borrow_ptr(|out_ptr| (
-                    CALL_C[() fix_mpq_add(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
+                    FFI_CALL[() fix_mpq_add(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
                 ))
             ))
         ));
@@ -152,7 +152,7 @@ impl MPQ : Sub {
         let _ = lhs.borrow_ptr(|lhs_ptr| (
             rhs.borrow_ptr(|rhs_ptr| (
                 out.borrow_ptr(|out_ptr| (
-                    CALL_C[() fix_mpq_sub(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
+                    FFI_CALL[() fix_mpq_sub(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
                 ))
             ))
         ));
@@ -174,7 +174,7 @@ impl MPQ : Mul {
         let _ = lhs.borrow_ptr(|lhs_ptr| (
             rhs.borrow_ptr(|rhs_ptr| (
                 out.borrow_ptr(|out_ptr| (
-                    CALL_C[() fix_mpq_mul(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
+                    FFI_CALL[() fix_mpq_mul(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
                 ))
             ))
         ));
@@ -196,7 +196,7 @@ impl MPQ : Div {
         let _ = lhs.borrow_ptr(|lhs_ptr| (
             rhs.borrow_ptr(|rhs_ptr| (
                 out.borrow_ptr(|out_ptr| (
-                    CALL_C[() fix_mpq_div(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
+                    FFI_CALL[() fix_mpq_div(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
                 ))
             ))
         ));
@@ -210,7 +210,7 @@ impl MPQ : Eq {
     eq = |lhs, rhs| (
         lhs.borrow_ptr(|lhs_ptr| (
             rhs.borrow_ptr(|rhs_ptr| (
-                CALL_C[I64 fix_mpq_equal(Ptr, Ptr), lhs_ptr, rhs_ptr] > 0
+                FFI_CALL[I64 fix_mpq_equal(Ptr, Ptr), lhs_ptr, rhs_ptr] > 0
             ))
         ))
     );
@@ -222,7 +222,7 @@ impl MPQ : LessThan {
     less_than = |lhs, rhs| (
         lhs.borrow_ptr(|lhs_ptr| (
             rhs.borrow_ptr(|rhs_ptr| (
-                CALL_C[I64 fix_mpq_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] < 0
+                FFI_CALL[I64 fix_mpq_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] < 0
             ))
         ))
     );
@@ -234,7 +234,7 @@ impl MPQ : LessThanOrEq {
     less_than_or_eq = |lhs, rhs| (
         lhs.borrow_ptr(|lhs_ptr| (
             rhs.borrow_ptr(|rhs_ptr| (
-                CALL_C[I64 fix_mpq_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] <= 0
+                FFI_CALL[I64 fix_mpq_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] <= 0
             ))
         ))
     );
