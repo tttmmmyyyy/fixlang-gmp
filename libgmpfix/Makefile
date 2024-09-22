@@ -10,5 +10,5 @@ clean :
 	rm -f *.o
 
 install : libgmpfix.so
+	@echo "Installing libgmpfix.so to: /usr/local/lib..."
 	cp libgmpfix.so /usr/local/lib
-	@echo "libgmpfix.so has been installed in: /usr/local/lib"

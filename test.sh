@@ -1,5 +1,3 @@
-pushd libgmpfix
-sudo make install
-popd
+./install.sh
 fix run -f test.fix
 echo "test end."
