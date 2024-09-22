@@ -8,5 +8,5 @@ dynamic_links = ["gmp"]
 static_links = ["gmpfix"]
 library_paths = ["."]
 preliminary_commands = [
-    ["make", "libgmpfix.a"]
+    ["make", "libgmpfix.a", "--quiet"]
 ]
