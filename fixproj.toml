@@ -1,0 +1,6 @@
+[general]
+name = "gmpfix"
+version = "0.1.0"
+
+[build]
+files = ["gmpz.fix", "gmpq.fix"]
