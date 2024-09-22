@@ -1,4 +1,7 @@
-all : libgmpfix.so
+all : libgmpfix.so libgmpfix.a
+
+libgmpfix.a : main.o
+	ar rcs libgmpfix.a main.o
 
 libgmpfix.so : main.o
 	g++ -std=c++11 -shared -o libgmpfix.so main.o -lgmp
