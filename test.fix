@@ -1,11 +1,10 @@
-module Main;
+module Test;
 
-import Debug;
 import GMP.Z;
 import GMP.Q;
 
-main : IO ();
-main = (
+test : IO ();
+test = (
     let num = MPZ::from_decimal("012345678990123456789").as_some;
     let _ = assert_eq(|_|"case 1", num.to_string, "12345678990123456789");
 

@@ -1,7 +1,6 @@
 module GMP.Z;
 
 import Hash;
-import Debug;
 
 type MPZ = unbox struct { _data : Destructor Ptr };
 
