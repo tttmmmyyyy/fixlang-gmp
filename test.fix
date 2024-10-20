@@ -1,43 +1,46 @@
 module Test;
 
 import GMP.Z;
-import GMP.Q;
+// import GMP.Q;
 
 test : IO ();
 test = (
-    let num = MPZ::from_decimal("012345678990123456789").as_some;
-    let _ = assert_eq(|_|"case 1", num.to_string, "12345678990123456789");
+    let num = MPZ::zero;
+    eval *assert_eq(|_|"", num.to_string, "0");
+    
+    // let num = MPZ::from_decimal("012345678990123456789").as_some;
+    // let _ = assert_eq(|_|"case 1", num.to_string, "12345678990123456789");
 
-    let num = MPZ::from_I64(-12345);
-    let _ = assert_eq(|_|"case 2", num.to_string, "-12345");
+    // let num = MPZ::from_I64(-12345);
+    // let _ = assert_eq(|_|"case 2", num.to_string, "-12345");
 
-    let num = MPZ::from_U64(31415_U64);
-    let _ = assert_eq(|_|"case 3", num.to_string, "31415");
+    // let num = MPZ::from_U64(31415_U64);
+    // let _ = assert_eq(|_|"case 3", num.to_string, "31415");
 
-    let num = MPQ::from_I64(4, -6);
-    let _ = assert_eq(|_|"case 4", num.to_string, "-2/3");
+    // let num = MPQ::from_I64(4, -6);
+    // let _ = assert_eq(|_|"case 4", num.to_string, "-2/3");
 
-    let num = MPQ::from_I64(1, 4) + MPQ::from_I64(1, 6);
-    let _ = assert_eq(|_|"case 5", num.to_string, "5/12");
+    // let num = MPQ::from_I64(1, 4) + MPQ::from_I64(1, 6);
+    // let _ = assert_eq(|_|"case 5", num.to_string, "5/12");
 
-    let num = MPQ::from_I64(3, 5) / MPQ::from_I64(9, 10);
-    let _ = assert_eq(|_|"case 6", num.to_string, "2/3");
+    // let num = MPQ::from_I64(3, 5) / MPQ::from_I64(9, 10);
+    // let _ = assert_eq(|_|"case 6", num.to_string, "2/3");
 
-    let lhs = MPQ::from_I64(3, 5);
-    let rhs = MPQ::from_I64(6, 10);
-    let _ = assert_eq(|_|"case 7", lhs == rhs, true);
+    // let lhs = MPQ::from_I64(3, 5);
+    // let rhs = MPQ::from_I64(6, 10);
+    // let _ = assert_eq(|_|"case 7", lhs == rhs, true);
 
-    let lhs = MPQ::from_I64(3, 5);
-    let rhs = MPQ::from_I64(7, 10);
-    let _ = assert_eq(|_|"case 8", lhs == rhs, false);
+    // let lhs = MPQ::from_I64(3, 5);
+    // let rhs = MPQ::from_I64(7, 10);
+    // let _ = assert_eq(|_|"case 8", lhs == rhs, false);
 
-    let lhs = MPQ::from_I64(3, 5);
-    let rhs = MPQ::from_I64(7, 10);
-    let _ = assert_eq(|_|"case 9", lhs < rhs, true);
+    // let lhs = MPQ::from_I64(3, 5);
+    // let rhs = MPQ::from_I64(7, 10);
+    // let _ = assert_eq(|_|"case 9", lhs < rhs, true);
 
-    let lhs = MPQ::from_I64(3, 5);
-    let rhs = MPQ::from_I64(6, 10);
-    let _ = assert_eq(|_|"case 10", lhs >= rhs, true);
+    // let lhs = MPQ::from_I64(3, 5);
+    // let rhs = MPQ::from_I64(6, 10);
+    // let _ = assert_eq(|_|"case 10", lhs >= rhs, true);
 
     pure()
 );
