@@ -10,8 +10,9 @@ namespace MPZ {
     _make : () -> MPZ;
     _make = |_| (
         let ptr = FFI_CALL[Ptr fix_mpz_init()];
-        let dtor = |ptr| (
-            FFI_CALL[() fix_mpz_clear(Ptr), ptr]
+        let dtor = |ptr| IO::from_runner $ |ios| (
+            let (ios, _) = FFI_CALL_IO[() fix_mpz_clear(Ptr), ptr, ios];
+            (ios, nullptr)
         );
         MPZ { _data : Destructor::make(ptr, dtor) }
     );

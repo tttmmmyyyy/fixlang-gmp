@@ -1,15 +1,13 @@
 [general]
 name = "gmp-fix"
-version = "0.1.1"
+version = "0.1.2"
 
 [build]
 files = ["gmpz.fix", "gmpq.fix"]
 dynamic_links = ["gmp"]
 static_links = ["gmpfix"]
 library_paths = ["."]
-preliminary_commands = [
-    ["make", "libgmpfix.a", "--quiet"]
-]
+preliminary_commands = [["make", "libgmpfix.a", "--quiet"]]
 
 [build.test]
 files = ["test.fix"]
