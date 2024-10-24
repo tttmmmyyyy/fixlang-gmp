@@ -82,7 +82,7 @@ namespace MPZ {
         dtor.act__value(|mpz_s| _swap_pair $ mpz_s._mutate(act))
     );
 
-    // en: Apply a binary operation of GMP (taking (out, lhs, rhs) as arguments) to two `MPZ` values.
+    // Apply a binary operation of GMP (taking (out, lhs, rhs) as arguments) to two `MPZ` values.
     _binary_op : ((Ptr, Ptr, Ptr) -> IO ()) -> MPZ -> MPZ -> MPZ;
     _binary_op = |act, lhs, rhs| (
         let (is_unique, lhs) = lhs.unsafe_is_unique;
