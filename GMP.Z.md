@@ -46,7 +46,7 @@ Retrieves the field `_0` from a value of `MPZ`.
 
 ### `_binary_op : ((Std::Ptr, Std::Ptr, Std::Ptr) -> Std::IO ()) -> GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ`
 
-en: Apply a binary operation of GMP (taking (out, lhs, rhs) as arguments) to two `MPZ` values.
+Apply a binary operation of GMP (taking (out, lhs, rhs) as arguments) to two `MPZ` values.
 
 ### `_borrow : (Std::Ptr -> a) -> GMP.Z::MPZ -> a`
 
