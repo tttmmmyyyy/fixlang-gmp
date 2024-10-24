@@ -46,6 +46,16 @@ test = (
     let num = MPZ::from_string("12345678901234567890123", 10).as_some;
     eval *assert(|_|"case to_U64 fail", num.to_U64.is_none);
 
+    // Test `to_F64`
+    let num = MPZ::from_I64(1234);
+    eval *assert_eq(|_|"case to_F64", num.to_F64, 1234.0);
+
+    // Test `to_F64_2exp`
+    let num = MPZ::from_string("5", 10).as_some;
+    let (mantissa, exponent) = num.to_F64_2exp;
+    eval *assert_eq(|_|"case to_F64_2exp mantissa", mantissa, 0.625);
+    eval *assert_eq(|_|"case to_F64_2exp exponent", exponent, 3);
+
     // Addition
     let x = MPZ::from_I64(1234);
     let y = MPZ::from_I64(5678);

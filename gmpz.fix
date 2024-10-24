@@ -190,6 +190,28 @@ namespace MPZ {
         ))
     );
 
+    // Converts a `MPZ` value to an F64 value.
+    //
+    // For details, see the document of `mpz_get_d` in GMP.
+    to_F64 : MPZ -> F64;
+    to_F64 = |num| (
+        num._borrow(|num_ptr| (
+            FFI_CALL[CDouble __gmpz_get_d(Ptr), num_ptr].to_F64
+        ))
+    );
+
+    // Converts a `MPZ` value to the pair (F64 value, exponent).
+    // 
+    // For details, see the document of `mpz_get_d_2exp` in GMP.
+    to_F64_2exp : MPZ -> (F64, I64);
+    to_F64_2exp = |num| (
+        let exp = Boxed { value : 0.to_CInt };
+        let (exp, man) = num._borrow(|num_ptr| exp.unsafe_mutate_boxed_data(|exp_ptr| IO::from_runner $ |ios|
+            FFI_CALL_IO[CDouble __gmpz_get_d_2exp(Ptr, Ptr), exp_ptr, num_ptr, ios]
+        ));
+        (man, exp.@value.to_I64)
+    );
+
     // // Divisions
 
     // is_divisible_by : MPZ -> MPZ -> Bool;
