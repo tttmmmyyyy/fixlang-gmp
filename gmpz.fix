@@ -38,13 +38,16 @@ namespace MPZStruct {
             // If the data is not unique, we need to copy the data before mutating it.
             mpz_s.unsafe_borrow_boxed_data_ptr(|old_ptr|
                 mpz_s.unsafe_mutate_boxed_data(|new_ptr|
-                    eval *MPZStruct::_constructor(new_ptr);
-                    eval *IO::from_runner(|ios| FFI_CALL_IO[() __gmpz_set(Ptr, Ptr), new_ptr, old_ptr, ios]);
+                    eval *IO::from_runner(|ios| FFI_CALL_IO[() __gmpz_init_set(Ptr, Ptr), new_ptr, old_ptr, ios]);
                     act(new_ptr)
                 )
             )
         }
     );
+
+    // Acts on the internal data of the MPZ, which initializes and sets the MPZ value, and returns the MPZ paired with the result of the action.
+    _init_by : (Ptr -> IO a) -> MPZStruct -> (MPZStruct, a);
+    _init_by = |act, mpz_s| mpz_s.unsafe_mutate_boxed_data(|ptr| act(ptr));
 }
 
 // Integer type with arbitrary precision.
@@ -58,8 +61,15 @@ namespace MPZ {
     // Initialize a new MPZ.
     _init : MPZ;
     _init = (
-        let (mpz_s, _) = MPZStruct::_null.unsafe_mutate_boxed_data(MPZStruct::_constructor);
+        let (mpz_s, _) = MPZStruct::_null._init_by(MPZStruct::_constructor);
         MPZ { _0 : Destructor::make(mpz_s, MPZStruct::_destructor) }
+    );
+
+    // Initialize a new MPZ using specified initialization action.
+    _init_by : (Ptr -> IO a) -> (MPZ, a);
+    _init_by = |act| (
+        let (mpz_s, a) = MPZStruct::_null._init_by(act);
+        (MPZ { _0 : Destructor::make(mpz_s, MPZStruct::_destructor) }, a)
     );
 
     // Performs an action with a borrowed pointer to the internal data.
@@ -101,7 +111,6 @@ namespace MPZ {
     // Sets the value of a MPZ to the given string in the given base.
     // 
     // If the string is not a valid representation of an integer in the given base, this function returns none.
-    // 
     // See document of `mpz_set_str` in GMP for details.
     set_string : String -> I64 -> MPZ -> Option MPZ;
     set_string = |dec, base, num| (
@@ -114,11 +123,26 @@ namespace MPZ {
         ))
     );
 
+    // Creates a `MPZ` value represented by a string in the given base.
+    // 
+    // If the string is not a valid representation of an integer in the given base, this function returns none.
+    // See document of `mpz_set_str` in GMP for details.
+    from_string : String -> I64 -> Option MPZ;
+    from_string = |dec, base| (
+        dec.borrow_c_str(|dec_c_str| (
+            let (num, res) = MPZ::_init_by(|ptr| IO::from_runner $ |ios| 
+                FFI_CALL_IO[CInt __gmpz_set_str(Ptr, Ptr, CInt), ptr, dec_c_str, base.to_CInt, ios]
+            );
+            if res == -1.to_CInt { Option::none() };
+            Option::some $ num
+        ))
+    );
+
     // Creates a `MPZ` value represented by a decimal string.
     // 
     // If the string is not a valid representation of an integer in the given base, this function returns none.
     from_decimal : String -> Option MPZ;
-    from_decimal = |dec| MPZ::zero.set_string(dec, 10);
+    from_decimal = |dec| MPZ::from_string(dec, 10);
 
     // Sets the value of a MPZ to the given I64 value.
     set_I64 : I64 -> MPZ -> MPZ;
@@ -128,7 +152,7 @@ namespace MPZ {
 
     // Creats a `MPZ` value represented by an I64 value.
     from_I64 : I64 -> MPZ;
-    from_I64 = |val| MPZ::zero.set_I64(val);
+    from_I64 = |val| MPZ::_init_by(|ptr| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_init_set_si(Ptr, CLong), ptr, val, ios]).@0;
    
     // Sets the value of a MPZ to the given U64 value.
     set_U64 : U64 -> MPZ -> MPZ;
@@ -138,7 +162,33 @@ namespace MPZ {
 
     // Creates a `MPZ` value represented by an U64 value.
     from_U64 : U64 -> MPZ;
-    from_U64 = |val| MPZ::zero.set_U64(val);
+    from_U64 = |val| MPZ::_init_by(|ptr| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_init_set_ui(Ptr, CUnsignedLong), ptr, val, ios]).@0;
+
+    // Converts a `MPZ` value to an I64 value.
+    // 
+    // If the value is too large to fit in an I64, this function returns none.
+    to_I64 : MPZ -> Option I64;
+    to_I64 = |num| (
+        num._borrow(|num_ptr| (
+            let fits = FFI_CALL[CInt __gmpz_fits_slong_p(Ptr), num_ptr];
+            if fits == 0.to_CInt { Option::none() };
+            let res = FFI_CALL[CLong __gmpz_get_si(Ptr), num_ptr];
+            Option::some $ res.to_I64
+        ))
+    );
+
+    // Converts a `MPZ` value to an U64 value.
+    //
+    // If the value is too large to fit in an U64, this function returns none.
+    to_U64 : MPZ -> Option U64;
+    to_U64 = |num| (
+        num._borrow(|num_ptr| (
+            let fits = FFI_CALL[CInt __gmpz_fits_ulong_p(Ptr), num_ptr];
+            if fits == 0.to_CInt { Option::none() };
+            let res = FFI_CALL[CUnsignedLong __gmpz_get_ui(Ptr), num_ptr];
+            Option::some $ res
+        ))
+    );
 
     // // Divisions
 
@@ -315,7 +365,6 @@ impl MPZ : Eq {
 // }
 
 impl MPZ : ToString {
-
     to_string = |num| (
         num._borrow(|num_ptr| (
             let len_base = FFI_CALL[CSizeT __gmpz_sizeinbase(Ptr, CInt), num_ptr, 10.to_CInt];
@@ -327,11 +376,8 @@ impl MPZ : ToString {
             String::_unsafe_from_c_str(buf)
         ))
     );
-
 }
 
 impl MPZ : Hash {
-
     hash = to_string >> hash;
-
 }

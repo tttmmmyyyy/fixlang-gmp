@@ -11,14 +11,40 @@ test = (
     let num = MPZ::from_decimal("012345678990123456789").as_some;
     eval *assert_eq(|_|"case 1", num.to_string, "12345678990123456789");
 
-    let num = MPZ::from_decimal("xya");
+    let num = MPZ::from_decimal("xyz");
     eval *assert(|_|"case 1.5", num.is_none);
+
+    // Updating shared data
+    let num1 = MPZ::from_I64(2);
+    let num2 = num1.set_string("7F", 16).as_some;
+    let num3 = num1 * num2;
+    eval *assert_eq(|_|"case 1.6", num3.to_string, "254");
 
     let num = MPZ::from_I64(-12345);
     eval *assert_eq(|_|"case 2", num.to_string, "-12345");
 
+    let num = num.set_I64(54321);
+    eval *assert_eq(|_|"case 2.1", num.to_string, "54321");
+
     let num = MPZ::from_U64(31415_U64);
     eval *assert_eq(|_|"case 3", num.to_string, "31415");
+
+    let num = num.set_U64(27182_U64);
+    eval *assert_eq(|_|"case 3.1", num.to_string, "27182");
+
+    // Test `to_I64`
+    let num = MPZ::from_I64(1234);
+    eval *assert_eq(|_|"case to_I64 success", num.to_I64.as_some, 1234);
+
+    let num = MPZ::from_string("12345678901234567890123", 10).as_some;
+    eval *assert(|_|"case to_I64 fail", num.to_I64.is_none);
+
+    // Test `to_U64`
+    let num = MPZ::from_U64(1234_U64);
+    eval *assert_eq(|_|"case to_U64 success", num.to_U64.as_some, 1234_U64);
+
+    let num = MPZ::from_string("12345678901234567890123", 10).as_some;
+    eval *assert(|_|"case to_U64 fail", num.to_U64.is_none);
 
     // Addition
     let x = MPZ::from_I64(1234);
