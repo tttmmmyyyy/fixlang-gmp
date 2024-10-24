@@ -11,11 +11,66 @@ test = (
     let num = MPZ::from_decimal("012345678990123456789").as_some;
     eval *assert_eq(|_|"case 1", num.to_string, "12345678990123456789");
 
+    let num = MPZ::from_decimal("xya");
+    eval *assert(|_|"case 1.5", num.is_none);
+
     let num = MPZ::from_I64(-12345);
     eval *assert_eq(|_|"case 2", num.to_string, "-12345");
 
-    // let num = MPZ::from_U64(31415_U64);
-    // let _ = assert_eq(|_|"case 3", num.to_string, "31415");
+    let num = MPZ::from_U64(31415_U64);
+    eval *assert_eq(|_|"case 3", num.to_string, "31415");
+
+    // Addition
+    let x = MPZ::from_I64(1234);
+    let y = MPZ::from_I64(5678);
+    let z = x + y;
+    eval *assert_eq(|_|"case 4", z.to_string, "6912");
+
+    // Subtraction (both unique)
+    let x = MPZ::from_I64(1234);
+    let y = MPZ::from_I64(5678);
+    let z = x - y;
+    eval *assert_eq(|_|"case 5", z.to_string, "-4444");
+
+    // Subtraction (lhs shared)
+    let x = MPZ::from_I64(1234);
+    let y = MPZ::from_I64(5678);
+    let z = x - y;
+    eval *assert_eq(|_|"case 5.1", z.to_string, "-4444");
+    let z = z - x;
+    eval *assert_eq(|_|"case 5.1.0", z.to_string, "-5678");
+
+    // Subtraction (rhs shared)
+    let x = MPZ::from_I64(1234);
+    let y = MPZ::from_I64(5678);
+    let z = x - y;
+    eval *assert_eq(|_|"case 5.2", z.to_string, "-4444");
+    let z = z + y;
+    eval *assert_eq(|_|"case 5.2.0", z.to_string, "1234");
+
+    // Subtraction (both shared)
+    let x = MPZ::from_I64(1234);
+    let y = MPZ::from_I64(5678);
+    let z = x - y;
+    eval *assert_eq(|_|"case 5.3", z.to_string, "-4444");
+    let z = z - x + y;
+    eval *assert_eq(|_|"case 5.3.0", z.to_string, "0");
+
+    // Multiplication
+    let x = MPZ::from_I64(1234);
+    let y = MPZ::from_I64(5678);
+    let z = x * y;
+    eval *assert_eq(|_|"case 6", z.to_string, "7006652");
+
+    // Comparison
+    let x = MPZ::from_I64(1234);
+    let y = MPZ::from_I64(5678);
+    eval *assert(|_|"case 7", x != y);
+
+    let x = MPZ::from_I64(1234);
+    let y = MPZ::from_I64(5678);
+    let z = MPZ::from_I64(1234 * 5678);
+    eval *assert(|_|"case 8", x * y == z);
 
     // let num = MPQ::from_I64(4, -6);
     // let _ = assert_eq(|_|"case 4", num.to_string, "-2/3");

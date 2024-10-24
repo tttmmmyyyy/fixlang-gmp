@@ -17,13 +17,33 @@ namespace MPZStruct {
         _mp_d : nullptr
     };
 
+    // Calls `mpz_init`.
     _constructor : Ptr -> IO ();
     _constructor = |ptr| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_init(Ptr), ptr, ios];
 
+    // Calls `mpz_clear`.
     _destructor : MPZStruct -> IO MPZStruct;
     _destructor = |mpz_s| (
         let (mpz_s, _) = *mpz_s.unsafe_mutate_boxed_data_io(|ptr| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_clear(Ptr), ptr, ios]);
         pure $ mpz_s
+    );
+
+    // Acts on the internal data of the MPZ, which may mutate the MPZ value, and returns the mutated MPZ paired with the result of the action.
+    _mutate : (Ptr -> IO a) -> MPZStruct -> (MPZStruct, a);
+    _mutate = |act, mpz_s| (
+        let (is_unique, mpz_s) = mpz_s.unsafe_is_unique;
+        if is_unique {
+            mpz_s.unsafe_mutate_boxed_data(|ptr| act(ptr))
+        } else {
+            // If the data is not unique, we need to copy the data before mutating it.
+            mpz_s.unsafe_borrow_boxed_data_ptr(|old_ptr|
+                mpz_s.unsafe_mutate_boxed_data(|new_ptr|
+                    eval *MPZStruct::_constructor(new_ptr);
+                    eval *IO::from_runner(|ios| FFI_CALL_IO[() __gmpz_set(Ptr, Ptr), new_ptr, old_ptr, ios]);
+                    act(new_ptr)
+                )
+            )
+        }
     );
 }
 
@@ -31,6 +51,9 @@ namespace MPZStruct {
 type MPZ = unbox struct { _0 : Destructor MPZStruct };
 
 namespace MPZ {
+    // Swap the elements of a pair.
+    _swap_pair : (a, b) -> (b, a);
+    _swap_pair = |(a, b)| (b, a);
 
     // Initialize a new MPZ.
     _init : MPZ;
@@ -43,36 +66,39 @@ namespace MPZ {
     _borrow : (Ptr -> a) -> MPZ -> a;
     _borrow = |act, num| num.@_0.borrow(|mpz_s| act(mpz_s._unsafe_get_boxed_data_ptr));
 
-    // Swap the elements of a pair.
-    _swap_pair : (a, b) -> (b, a);
-    _swap_pair = |(a, b)| (b, a);
-
-    _is_unique : MPZ -> (Bool, MPZ);
-    _is_unique = |num| (
-        let (is_unique, dtor) = num.@_0.unsafe_is_unique;
-        (is_unique, MPZ { _0 : dtor })
-    );
-
-    _force_unique : MPZ -> MPZ;
-    _force_unique = |num| (
-        let (is_unique, num) = num._is_unique;
-        if is_unique { num };
-        let (mpz_s, dtor) = dtor.unsafe_make_unique;
-        MPZ { _0 : Destructor::make(mpz_s, dtor) }
-    );
-
     // Acts on the internal data of the MPZ, which may mutate the MPZ value, and returns the mutated MPZ paired with the result of the action.
     _mutate : (Ptr -> IO a) -> MPZ -> (MPZ, a);
     _mutate = |act, num| _swap_pair $ num.act__0(|dtor|
-        let (is_unique, dtor) = dtor.unsafe_is_unique;
-        dtor.act__value(|mpz_s| _swap_pair $ mpz_s.unsafe_mutate_boxed_data(act))
+        dtor.act__value(|mpz_s| _swap_pair $ mpz_s._mutate(act))
+    );
+
+    // en: Apply a binary operation of GMP (taking (out, lhs, rhs) as arguments) to two `MPZ` values.
+    _binary_op : ((Ptr, Ptr, Ptr) -> IO ()) -> MPZ -> MPZ -> MPZ;
+    _binary_op = |act, lhs, rhs| (
+        let (is_unique, lhs) = lhs.unsafe_is_unique;
+        if is_unique { 
+            rhs._borrow(|rhs_ptr|
+                lhs._mutate(|lhs_ptr| act((lhs_ptr, lhs_ptr, rhs_ptr))).@0
+            )
+        };
+        let (is_uqniue, rhs) = rhs.unsafe_is_unique;
+        if is_unique { 
+            lhs._borrow(|lhs_ptr|
+                rhs._mutate(|rhs_ptr| act((rhs_ptr, lhs_ptr, rhs_ptr))).@0
+            )
+        };
+        lhs._borrow(|lhs_ptr|
+            rhs._borrow(|rhs_ptr|
+                MPZ::_init._mutate(|out_ptr| act((out_ptr, lhs_ptr, rhs_ptr))).@0
+            )
+        )
     );
 
     // The zero value.
     zero : MPZ;
     zero = MPZ::_init;
 
-    // Sets the value of the MPZ to the given string in the given base.
+    // Sets the value of a MPZ to the given string in the given base.
     // 
     // If the string is not a valid representation of an integer in the given base, this function returns none.
     // 
@@ -88,31 +114,31 @@ namespace MPZ {
         ))
     );
 
-    // Returns the integer represented by the decimal string `str`.
+    // Creates a `MPZ` value represented by a decimal string.
     // 
     // If the string is not a valid representation of an integer in the given base, this function returns none.
     from_decimal : String -> Option MPZ;
     from_decimal = |dec| MPZ::zero.set_string(dec, 10);
 
-    // Sets the value of the MPZ to the given I64.
+    // Sets the value of a MPZ to the given I64 value.
     set_I64 : I64 -> MPZ -> MPZ;
     set_I64 = |val, num| (
         num._mutate(|ptr| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_set_si(Ptr, CLong), ptr, val, ios]).@0
     );
 
-    // Returns the integer represented by the I64 `val`.
+    // Creats a `MPZ` value represented by an I64 value.
     from_I64 : I64 -> MPZ;
     from_I64 = |val| MPZ::zero.set_I64(val);
+   
+    // Sets the value of a MPZ to the given U64 value.
+    set_U64 : U64 -> MPZ -> MPZ;
+    set_U64 = |val, num| (
+        num._mutate(|ptr| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_set_ui(Ptr, CUnsignedLong), ptr, val, ios]).@0
+    );
 
-    // set_U64 : U64 -> MPZ -> MPZ;
-    // set_U64 = |val, num| (
-    //     let num = num.make_zero_if_non_unique;
-    //     let _ = num.borrow_ptr(|ptr| FFI_CALL[() fix_mpz_set_ui(Ptr, U64), ptr, val]);
-    //     num
-    // );
-
-    // from_U64 : U64 -> MPZ;
-    // from_U64 = |val| MPZ::zero.set_U64(val);
+    // Creates a `MPZ` value represented by an U64 value.
+    from_U64 : U64 -> MPZ;
+    from_U64 = |val| MPZ::zero.set_U64(val);
 
     // // Divisions
 
@@ -227,83 +253,42 @@ namespace MPZ {
 }
 
 
-// impl MPZ : Add {
+impl MPZ : Add {
+    add = |lhs, rhs| (
+        MPZ::_binary_op(
+            |(out_ptr, lhs_ptr, rhs_ptr)| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_add(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr, ios],
+            lhs, rhs
+        )
+    );
+}
 
-//     add = |lhs, rhs| (
-//         let out = (
-//             let (lhs_is_unique, lhs) = lhs._is_unique_data;
-//             if lhs_is_unique { lhs };
-//             let (rhs_is_unique, rhs) = rhs._is_unique_data;
-//             if rhs_is_unique { rhs };
-//             MPZ::_make()
-//         );
-//         let _ = lhs.borrow_ptr(|lhs_ptr| (
-//             rhs.borrow_ptr(|rhs_ptr| (
-//                 out.borrow_ptr(|out_ptr| (
-//                     FFI_CALL[() fix_mpz_add(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
-//                 ))
-//             ))
-//         ));
-//         out
-//     );
+impl MPZ : Sub {
+    sub = |lhs, rhs| (
+        MPZ::_binary_op(
+            |(out_ptr, lhs_ptr, rhs_ptr)| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_sub(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr, ios],
+            lhs, rhs
+        )
+    );
+}
 
-// }
+impl MPZ : Mul {
+    mul = |lhs, rhs| (
+        MPZ::_binary_op(
+            |(out_ptr, lhs_ptr, rhs_ptr)| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_mul(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr, ios],
+            lhs, rhs
+        )
+    );
+}
 
-// impl MPZ : Sub {
-
-//     sub = |lhs, rhs| (
-//         let out = (
-//             let (lhs_is_unique, lhs) = lhs._is_unique_data;
-//             if lhs_is_unique { lhs };
-//             let (rhs_is_unique, rhs) = rhs._is_unique_data;
-//             if rhs_is_unique { rhs };
-//             MPZ::_make()
-//         );
-//         let _ = lhs.borrow_ptr(|lhs_ptr| (
-//             rhs.borrow_ptr(|rhs_ptr| (
-//                 out.borrow_ptr(|out_ptr| (
-//                     FFI_CALL[() fix_mpz_sub(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
-//                 ))
-//             ))
-//         ));
-//         out
-//     );
-
-// }
-
-// impl MPZ : Mul {
-
-//     mul = |lhs, rhs| (
-//         let out = (
-//             let (lhs_is_unique, lhs) = lhs._is_unique_data;
-//             if lhs_is_unique { lhs };
-//             let (rhs_is_unique, rhs) = rhs._is_unique_data;
-//             if rhs_is_unique { rhs };
-//             MPZ::_make()
-//         );
-//         let _ = lhs.borrow_ptr(|lhs_ptr| (
-//             rhs.borrow_ptr(|rhs_ptr| (
-//                 out.borrow_ptr(|out_ptr| (
-//                     FFI_CALL[() fix_mpz_mul(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr]
-//                 ))
-//             ))
-//         ));
-//         out
-//     );
-
-// }
-
-// impl MPZ : Eq {
-
-//     eq = |lhs, rhs| (
-//         lhs.borrow_ptr(|lhs_ptr| (
-//             rhs.borrow_ptr(|rhs_ptr| (
-//                 FFI_CALL[I64 fix_mpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] == 0
-//             ))
-//         ))
-//     );
-
-// }
+impl MPZ : Eq {
+    eq = |lhs, rhs| (
+        lhs._borrow(|lhs_ptr| (
+            rhs._borrow(|rhs_ptr| (
+                FFI_CALL[I64 __gmpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] == 0
+            ))
+        ))
+    );
+}
 
 // impl MPZ : LessThan {
 
