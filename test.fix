@@ -98,6 +98,27 @@ test = (
     let z = x * y;
     +assert_eq(|_|"case 6", z.to_string, "7006652");
 
+    // Negation
+    let x = MPZ::from_I64(1234);
+    let y = -x;
+    +assert_eq(|_|"case 7", y.to_string, "-1234");
+
+    // Negation (shared)
+    let x = MPZ::from_I64(1234);
+    let y = -x;
+    let z = y + x;
+    +assert_eq(|_|"case 7.1", z.to_string, "0");
+
+    // Absolute value
+    let x = MPZ::from_I64(-1234);
+    let y = x.abs;
+    +assert_eq(|_|"case 8", y.to_string, "1234");
+
+    // Multiplication by a power of 2
+    let x = MPZ::from_I64(1234);
+    let y = x.mul_2exp(10_U64);
+    +assert_eq(|_|"case 9", y.to_string, "1263616");
+
     // Comparison
     let x = MPZ::from_I64(1234);
     let y = MPZ::from_I64(5678);
