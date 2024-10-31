@@ -38,7 +38,7 @@ namespace MPZStruct {
             // If the data is not unique, we need to copy the data before mutating it.
             mpz_s.unsafe_borrow_boxed_data_ptr(|old_ptr|
                 mpz_s.unsafe_mutate_boxed_data(|new_ptr|
-                    +IO::from_runner(|ios| FFI_CALL_IO[() __gmpz_init_set(Ptr, Ptr), new_ptr, old_ptr, ios]);
+                    IO::from_runner(|ios| FFI_CALL_IO[() __gmpz_init_set(Ptr, Ptr), new_ptr, old_ptr, ios]);;
                     act(new_ptr)
                 )
             )
