@@ -19,12 +19,12 @@ namespace MPZStruct {
 
     // Calls `mpz_init`.
     _constructor : Ptr -> IO ();
-    _constructor = |ptr| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_init(Ptr), ptr, ios];
+    _constructor = |ptr| IO::from_runner $ |ios| FFI_CALL_IOS[() __gmpz_init(Ptr), ptr, ios];
 
     // Calls `mpz_clear`.
     _destructor : MPZStruct -> IO MPZStruct;
     _destructor = |mpz_s| (
-        let (mpz_s, _) = *mpz_s.unsafe_mutate_boxed_data_io(|ptr| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_clear(Ptr), ptr, ios]);
+        let (mpz_s, _) = *mpz_s.unsafe_mutate_boxed_data_io(|ptr| IO::from_runner $ |ios| FFI_CALL_IOS[() __gmpz_clear(Ptr), ptr, ios]);
         pure $ mpz_s
     );
 
@@ -38,7 +38,7 @@ namespace MPZStruct {
             // If the data is not unique, we need to copy the data before mutating it.
             mpz_s.unsafe_borrow_boxed_data_ptr(|old_ptr|
                 mpz_s.unsafe_mutate_boxed_data(|new_ptr|
-                    IO::from_runner(|ios| FFI_CALL_IO[() __gmpz_init_set(Ptr, Ptr), new_ptr, old_ptr, ios]);;
+                    IO::from_runner(|ios| FFI_CALL_IOS[() __gmpz_init_set(Ptr, Ptr), new_ptr, old_ptr, ios]);;
                     act(new_ptr)
                 )
             )
@@ -129,7 +129,7 @@ namespace MPZ {
     set_string = |dec, base, num| (
         dec.borrow_c_str(|dec_c_str| (
             let (num, res) = num._mutate(|ptr| IO::from_runner $ |ios| 
-                FFI_CALL_IO[CInt __gmpz_set_str(Ptr, Ptr, CInt), ptr, dec_c_str, base.to_CInt, ios]
+                FFI_CALL_IOS[CInt __gmpz_set_str(Ptr, Ptr, CInt), ptr, dec_c_str, base.to_CInt, ios]
             );
             if res == -1.to_CInt { Option::none() };
             Option::some $ num
@@ -144,7 +144,7 @@ namespace MPZ {
     from_string = |dec, base| (
         dec.borrow_c_str(|dec_c_str| (
             let (num, res) = MPZ::_init_by(|ptr| IO::from_runner $ |ios| 
-                FFI_CALL_IO[CInt __gmpz_set_str(Ptr, Ptr, CInt), ptr, dec_c_str, base.to_CInt, ios]
+                FFI_CALL_IOS[CInt __gmpz_set_str(Ptr, Ptr, CInt), ptr, dec_c_str, base.to_CInt, ios]
             );
             if res == -1.to_CInt { Option::none() };
             Option::some $ num
@@ -160,22 +160,22 @@ namespace MPZ {
     // Sets the value of a MPZ to the given I64 value.
     set_I64 : I64 -> MPZ -> MPZ;
     set_I64 = |val, num| (
-        num._mutate(|ptr| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_set_si(Ptr, CLong), ptr, val, ios]).@0
+        num._mutate(|ptr| IO::from_runner $ |ios| FFI_CALL_IOS[() __gmpz_set_si(Ptr, CLong), ptr, val, ios]).@0
     );
 
     // Creats a `MPZ` value represented by an I64 value.
     from_I64 : I64 -> MPZ;
-    from_I64 = |val| MPZ::_init_by(|ptr| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_init_set_si(Ptr, CLong), ptr, val, ios]).@0;
+    from_I64 = |val| MPZ::_init_by(|ptr| IO::from_runner $ |ios| FFI_CALL_IOS[() __gmpz_init_set_si(Ptr, CLong), ptr, val, ios]).@0;
    
     // Sets the value of a MPZ to the given U64 value.
     set_U64 : U64 -> MPZ -> MPZ;
     set_U64 = |val, num| (
-        num._mutate(|ptr| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_set_ui(Ptr, CUnsignedLong), ptr, val, ios]).@0
+        num._mutate(|ptr| IO::from_runner $ |ios| FFI_CALL_IOS[() __gmpz_set_ui(Ptr, CUnsignedLong), ptr, val, ios]).@0
     );
 
     // Creates a `MPZ` value represented by an U64 value.
     from_U64 : U64 -> MPZ;
-    from_U64 = |val| MPZ::_init_by(|ptr| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_init_set_ui(Ptr, CUnsignedLong), ptr, val, ios]).@0;
+    from_U64 = |val| MPZ::_init_by(|ptr| IO::from_runner $ |ios| FFI_CALL_IOS[() __gmpz_init_set_ui(Ptr, CUnsignedLong), ptr, val, ios]).@0;
 
     // Converts a `MPZ` value to an I64 value.
     // 
@@ -220,19 +220,19 @@ namespace MPZ {
     to_F64_2exp = |num| (
         let exp = Boxed { value : 0.to_CInt };
         let (exp, man) = num._borrow(|num_ptr| exp.unsafe_mutate_boxed_data(|exp_ptr| IO::from_runner $ |ios|
-            FFI_CALL_IO[CDouble __gmpz_get_d_2exp(Ptr, Ptr), exp_ptr, num_ptr, ios]
+            FFI_CALL_IOS[CDouble __gmpz_get_d_2exp(Ptr, Ptr), exp_ptr, num_ptr, ios]
         ));
         (man, exp.@value.to_I64)
     );
 
     // Calculates the absolute value of a `MPZ` value.
     abs : MPZ -> MPZ;
-    abs = |num| num._unary_op(|(out_ptr, in_ptr)| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_abs(Ptr, Ptr), out_ptr, in_ptr, ios]);
+    abs = |num| num._unary_op(|(out_ptr, in_ptr)| IO::from_runner $ |ios| FFI_CALL_IOS[() __gmpz_abs(Ptr, Ptr), out_ptr, in_ptr, ios]);
 
     // Multiplication by a power of 2.
     mul_2exp : U64 -> MPZ -> MPZ;
     mul_2exp = |exp, num| (
-        num._mutate(|num_ptr| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_mul_2exp(Ptr, Ptr, CUnsignedLong), num_ptr, num_ptr, exp, ios]).@0
+        num._mutate(|num_ptr| IO::from_runner $ |ios| FFI_CALL_IOS[() __gmpz_mul_2exp(Ptr, Ptr, CUnsignedLong), num_ptr, num_ptr, exp, ios]).@0
     );
 
     // // Divisions
@@ -351,7 +351,7 @@ namespace MPZ {
 impl MPZ : Add {
     add = |lhs, rhs| (
         MPZ::_binary_op(
-            |(out_ptr, lhs_ptr, rhs_ptr)| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_add(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr, ios],
+            |(out_ptr, lhs_ptr, rhs_ptr)| IO::from_runner $ |ios| FFI_CALL_IOS[() __gmpz_add(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr, ios],
             lhs, rhs
         )
     );
@@ -360,7 +360,7 @@ impl MPZ : Add {
 impl MPZ : Sub {
     sub = |lhs, rhs| (
         MPZ::_binary_op(
-            |(out_ptr, lhs_ptr, rhs_ptr)| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_sub(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr, ios],
+            |(out_ptr, lhs_ptr, rhs_ptr)| IO::from_runner $ |ios| FFI_CALL_IOS[() __gmpz_sub(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr, ios],
             lhs, rhs
         )
     );
@@ -369,7 +369,7 @@ impl MPZ : Sub {
 impl MPZ : Mul {
     mul = |lhs, rhs| (
         MPZ::_binary_op(
-            |(out_ptr, lhs_ptr, rhs_ptr)| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_mul(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr, ios],
+            |(out_ptr, lhs_ptr, rhs_ptr)| IO::from_runner $ |ios| FFI_CALL_IOS[() __gmpz_mul(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr, ios],
             lhs, rhs
         )
     );
@@ -377,7 +377,7 @@ impl MPZ : Mul {
 
 impl MPZ : Neg {
     neg = |num| (
-        num._unary_op(|(out_ptr, in_ptr)| IO::from_runner $ |ios| FFI_CALL_IO[() __gmpz_neg(Ptr, Ptr), out_ptr, in_ptr, ios])
+        num._unary_op(|(out_ptr, in_ptr)| IO::from_runner $ |ios| FFI_CALL_IOS[() __gmpz_neg(Ptr, Ptr), out_ptr, in_ptr, ios])
     );
 }
 
@@ -422,7 +422,7 @@ impl MPZ : ToString {
             let len = len_base.to_I64 + 2;
             let buf = Array::fill(len, 0_U8);
             let (buf, _) = buf.unsafe_mutate_boxed_data(|buf_ptr| IO::from_runner $ |ios|
-                FFI_CALL_IO[Ptr __gmpz_get_str(Ptr, CInt, Ptr), buf_ptr, 10.to_CInt, num_ptr, ios]
+                FFI_CALL_IOS[Ptr __gmpz_get_str(Ptr, CInt, Ptr), buf_ptr, 10.to_CInt, num_ptr, ios]
             );
             String::_unsafe_from_c_str(buf)
         ))
