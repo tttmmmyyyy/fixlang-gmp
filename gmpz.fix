@@ -24,7 +24,7 @@ namespace MPZStruct {
     // Calls `mpz_clear`.
     _destructor : MPZStruct -> IO MPZStruct;
     _destructor = |mpz_s| (
-        let (mpz_s, _) = *mpz_s.unsafe_mutate_boxed_data_io(|ptr| IO::from_runner $ |ios| FFI_CALL_IOS[() __gmpz_clear(Ptr), ptr, ios]);
+        let (mpz_s, _) = *mpz_s.unsafe_mutate_boxed_io(|ptr| IO::from_runner $ |ios| FFI_CALL_IOS[() __gmpz_clear(Ptr), ptr, ios]);
         pure $ mpz_s
     );
 
@@ -33,11 +33,11 @@ namespace MPZStruct {
     _mutate = |act, mpz_s| (
         let (is_unique, mpz_s) = mpz_s.unsafe_is_unique;
         if is_unique {
-            mpz_s.unsafe_mutate_boxed_data(|ptr| act(ptr))
+            mpz_s.unsafe_mutate_boxed(|ptr| act(ptr))
         } else {
             // If the data is not unique, we need to copy the data before mutating it.
-            mpz_s.unsafe_borrow_boxed_data_ptr(|old_ptr|
-                mpz_s.unsafe_mutate_boxed_data(|new_ptr|
+            mpz_s.unsafe_borrow_boxed_ptr(|old_ptr|
+                mpz_s.unsafe_mutate_boxed(|new_ptr|
                     IO::from_runner(|ios| FFI_CALL_IOS[() __gmpz_init_set(Ptr, Ptr), new_ptr, old_ptr, ios]);;
                     act(new_ptr)
                 )
@@ -47,7 +47,7 @@ namespace MPZStruct {
 
     // Acts on the internal data of the MPZ, which initializes and sets the MPZ value, and returns the MPZ paired with the result of the action.
     _init_by : (Ptr -> IO a) -> MPZStruct -> (MPZStruct, a);
-    _init_by = |act, mpz_s| mpz_s.unsafe_mutate_boxed_data(|ptr| act(ptr));
+    _init_by = |act, mpz_s| mpz_s.unsafe_mutate_boxed(|ptr| act(ptr));
 }
 
 // Integer type with arbitrary precision.
@@ -74,7 +74,7 @@ namespace MPZ {
 
     // Performs an action with a borrowed pointer to the internal data.
     _borrow : (Ptr -> a) -> MPZ -> a;
-    _borrow = |act, num| num.@_0.borrow(|mpz_s| act(mpz_s._unsafe_get_boxed_data_ptr));
+    _borrow = |act, num| num.@_0.borrow(|mpz_s| act(mpz_s._unsafe_get_boxed_ptr));
 
     // Acts on the internal data of the MPZ, which may mutate the MPZ value, and returns the mutated MPZ paired with the result of the action.
     _mutate : (Ptr -> IO a) -> MPZ -> (MPZ, a);
@@ -219,7 +219,7 @@ namespace MPZ {
     to_F64_2exp : MPZ -> (F64, I64);
     to_F64_2exp = |num| (
         let exp = Boxed { value : 0.to_CInt };
-        let (exp, man) = num._borrow(|num_ptr| exp.unsafe_mutate_boxed_data(|exp_ptr| IO::from_runner $ |ios|
+        let (exp, man) = num._borrow(|num_ptr| exp.unsafe_mutate_boxed(|exp_ptr| IO::from_runner $ |ios|
             FFI_CALL_IOS[CDouble __gmpz_get_d_2exp(Ptr, Ptr), exp_ptr, num_ptr, ios]
         ));
         (man, exp.@value.to_I64)
@@ -421,7 +421,7 @@ impl MPZ : ToString {
             let len_base = FFI_CALL[CSizeT __gmpz_sizeinbase(Ptr, CInt), num_ptr, 10.to_CInt];
             let len = len_base.to_I64 + 2;
             let buf = Array::fill(len, 0_U8);
-            let (buf, _) = buf.unsafe_mutate_boxed_data(|buf_ptr| IO::from_runner $ |ios|
+            let (buf, _) = buf.unsafe_mutate_boxed(|buf_ptr| IO::from_runner $ |ios|
                 FFI_CALL_IOS[Ptr __gmpz_get_str(Ptr, CInt, Ptr), buf_ptr, 10.to_CInt, num_ptr, ios]
             );
             String::_unsafe_from_c_str(buf)
