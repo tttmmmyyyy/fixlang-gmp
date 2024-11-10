@@ -198,7 +198,7 @@ namespace MPZ {
     // For details, see the document of `mpz_get_d_2exp` in GMP.
     to_F64_2exp : MPZ -> (F64, I64);
     to_F64_2exp = |num| (
-        let exp = Boxed { value : 0.to_CInt };
+        let exp = Box::make(0.to_CInt);
         let (exp, man) = num._borrow(|num_ptr| exp.mutate_boxed(|exp_ptr| 
             FFI_CALL_IO[CDouble __gmpz_get_d_2exp(Ptr, Ptr), exp_ptr, num_ptr]
         ));
