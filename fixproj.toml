@@ -1,6 +1,6 @@
 [general]
 name = "gmp-fix"
-version = "0.2.9"
+version = "0.2.10"
 
 [build]
 files = ["gmpz.fix"]
