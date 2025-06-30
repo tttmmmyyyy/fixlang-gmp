@@ -1,6 +1,6 @@
 [general]
 name = "gmp-fix"
-version = "0.2.10"
+version = "0.3.0"
 
 [build]
 files = ["gmpz.fix"]
@@ -12,5 +12,5 @@ memcheck = true
 
 [[dependencies]]
 name = "hash"
-version = "0.1.0"
+version = "1.0.0"
 git = { url = "https://github.com/tttmmmyyyy/fixlang-hash.git" }
