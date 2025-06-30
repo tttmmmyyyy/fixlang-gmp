@@ -1,9 +1,9 @@
 [general]
 name = "gmp-fix"
-version = "0.3.1"
+version = "0.3.2"
 
 [build]
-files = ["gmpz.fix"]
+files = ["gmpz.fix", "gmpq.fix"]
 dynamic_links = ["gmp"]
 
 [build.test]

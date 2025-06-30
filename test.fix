@@ -1,10 +1,17 @@
 module Test;
 
 import GMP.Z;
-// import GMP.Q;
+import GMP.Q;
 
 test : IO ();
 test = (
+    test_mpq;;
+    test_mpz;;
+    pure()
+);
+
+test_mpz : IO ();
+test_mpz = (
     let num = MPZ::zero;
     assert_eq(|_|"case 0", num.to_string, "0");;
     
@@ -48,7 +55,7 @@ test = (
 
     // Test `to_F64`
     let num = MPZ::from_I64(1234);
-    assert_eq(|_|"case to_F64", num.to_F64, 1234.0);;
+    assert_eq(|_|"case to_F64", num.MPZ::to_F64, 1234.0);;
 
     // Test `to_F64_2exp`
     let num = MPZ::from_string("5", 10).as_some;
@@ -136,30 +143,59 @@ test = (
     assert(|_|"case 10", y.divide_exactly_by(x) == z);;
     assert(|_|"case 11", !z.is_divisible_by(x));;
 
-    // let num = MPQ::from_I64(4, -6);
-    // let _ = assert_eq(|_|"case 4", num.to_string, "-2/3");
+    pure()
+);
 
-    // let num = MPQ::from_I64(1, 4) + MPQ::from_I64(1, 6);
-    // let _ = assert_eq(|_|"case 5", num.to_string, "5/12");
+test_mpq : IO ();
+test_mpq = (
+    let x = MPQ::zero;
+    let n = x.get_num;
+    let d = x.get_den;
+    assert_eq(|_|"case 0", n.to_string, "0");;
+    assert_eq(|_|"case 0", d.to_string, "1");;
 
-    // let num = MPQ::from_I64(3, 5) / MPQ::from_I64(9, 10);
-    // let _ = assert_eq(|_|"case 6", num.to_string, "2/3");
+    let x = MPQ::from_MPZ(MPZ::from_I64(1234));
+    let y = MPQ::from_MPZ(MPZ::from_I64(5678));
+    let z = y / x;
+    let n = z.get_num;
+    let d = z.get_den;
+    assert_eq(|_|"case 1", n.to_string, "2839");;
+    assert_eq(|_|"case 1", d.to_string, "617");;
 
-    // let lhs = MPQ::from_I64(3, 5);
-    // let rhs = MPQ::from_I64(6, 10);
-    // let _ = assert_eq(|_|"case 7", lhs == rhs, true);
+    let x = MPQ::from_MPZ(MPZ::from_I64(1234));
+    let y = MPQ::from_MPZ(MPZ::from_I64(5678));
+    let z = y / x;
+    let f = z.MPQ::to_F64;
+    assert_eq(|_|"case 2", f.to_string_precision(9_U8), "4.601296596");;
 
-    // let lhs = MPQ::from_I64(3, 5);
-    // let rhs = MPQ::from_I64(7, 10);
-    // let _ = assert_eq(|_|"case 8", lhs == rhs, false);
+    let xn = MPQ::from_MPZ(MPZ::from_I64(12));
+    let xd = MPQ::from_MPZ(MPZ::from_I64(34));
+    let yn = MPQ::from_MPZ(MPZ::from_I64(56));
+    let yd = MPQ::from_MPZ(MPZ::from_I64(78));
+    let x = xn / xd;
+    let y = yn / yd;
 
-    // let lhs = MPQ::from_I64(3, 5);
-    // let rhs = MPQ::from_I64(7, 10);
-    // let _ = assert_eq(|_|"case 9", lhs < rhs, true);
+    let z = x + y;
+    assert_eq(|_|"case 3", z.get_num.to_string, "710");;
+    assert_eq(|_|"case 3", z.get_den.to_string, "663");;
 
-    // let lhs = MPQ::from_I64(3, 5);
-    // let rhs = MPQ::from_I64(6, 10);
-    // let _ = assert_eq(|_|"case 10", lhs >= rhs, true);
+    let z = x - y;
+    assert_eq(|_|"case 4", z.get_num.to_string, "-242");;
+    assert_eq(|_|"case 4", z.get_den.to_string, "663");;
+
+    let z = x * y;
+    assert_eq(|_|"case 5", z.get_num.to_string, "56");;
+    assert_eq(|_|"case 5", z.get_den.to_string, "221");;
+
+    let z = x / y;
+    assert_eq(|_|"case 6", z.get_num.to_string, "117");;
+    assert_eq(|_|"case 6", z.get_den.to_string, "238");;
+
+    let z = -x;
+    assert_eq(|_|"case 7", z.get_num.to_string, "-6");;
+    assert_eq(|_|"case 7", z.get_den.to_string, "17");;
+
+    assert_eq(|_|"case 8", (x + -x), MPQ::zero);;
 
     pure()
 );
