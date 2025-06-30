@@ -129,6 +129,13 @@ test = (
     let z = MPZ::from_I64(1234 * 5678);
     assert(|_|"case 8", x * y == z);;
 
+    let x = MPZ::from_I64(1234);
+    let y = MPZ::from_I64(5678 * 1234);
+    let z = MPZ::from_I64(5678);
+    assert(|_|"case 9", y.is_divisible_by(x));;
+    assert(|_|"case 10", y.divide_exactly_by(x) == z);;
+    assert(|_|"case 11", !z.is_divisible_by(x));;
+
     // let num = MPQ::from_I64(4, -6);
     // let _ = assert_eq(|_|"case 4", num.to_string, "-2/3");
 

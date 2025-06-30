@@ -215,35 +215,24 @@ namespace MPZ {
         num._mutate(|num_ptr| FFI_CALL_IO[() __gmpz_mul_2exp(Ptr, Ptr, CUnsignedLong), num_ptr, num_ptr, exp]).@0
     );
 
-    // // Divisions
+    // Divisions
 
-    // is_divisible_by : MPZ -> MPZ -> Bool;
-    // is_divisible_by = |d, n| (
-    //     d.borrow_ptr(|d_ptr| (
-    //         n.borrow_ptr(|n_ptr| (
-    //             FFI_CALL[I64 fix_mpz_divisible_p(Ptr, Ptr), n_ptr, d_ptr] != 0
-    //         ))
-    //     ))
-    // );
+    is_divisible_by : MPZ -> MPZ -> Bool;
+    is_divisible_by = |d, n| (
+        d._borrow(|d_ptr| (
+            n._borrow(|n_ptr| (
+                FFI_CALL[I32 __gmpz_divisible_p(Ptr, Ptr), n_ptr, d_ptr] != 0_I32
+            ))
+        ))
+    );
 
-    // divide_exactly_by : MPZ -> MPZ -> MPZ;
-    // divide_exactly_by = |d, n| (
-    //     let out = (
-    //         let (d_is_unique, d) = d._is_unique_data;
-    //         if d_is_unique { d };
-    //         let (n_is_unique, n) = n._is_unique_data;
-    //         if n_is_unique { n };
-    //         MPZ::_make()
-    //     );
-    //     let _ = d.borrow_ptr(|d_ptr| (
-    //         n.borrow_ptr(|n_ptr| (
-    //             out.borrow_ptr(|out_ptr| (
-    //                 FFI_CALL[() fix_mpz_divexact(Ptr, Ptr, Ptr), out_ptr, n_ptr, d_ptr]
-    //             ))
-    //         ))
-    //     ));
-    //     out
-    // );
+    divide_exactly_by : MPZ -> MPZ -> MPZ;
+    divide_exactly_by = |d, n| (
+        MPZ::_binary_op(
+            |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_divexact(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
+            n, d
+        )
+    );
 
     // // Arithmetics
 
