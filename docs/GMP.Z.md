@@ -1,6 +1,6 @@
 # GMP.Z
 
-Defined in gmp-fix@0.3.0
+Defined in gmp-fix@0.3.3
 
 ## Values
 
@@ -19,6 +19,10 @@ Size of `__mpz_struct`.
 Type: `GMP.Z::MPZ -> GMP.Z::MPZ`
 
 Calculates the absolute value of a `MPZ` value.
+
+#### divide_exactly_by
+
+Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ`
 
 #### from_I64
 
@@ -48,6 +52,10 @@ Creates a `MPZ` value represented by a string in the given base.
 
 If the string is not a valid representation of an integer in the given base, this function returns none.
 See document of `mpz_set_str` in GMP for details.
+
+#### is_divisible_by
+
+Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> Std::Bool`
 
 #### mul_2exp
 
