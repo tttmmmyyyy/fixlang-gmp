@@ -197,5 +197,25 @@ test_mpq = (
 
     assert_eq(|_|"case 8", (x + -x), MPQ::zero);;
 
+    let x = MPQ::from_I64(1234, 5678);
+    assert_eq(|_|"case 9", x.get_num.to_string, "617");;
+    assert_eq(|_|"case 9", x.get_den.to_string, "2839");;
+
+    let x = MPQ::from_I64(-1234, 5678);
+    assert_eq(|_|"case 10", x.get_num.to_string, "-617");;
+    assert_eq(|_|"case 10", x.get_den.to_string, "2839");;
+
+    let x = MPQ::from_I64(1234, -5678);
+    assert_eq(|_|"case 11", x.get_num.to_string, "-617");;
+    assert_eq(|_|"case 11", x.get_den.to_string, "2839");;
+
+    let x = MPQ::from_I64(-1234, -5678);
+    assert_eq(|_|"case 12", x.get_num.to_string, "617");;
+    assert_eq(|_|"case 12", x.get_den.to_string, "2839");;
+
+    let x = MPQ::from_U64(1234_U64, 5678_U64);
+    assert_eq(|_|"case 13", x.get_num.to_string, "617");;
+    assert_eq(|_|"case 13", x.get_den.to_string, "2839");;
+
     pure()
 );

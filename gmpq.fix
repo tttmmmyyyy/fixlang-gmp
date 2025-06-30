@@ -102,11 +102,43 @@ namespace MPQ {
     zero : MPQ;
     zero = MPQ::_init_by(|handle| FFI_CALL_IO[() __gmpq_init(Ptr), handle]).@0;
 
+    // Creates a new `MPQ` value from I64 numerator and denominator.
+    // 
+    // # Parameters
+    // - `num`: The numerator as an `I64` value.
+    // - `den`: The denominator as an `I64` value.
+    from_I64 : I64 -> I64 -> MPQ;
+    from_I64 = |num, den| (
+        let (num, den) = if den > 0 { (num, den.to_U64) } else { (-num, (-den).to_U64) };
+        MPQ::_init_by(|handle|
+            FFI_CALL_IO[() __gmpq_init(Ptr), handle];;
+            FFI_CALL_IO[() __gmpq_set_si(Ptr, I64, U64), handle, num, den];;
+            FFI_CALL_IO[() __gmpq_canonicalize(Ptr), handle];;
+            pure()
+        ).@0
+    );
+
+    // Creates a new `MPQ` value from an `U64` value.
+    //
+    // # Parameters
+    // - `num`: The numerator as an `U64` value.
+    // - `den`: The denominator as an `U64` value.
+    from_U64 : U64 -> U64 -> MPQ;
+    from_U64 = |num, den| (
+        MPQ::_init_by(|handle|
+            FFI_CALL_IO[() __gmpq_init(Ptr), handle];;
+            FFI_CALL_IO[() __gmpq_set_ui(Ptr, U64, U64), handle, num, den];;
+            FFI_CALL_IO[() __gmpq_canonicalize(Ptr), handle];;
+            pure()
+        ).@0
+    );
+
     // Creates a `MPQ` value represented by an MPZ value.
     from_MPZ : MPZ -> MPQ;
     from_MPZ = |val| val._borrow(|val_ptr|
-        MPQ::zero._mutate(|out_ptr|
-            FFI_CALL_IO[() __gmpq_set_z(Ptr, Ptr), out_ptr, val_ptr]
+        MPQ::_init_by(|handle|
+            FFI_CALL_IO[() __gmpq_init(Ptr), handle];;
+            FFI_CALL_IO[() __gmpq_set_z(Ptr, Ptr), handle, val_ptr]
         ).@0
     );
 
