@@ -1,6 +1,6 @@
 # GMP.Z
 
-Defined in gmp-fix@0.3.3
+Defined in gmp-fix@0.3.4
 
 ## Values
 

@@ -154,6 +154,12 @@ test_mpq = (
     assert_eq(|_|"case 0", n.to_string, "0");;
     assert_eq(|_|"case 0", d.to_string, "1");;
 
+    let x = MPQ::one;
+    let n = x.get_num;
+    let d = x.get_den;
+    assert_eq(|_|"case 0.5", n.to_string, "1");;
+    assert_eq(|_|"case 0.5", d.to_string, "1");;
+
     let x = MPQ::from_MPZ(MPZ::from_I64(1234));
     let y = MPQ::from_MPZ(MPZ::from_I64(5678));
     let z = y / x;

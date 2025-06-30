@@ -1,6 +1,6 @@
 # GMP.Q
 
-Defined in gmp-fix@0.3.3
+Defined in gmp-fix@0.3.4
 
 ## Values
 
@@ -49,6 +49,12 @@ Type: `GMP.Q::MPQ -> GMP.Z::MPZ`
 #### get_num
 
 Type: `GMP.Q::MPQ -> GMP.Z::MPZ`
+
+#### one
+
+Type: `GMP.Q::MPQ`
+
+The one value.
 
 #### to_F64
 

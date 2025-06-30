@@ -102,6 +102,10 @@ namespace MPQ {
     zero : MPQ;
     zero = MPQ::_init_by(|handle| FFI_CALL_IO[() __gmpq_init(Ptr), handle]).@0;
 
+    // The one value.
+    one : MPQ;
+    one = MPQ::from_U64(1_U64, 1_U64);
+
     // Creates a new `MPQ` value from I64 numerator and denominator.
     // 
     // # Parameters
