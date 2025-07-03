@@ -369,6 +369,15 @@ impl MPZ : Rem {
     );
 }
 
+impl MPZ : Div {
+    div = |lhs, rhs| (
+        MPZ::_binary_op(
+            |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_tdiv_q(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
+            lhs, rhs
+        )
+    );
+}
+
 // impl MPZ : LessThan {
 
 //     less_than = |lhs, rhs| (
