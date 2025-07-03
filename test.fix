@@ -143,6 +143,15 @@ test_mpz = (
     assert(|_|"case 10", y.divide_exactly_by(x) == z);;
     assert(|_|"case 11", !z.is_divisible_by(x));;
 
+    let z = MPZ::from_I64(5) % MPZ::from_I64(2);
+    assert_eq(|_|"case 12", z.to_string, "1");;
+
+    let z = MPZ::from_I64(5) % MPZ::from_I64(3);
+    assert_eq(|_|"case 13", z.to_string, "2");;
+
+    let z = MPZ::from_I64(5) % MPZ::from_I64(5);
+    assert_eq(|_|"case 14", z.to_string, "0");;
+
     pure()
 );
 
