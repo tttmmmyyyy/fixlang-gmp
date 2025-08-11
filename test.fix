@@ -177,6 +177,9 @@ test_z_conversion = (
     assert_eq(|_|"case 0", m.to_string, "1");;
     assert_eq(|_|"case 0", n.to_string, "0");;
 
+    let n = MPZ::from_I64(255);
+    assert_eq(|_|"case 1", n.get_string(16_I8), "ff");;
+
     pure()
 );
 

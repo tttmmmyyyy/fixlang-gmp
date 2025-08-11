@@ -106,6 +106,11 @@ namespace MPZ {
     // 
     // If the string is not a valid representation of an integer in the given base, this function returns none.
     // See document of `mpz_set_str` in GMP for details.
+    // 
+    // # Parameters
+    // - `dec`: The string representation of the integer.
+    // - `base`: The base of the string representation.
+    // - `num`: The `MPZ` value to set.
     set_string : String -> I64 -> MPZ -> Option MPZ;
     set_string = |dec, base, num| (
         dec.borrow_c_str(|dec_c_str| (
@@ -216,6 +221,25 @@ namespace MPZ {
         (man, exp.@value.to_I64)
     );
 
+    // Converts a `MPZ` value to a string in the given base.
+    // 
+    // # Parameters
+    // - `base`: The base of the string representation.
+    // - `num`: The `MPZ` value to convert.
+    get_string : I8 -> MPZ -> String;
+    get_string = |base, num| (
+        let base = base.to_CInt;
+        num._borrow(|num_ptr| (
+            let len_base = FFI_CALL[CSizeT __gmpz_sizeinbase(Ptr, CInt), num_ptr, base];
+            let len = len_base.to_I64 + 2;
+            let buf = Array::fill(len, 0_U8);
+            let (buf, _) = buf.mutate_boxed(|buf_ptr| 
+                FFI_CALL_IO[Ptr __gmpz_get_str(Ptr, CInt, Ptr), buf_ptr, base, num_ptr]
+            );
+            String::_unsafe_from_c_str(buf)
+        ))
+    );
+
     // Calculates the absolute value of a `MPZ` value.
     abs : MPZ -> MPZ;
     abs = |num| num._unary_op(|(out_ptr, in_ptr)| FFI_CALL_IO[() __gmpz_abs(Ptr, Ptr), out_ptr, in_ptr]);
@@ -226,7 +250,7 @@ namespace MPZ {
         num._mutate(|num_ptr| FFI_CALL_IO[() __gmpz_mul_2exp(Ptr, Ptr, CUnsignedLong), num_ptr, num_ptr, exp]).@0
     );
 
-    // Divisions
+    // Exact Divisions
 
     is_divisible_by : MPZ -> MPZ -> Bool;
     is_divisible_by = |d, n| (
@@ -412,17 +436,7 @@ impl MPZ : LessThanOrEq {
 
 
 impl MPZ : ToString {
-    to_string = |num| (
-        num._borrow(|num_ptr| (
-            let len_base = FFI_CALL[CSizeT __gmpz_sizeinbase(Ptr, CInt), num_ptr, 10.to_CInt];
-            let len = len_base.to_I64 + 2;
-            let buf = Array::fill(len, 0_U8);
-            let (buf, _) = buf.mutate_boxed(|buf_ptr| 
-                FFI_CALL_IO[Ptr __gmpz_get_str(Ptr, CInt, Ptr), buf_ptr, 10.to_CInt, num_ptr]
-            );
-            String::_unsafe_from_c_str(buf)
-        ))
-    );
+    to_string = |num| num.get_string(10_I8);
 }
 
 impl MPZ : Hash {
