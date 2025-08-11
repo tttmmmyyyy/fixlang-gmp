@@ -1,6 +1,7 @@
 module GMP.Z;
 
 import Hash;
+import GMP.Q;
 
 // A pointer to struct `__mpz_struct`.
 type MPZHandle = Ptr;
@@ -156,6 +157,16 @@ namespace MPZ {
     // Creates a `MPZ` value represented by an U64 value.
     from_U64 : U64 -> MPZ;
     from_U64 = |val| MPZ::_init_by(|ptr| FFI_CALL_IO[() __gmpz_init_set_ui(Ptr, CUnsignedLong), ptr, val]).@0;
+
+    // Sets the value of a MPZ to the given MPQ value (truncated).
+    set_MPQ : MPQ -> MPZ -> MPZ;
+    set_MPQ = |q, n| (
+        q._borrow(|q_ptr| (
+            n._mutate(|n_ptr| (
+                FFI_CALL_IO[() __gmpz_set_q(Ptr, Ptr), n_ptr, q_ptr]
+            )).@0
+        ))
+    );
 
     // Converts a `MPZ` value to an I64 value.
     // 
@@ -354,7 +365,7 @@ impl MPZ : Eq {
     eq = |lhs, rhs| (
         lhs._borrow(|lhs_ptr| (
             rhs._borrow(|rhs_ptr| (
-                FFI_CALL[I64 __gmpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] == 0
+                FFI_CALL[CInt __gmpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] == 0.to_CInt
             ))
         ))
     );
@@ -378,29 +389,27 @@ impl MPZ : Div {
     );
 }
 
-// impl MPZ : LessThan {
+impl MPZ : LessThan {
+    less_than = |lhs, rhs| (
+        lhs._borrow(|lhs_ptr| (
+            rhs._borrow(|rhs_ptr| (
+                FFI_CALL[CInt __gmpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] < 0.to_CInt
+            ))
+        ))
+    );
+}
 
-//     less_than = |lhs, rhs| (
-//         lhs.borrow_ptr(|lhs_ptr| (
-//             rhs.borrow_ptr(|rhs_ptr| (
-//                 FFI_CALL[I64 fix_mpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] < 0
-//             ))
-//         ))
-//     );
+impl MPZ : LessThanOrEq {
+    less_than_or_eq = |lhs, rhs| (
+        lhs._borrow(|lhs_ptr| (
+            rhs._borrow(|rhs_ptr| (
+                let ord = FFI_CALL[CInt __gmpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr];
+                ord < 0.to_CInt || ord == 0.to_CInt
+            ))
+        ))
+    );
+}
 
-// }
-
-// impl MPZ : LessThanOrEq {
-
-//     less_than_or_eq = |lhs, rhs| (
-//         lhs.borrow_ptr(|lhs_ptr| (
-//             rhs.borrow_ptr(|rhs_ptr| (
-//                 FFI_CALL[I64 fix_mpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] <= 0
-//             ))
-//         ))
-//     );
-
-// }
 
 impl MPZ : ToString {
     to_string = |num| (

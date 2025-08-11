@@ -5,21 +5,16 @@ import GMP.Q;
 
 test : IO ();
 test = (
-    test_mpq;;
-    test_mpz;;
+    test_z;;
+    test_q;;
     pure()
 );
 
-test_mpz : IO ();
-test_mpz = (
-    let num = MPZ::zero;
-    assert_eq(|_|"case 0", num.to_string, "0");;
-    
-    let num = MPZ::from_decimal("012345678990123456789").as_some;
-    assert_eq(|_|"case 1", num.to_string, "12345678990123456789");;
-
-    let num = MPZ::from_decimal("xyz");
-    assert(|_|"case 1.5", num.is_none);;
+test_z : IO ();
+test_z = (
+    test_z_conversion;;
+    test_z_basic_arithmetic;;
+    test_z_comparison;;
 
     // Updating shared data
     let num1 = MPZ::from_I64(2);
@@ -27,42 +22,29 @@ test_mpz = (
     let num3 = num1 * num2;
     assert_eq(|_|"case 1.6", num3.to_string, "254");;
 
-    let num = MPZ::from_I64(-12345);
-    assert_eq(|_|"case 2", num.to_string, "-12345");;
+    // Absolute value
+    let x = MPZ::from_I64(-1234);
+    let y = x.abs;
+    assert_eq(|_|"case 8", y.to_string, "1234");;
 
-    let num = num.set_I64(54321);
-    assert_eq(|_|"case 2.1", num.to_string, "54321");;
+    // Multiplication by a power of 2
+    let x = MPZ::from_I64(1234);
+    let y = x.mul_2exp(10_U64);
+    assert_eq(|_|"case 9", y.to_string, "1263616");;
 
-    let num = MPZ::from_U64(31415_U64);
-    assert_eq(|_|"case 3", num.to_string, "31415");;
+    // Exact division
+    let x = MPZ::from_I64(1234);
+    let y = MPZ::from_I64(5678 * 1234);
+    let z = MPZ::from_I64(5678);
+    assert(|_|"case 9", y.is_divisible_by(x));;
+    assert(|_|"case 10", y.divide_exactly_by(x) == z);;
+    assert(|_|"case 11", !z.is_divisible_by(x));;
 
-    let num = num.set_U64(27182_U64);
-    assert_eq(|_|"case 3.1", num.to_string, "27182");;
+    pure()
+);
 
-    // Test `to_I64`
-    let num = MPZ::from_I64(1234);
-    assert_eq(|_|"case to_I64 success", num.to_I64.as_some, 1234);;
-
-    let num = MPZ::from_string("12345678901234567890123", 10).as_some;
-    assert(|_|"case to_I64 fail", num.to_I64.is_none);;
-
-    // Test `to_U64`
-    let num = MPZ::from_U64(1234_U64);
-    assert_eq(|_|"case to_U64 success", num.to_U64.as_some, 1234_U64);;
-
-    let num = MPZ::from_string("12345678901234567890123", 10).as_some;
-    assert(|_|"case to_U64 fail", num.to_U64.is_none);;
-
-    // Test `to_F64`
-    let num = MPZ::from_I64(1234);
-    assert_eq(|_|"case to_F64", num.MPZ::to_F64, 1234.0);;
-
-    // Test `to_F64_2exp`
-    let num = MPZ::from_string("5", 10).as_some;
-    let (mantissa, exponent) = num.to_F64_2exp;
-    assert_eq(|_|"case to_F64_2exp mantissa", mantissa, 0.625);;
-    assert_eq(|_|"case to_F64_2exp exponent", exponent, 3);;
-
+test_z_basic_arithmetic : IO ();
+test_z_basic_arithmetic = (
     // Addition
     let x = MPZ::from_I64(1234);
     let y = MPZ::from_I64(5678);
@@ -116,33 +98,7 @@ test_mpz = (
     let z = y + x;
     assert_eq(|_|"case 7.1", z.to_string, "0");;
 
-    // Absolute value
-    let x = MPZ::from_I64(-1234);
-    let y = x.abs;
-    assert_eq(|_|"case 8", y.to_string, "1234");;
-
-    // Multiplication by a power of 2
-    let x = MPZ::from_I64(1234);
-    let y = x.mul_2exp(10_U64);
-    assert_eq(|_|"case 9", y.to_string, "1263616");;
-
-    // Comparison
-    let x = MPZ::from_I64(1234);
-    let y = MPZ::from_I64(5678);
-    assert(|_|"case 7", x != y);;
-
-    let x = MPZ::from_I64(1234);
-    let y = MPZ::from_I64(5678);
-    let z = MPZ::from_I64(1234 * 5678);
-    assert(|_|"case 8", x * y == z);;
-
-    let x = MPZ::from_I64(1234);
-    let y = MPZ::from_I64(5678 * 1234);
-    let z = MPZ::from_I64(5678);
-    assert(|_|"case 9", y.is_divisible_by(x));;
-    assert(|_|"case 10", y.divide_exactly_by(x) == z);;
-    assert(|_|"case 11", !z.is_divisible_by(x));;
-
+    // Integral division and modulus
     let z = MPZ::from_I64(5) % MPZ::from_I64(2);
     assert_eq(|_|"case 12", z.to_string, "1");;
 
@@ -167,8 +123,101 @@ test_mpz = (
     pure()
 );
 
-test_mpq : IO ();
-test_mpq = (
+test_z_conversion : IO ();
+test_z_conversion = (
+    let num = MPZ::zero;
+    assert_eq(|_|"case 0", num.to_string, "0");;
+    
+    let num = MPZ::from_decimal("012345678990123456789").as_some;
+    assert_eq(|_|"case 1", num.to_string, "12345678990123456789");;
+
+    let num = MPZ::from_decimal("xyz");
+    assert(|_|"case 1.5", num.is_none);;
+
+    let num = MPZ::from_I64(-12345);
+    assert_eq(|_|"case 2", num.to_string, "-12345");;
+
+    let num = num.set_I64(54321);
+    assert_eq(|_|"case 2.1", num.to_string, "54321");;
+
+    let num = MPZ::from_U64(31415_U64);
+    assert_eq(|_|"case 3", num.to_string, "31415");;
+
+    let num = num.set_U64(27182_U64);
+    assert_eq(|_|"case 3.1", num.to_string, "27182");;
+
+    // Test `to_I64`
+    let num = MPZ::from_I64(1234);
+    assert_eq(|_|"case to_I64 success", num.to_I64.as_some, 1234);;
+
+    let num = MPZ::from_string("12345678901234567890123", 10).as_some;
+    assert(|_|"case to_I64 fail", num.to_I64.is_none);;
+
+    // Test `to_U64`
+    let num = MPZ::from_U64(1234_U64);
+    assert_eq(|_|"case to_U64 success", num.to_U64.as_some, 1234_U64);;
+
+    let num = MPZ::from_string("12345678901234567890123", 10).as_some;
+    assert(|_|"case to_U64 fail", num.to_U64.is_none);;
+
+    // Test `to_F64`
+    let num = MPZ::from_I64(1234);
+    assert_eq(|_|"case to_F64", num.MPZ::to_F64, 1234.0);;
+
+    // Test `to_F64_2exp`
+    let num = MPZ::from_string("5", 10).as_some;
+    let (mantissa, exponent) = num.to_F64_2exp;
+    assert_eq(|_|"case to_F64_2exp mantissa", mantissa, 0.625);;
+    assert_eq(|_|"case to_F64_2exp exponent", exponent, 3);;
+
+    // Test `set_MPQ`
+    let q = MPQ::from_I64(6, 5);
+    let n = MPZ::from_I64(0);
+    let m = n.set_MPQ(q);
+    assert_eq(|_|"case 0", m.to_string, "1");;
+    assert_eq(|_|"case 0", n.to_string, "0");;
+
+    pure()
+);
+
+test_z_comparison : IO ();
+test_z_comparison = (
+    let x = MPZ::from_I64(1234);
+    let y = MPZ::from_I64(5678);
+    assert(|_|"case 7", x != y);;
+
+    let x = MPZ::from_I64(1234);
+    let y = MPZ::from_I64(1234);
+    assert(|_|"case 7", x == y);;
+
+    let x = MPZ::from_I64(1234);
+    assert(|_|"case 7", x == x);;
+
+    let x = MPZ::from_I64(1234);
+    let y = MPZ::from_I64(5678);
+    assert(|_|"case 8", x < y);;
+    assert(|_|"case 8", !(x > y));;
+    assert(|_|"case 8", x <= y);;
+    assert(|_|"case 8", !(x >= y));;
+
+    let x = MPZ::from_I64(1234);
+    let y = MPZ::from_I64(1234);
+    assert(|_|"case 8", !(x < y));;
+    assert(|_|"case 8", !(x > y));;
+    assert(|_|"case 8", x <= y);;
+    assert(|_|"case 8", x >= y);;
+
+    let x = MPZ::from_I64(1234);
+    assert(|_|"case 8", !(x < x));;
+    assert(|_|"case 8", !(x > x));;
+    assert(|_|"case 8", x <= x);;
+    assert(|_|"case 8", x >= x);;
+
+    pure()
+);
+
+test_q : IO ();
+test_q = (
     let x = MPQ::zero;
     let n = x.get_num;
     let d = x.get_den;
