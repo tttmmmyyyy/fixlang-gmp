@@ -39,7 +39,18 @@ test_z_memory = (
     let num3 = num1 * num2;
     assert_eq(|_|"case 1", num3.to_string, "254");;
 
-    // test of `_binary_op` via `tdiv_q` in case of (n, d) is (unique, unique), (unique, shared), (shared, unique), (shared, shared).
+    // Test of `_unary_op` via `abs` in case of unique or shared.
+    // unique
+    let n = MPZ::from_I64(-1234);
+    let m = n.abs;
+    assert_eq(|_|"case 2", m.to_string, "1234");;
+    // shared
+    let n = MPZ::from_I64(-1234);
+    let m = n.abs;
+    assert_eq(|_|"case 2", m.to_string, "1234");;
+    assert_eq(|_|"case 2", n.to_string, "-1234");;
+
+    // Test of `_binary_op` via `tdiv_q` in case of (n, d) is (unique, unique), (unique, shared), (shared, unique), (shared, shared).
     // (unique, unique)
     let n = MPZ::from_I64(7);
     let d = MPZ::from_I64(3);
@@ -65,7 +76,18 @@ test_z_memory = (
     assert_eq(|_|"case 2", n.to_string, "7");;    
     assert_eq(|_|"case 2", d.to_string, "3");;
 
-    // test of `_binary_op` via `tdiv_qr` in case of (n, d) is (unique, unique), (unique, shared), (shared, unique), (shared, shared).
+    // Test of `_binary_op` via `tdiv_q` in case of (n, n) is given where n is unique or shared.
+    // unique
+    let n = MPZ::from_I64(7);
+    let q = n.tdiv_q(n);
+    assert_eq(|_|"case 3", q.to_string, "1");;
+    // shared
+    let n = MPZ::from_I64(7);
+    let q = n.tdiv_q(n);
+    assert_eq(|_|"case 3", q.to_string, "1");;
+    assert_eq(|_|"case 3", n.to_string, "7");;
+
+    // Test of `_binary_op` via `tdiv_qr` in case of (n, d) is (unique, unique), (unique, shared), (shared, unique), (shared, shared).
     // (unique, unique)
     let n = MPZ::from_I64(7);
     let d = MPZ::from_I64(3);
@@ -94,6 +116,19 @@ test_z_memory = (
     assert_eq(|_|"case 2", r.to_string, "1");;
     assert_eq(|_|"case 2", n.to_string, "7");;    
     assert_eq(|_|"case 2", d.to_string, "3");;
+
+    // Test of `_binary_op2` via `tdiv_qr` in case of (n, n) is given whre n is unique or shared.
+    // unique
+    let n = MPZ::from_I64(7);
+    let (q, r) = n.tdiv_qr(n);
+    assert_eq(|_|"case 3", q.to_string, "1");;
+    assert_eq(|_|"case 3", r.to_string, "0");;
+    // shared
+    let n = MPZ::from_I64(7);
+    let (q, r) = n.tdiv_qr(n);
+    assert_eq(|_|"case 3", q.to_string, "1");;
+    assert_eq(|_|"case 3", r.to_string, "0");;
+    assert_eq(|_|"case 3", n.to_string, "7");;
 
     pure()
 );
