@@ -97,6 +97,32 @@ namespace MPZ {
             )
         )
     );
+
+    // Apply a binary operation which returns two values of GMP (taking (out0, out1, lhs, rhs) as arguments) to two `MPZ` values.
+    _binary_op2 : ((MPZHandle, MPZHandle, MPZHandle, MPZHandle) -> IO ()) -> MPZ -> MPZ -> (MPZ, MPZ);
+    _binary_op2 = |act, lhs, rhs| (
+        // let (is_unique, lhs) = lhs.unsafe_is_unique;
+        // if is_unique { 
+        //     rhs._borrow(|rhs_ptr|
+        //         lhs._mutate(|lhs_ptr| act((lhs_ptr, lhs_ptr, rhs_ptr))).@0
+        //     )
+        // };
+        // let (is_uqniue, rhs) = rhs.unsafe_is_unique;
+        // if is_unique { 
+        //     lhs._borrow(|lhs_ptr|
+        //         rhs._mutate(|rhs_ptr| act((rhs_ptr, lhs_ptr, rhs_ptr))).@0
+        //     )
+        // };
+        lhs._borrow(|lhs_ptr|
+            rhs._borrow(|rhs_ptr|
+                MPZ::zero._mutate(|out1_ptr| 
+                    MPZ::zero._mutate(|out2_ptr|
+                        act((out1_ptr, out2_ptr, lhs_ptr, rhs_ptr))
+                    ).@0.pure
+                )
+            )
+        )
+    );
     
     // The zero value.
     zero : MPZ;
@@ -252,6 +278,11 @@ namespace MPZ {
 
     // Exact Divisions
 
+    // Checks if `n` is divisible by `d`.
+    //
+    // # Parameters
+    // - `d`: The divisor.
+    // - `n`: The dividend.
     is_divisible_by : MPZ -> MPZ -> Bool;
     is_divisible_by = |d, n| (
         d._borrow(|d_ptr| (
@@ -261,10 +292,64 @@ namespace MPZ {
         ))
     );
 
+    // Divides `n` by `d` and returns the quotient.
+    // 
+    // This function assumes that `n` is divisible by `d`.
+    //
+    // # Parameters
+    // - `d`: The divisor.
+    // - `n`: The dividend.
     divide_exactly_by : MPZ -> MPZ -> MPZ;
     divide_exactly_by = |d, n| (
         MPZ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_divexact(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
+            n, d
+        )
+    );
+
+    // Division and remainder
+
+    // Divides `n` by `d` and returns the quotient and remainder.
+    // 
+    // "t" means "truncated", i.e., the quotient is rounded towards zero.
+    // 
+    // # Parameters
+    // - `d`: The divisor.
+    // - `n`: The dividend.
+    tdiv_qr : MPZ -> MPZ -> (MPZ, MPZ);
+    tdiv_qr = |d, n| (
+        MPZ::_binary_op2(
+            |(q_ptr, r_ptr, n_ptr, d_ptr)| FFI_CALL_IO[() __gmpz_tdiv_qr(Ptr, Ptr, Ptr, Ptr), q_ptr, r_ptr, n_ptr, d_ptr],
+            n, d
+        )
+    );
+
+    // Divides `n` by `d` and returns the quotient.
+    // 
+    // "t" means "truncated", i.e., the quotient is rounded towards zero.
+    // 
+    // # Parameters
+    // - `d`: The divisor.
+    // - `n`: The dividend.
+    tdiv_q : MPZ -> MPZ -> MPZ;
+    tdiv_q = |d, n| (
+        MPZ::_binary_op(
+            |(q_ptr, n_ptr, d_ptr)| FFI_CALL_IO[() __gmpz_tdiv_q(Ptr, Ptr, Ptr), q_ptr, n_ptr, d_ptr],
+            n, d
+        )
+    );
+
+    // Divides `n` by `d` and returns the remainder.
+    // 
+    // "t" means "truncated", i.e., the quotient is rounded towards zero.
+    // 
+    // # Parameters
+    // - `d`: The divisor.
+    // - `n`: The dividend.
+    tdiv_r : MPZ -> MPZ -> MPZ;
+    tdiv_r = |d, n| (
+        MPZ::_binary_op(
+            |(r_ptr, n_ptr, d_ptr)| FFI_CALL_IO[() __gmpz_tdiv_r(Ptr, Ptr, Ptr), r_ptr, n_ptr, d_ptr],
             n, d
         )
     );
@@ -396,21 +481,11 @@ impl MPZ : Eq {
 }
 
 impl MPZ : Rem {
-    rem = |lhs, rhs| (
-        MPZ::_binary_op(
-            |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_mod(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
-            lhs, rhs
-        )
-    );
+    rem = |n, d| n.MPZ::tdiv_r(d);
 }
 
 impl MPZ : Div {
-    div = |lhs, rhs| (
-        MPZ::_binary_op(
-            |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_tdiv_q(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
-            lhs, rhs
-        )
-    );
+    div = |n, d| n.MPZ::tdiv_q(d);
 }
 
 impl MPZ : LessThan {
