@@ -268,6 +268,12 @@ test_z_basic_arithmetic = (
     assert(|_|"", x.divisible_2exp_p(4_U64));;
     assert(|_|"", !x.divisible_2exp_p(5_U64));;
 
+    // Modulo
+    let n = MPZ::from_I64(5);
+    let d = MPZ::from_I64(2);
+    let r = n.mod(d);
+    assert_eq(|_|"case 0", r.to_string, "1");;
+
     pure()
 );
 

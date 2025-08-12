@@ -345,6 +345,21 @@ namespace MPZ {
         )
     );
 
+    // Modulo
+
+    // Calculates the remainder of `n` divided by `d`.
+    // 
+    // # Parameters
+    // - `d`: The divisor.
+    // - `n`: The dividend.
+    mod : MPZ -> MPZ -> MPZ;
+    mod = |d, n| (
+        MPZ::_binary_op(
+            |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_mod(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
+            n, d
+        )
+    );
+
     // Division and remainder
 
     // Divides `n` by `d` and returns the quotient and remainder.
@@ -570,7 +585,7 @@ namespace MPZ {
             |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_cdiv_r_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.to_CUnsignedLong],
             n
         )
-    );    
+    );
 
     // // Arithmetics
 
