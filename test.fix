@@ -178,20 +178,36 @@ test_z_basic_arithmetic = (
     let (q, r) = MPZ::from_I64(-5).tdiv_qr(MPZ::from_I64(3));
     assert_eq(|_|"case 18", q.to_string, "-1");;
     assert_eq(|_|"case 18", r.to_string, "-2");;
-
     let q = MPZ::from_I64(-5).tdiv_q(MPZ::from_I64(3));
     assert_eq(|_|"case 18", q.to_string, "-1");;
-
     let r = MPZ::from_I64(-5).tdiv_r(MPZ::from_I64(3));
     assert_eq(|_|"case 18", r.to_string, "-2");;
+
+    // ceiling division
+    let (q, r) = MPZ::from_I64(-5).cdiv_qr(MPZ::from_I64(3));
+    assert_eq(|_|"case 18", q.to_string, "-1");;
+    assert_eq(|_|"case 18", r.to_string, "-2");;
+    let q = MPZ::from_I64(-5).cdiv_q(MPZ::from_I64(3));
+    assert_eq(|_|"case 18", q.to_string, "-1");;
+    let r = MPZ::from_I64(-5).cdiv_r(MPZ::from_I64(3));
+    assert_eq(|_|"case 18", r.to_string, "-2");;
+
+    // floor division
+    let (q, r) = MPZ::from_I64(-5).fdiv_qr(MPZ::from_I64(3));
+    assert_eq(|_|"case 18", q.to_string, "-2");;
+    assert_eq(|_|"case 18", r.to_string, "1");;
+    let q = MPZ::from_I64(-5).fdiv_q(MPZ::from_I64(3));
+    assert_eq(|_|"case 18", q.to_string, "-2");;
+    let r = MPZ::from_I64(-5).fdiv_r(MPZ::from_I64(3));
+    assert_eq(|_|"case 18", r.to_string, "1");;
 
     // Exact division
     let x = MPZ::from_I64(1234);
     let y = MPZ::from_I64(5678 * 1234);
     let z = MPZ::from_I64(5678);
-    assert(|_|"case 9", y.is_divisible_by(x));;
-    assert(|_|"case 10", y.divide_exactly_by(x) == z);;
-    assert(|_|"case 11", !z.is_divisible_by(x));;
+    assert(|_|"", y.is_divisible_by(x));;
+    assert(|_|"", y.divide_exactly_by(x) == z);;
+    assert(|_|"", !z.is_divisible_by(x));;
 
     pure()
 );
