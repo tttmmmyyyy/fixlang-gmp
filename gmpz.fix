@@ -143,6 +143,10 @@ namespace MPZ {
     zero : MPZ;
     zero = MPZ::_init_by(|handle| FFI_CALL_IO[() __gmpz_init(Ptr), handle]).@0;
 
+    // The one value.
+    one : MPZ;
+    one = MPZ::from_I64(1);
+
     // Sets the value of a MPZ to the given string in the given base.
     // 
     // If the string is not a valid representation of an integer in the given base, this function returns none.
@@ -167,6 +171,10 @@ namespace MPZ {
     // 
     // If the string is not a valid representation of an integer in the given base, this function returns none.
     // See document of `mpz_set_str` in GMP for details.
+    // 
+    // # Parameters
+    // - `dec`: The string representation of the integer.
+    // - `base`: The base of the string representation.
     from_string : String -> I64 -> Option MPZ;
     from_string = |dec, base| (
         dec.borrow_c_str(|dec_c_str| (
@@ -301,8 +309,8 @@ namespace MPZ {
     // # Parameters
     // - `d`: The divisor.
     // - `n`: The dividend.
-    is_divisible_by : MPZ -> MPZ -> Bool;
-    is_divisible_by = |d, n| (
+    divisible : MPZ -> MPZ -> Bool;
+    divisible = |d, n| (
         d._borrow(|d_ptr| (
             n._borrow(|n_ptr| (
                 FFI_CALL[I32 __gmpz_divisible_p(Ptr, Ptr), n_ptr, d_ptr] != 0_I32
@@ -317,8 +325,8 @@ namespace MPZ {
     // # Parameters
     // - `d`: The divisor.
     // - `n`: The dividend.
-    divide_exactly_by : MPZ -> MPZ -> MPZ;
-    divide_exactly_by = |d, n| (
+    divexact : MPZ -> MPZ -> MPZ;
+    divexact = |d, n| (
         MPZ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_divexact(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             n, d

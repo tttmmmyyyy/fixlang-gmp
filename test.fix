@@ -17,6 +17,10 @@ test_z = (
     test_z_basic_arithmetic;;
     test_z_comparison;;
 
+    // zero and one
+    assert_eq(|_|"zero", MPZ::zero.to_string, "0");;
+    assert_eq(|_|"one", MPZ::one.to_string, "1");;
+
     // Absolute value
     let x = MPZ::from_I64(-1234);
     let y = x.abs;
@@ -257,9 +261,9 @@ test_z_basic_arithmetic = (
     let x = MPZ::from_I64(1234);
     let y = MPZ::from_I64(5678 * 1234);
     let z = MPZ::from_I64(5678);
-    assert(|_|"", y.is_divisible_by(x));;
-    assert(|_|"", y.divide_exactly_by(x) == z);;
-    assert(|_|"", !z.is_divisible_by(x));;
+    assert(|_|"", y.divisible(x));;
+    assert(|_|"", y.divexact(x) == z);;
+    assert(|_|"", !z.divisible(x));;
 
     pure()
 );
