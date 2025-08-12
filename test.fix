@@ -33,12 +33,16 @@ test_z = (
 
 test_z_memory : IO ();
 test_z_memory = (
-    // Test of `_mutate` via `set_string` in case of shared.
+    // Test of `_mutate` via `set_string` in case of unique or shared.
+    // unique
+    let n = MPZ::from_I64(2);
+    let n = n.set_string("7F", 16).as_some;
+    assert_eq(|_|"case set_string 1", n.to_string, "127");;
     // shared
-    let num1 = MPZ::from_I64(2);
-    let num2 = num1.set_string("7F", 16).as_some;
-    let num3 = num1 * num2;
-    assert_eq(|_|"case 1", num3.to_string, "254");;
+    let n = MPZ::from_I64(2);
+    let m = n.set_string("7F", 16).as_some;
+    assert_eq(|_|"case set_string 2", m.to_string, "127");;
+    assert_eq(|_|"case set_string 3", n.to_string, "2");;
 
     // Test of `_unary_op` via `abs` in case of unique or shared.
     // unique
@@ -218,9 +222,9 @@ test_z_basic_arithmetic = (
     assert_eq(|_|"case 18", q.to_string, "-1");;
     let r = MPZ::from_I64(-5).tdiv_r(MPZ::from_I64(3));
     assert_eq(|_|"case 18", r.to_string, "-2");;
-    let q = MPZ::from_I64(13).tdiv_q_2exp(2);
+    let q = MPZ::from_I64(13).tdiv_q_2exp(2_U64);
     assert_eq(|_|"case 18", q.to_string, "3");;
-    let r = MPZ::from_I64(13).tdiv_r_2exp(2);
+    let r = MPZ::from_I64(13).tdiv_r_2exp(2_U64);
     assert_eq(|_|"case 18", r.to_string, "1");;
 
     // ceiling division
