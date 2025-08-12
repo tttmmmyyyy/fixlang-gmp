@@ -372,6 +372,43 @@ namespace MPZ {
         )
     );
 
+    // Divides `n` by `2^b` and returns the quotient.
+    // 
+    // "t" means "truncated", i.e., the quotient is rounded towards zero.
+    // 
+    // # Parameters
+    // - `bit`: The exponent of 2.
+    // - `n`: The dividend.
+    tdiv_q_2exp : I64 -> MPZ -> MPZ;
+    tdiv_q_2exp = |bit, n| (
+        if bit < 0 {
+            undefined("[tdiv_q_2exp] bit cannot be negative.")
+        };
+        MPZ::_unary_op(
+            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_tdiv_q_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.to_CUnsignedLong],
+            n
+        )
+    );
+
+    // Divides `n` by `2^b` and returns the remainder.
+    // 
+    // "t" means "truncated", i.e., the quotient is rounded towards zero.
+    // 
+    // # Parameters
+    // - `bit`: The exponent of 2.
+    // - `n`: The dividend.
+    tdiv_r_2exp : I64 -> MPZ -> MPZ;
+    tdiv_r_2exp = |bit, n| (
+        if bit < 0 {
+            undefined("[tdiv_r_2exp] bit cannot be negative.")
+        };
+        MPZ::_unary_op(
+            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_tdiv_r_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.to_CUnsignedLong],
+            n
+        )
+    );
+
+
     // Divides `n` by `d` and returns the quotient and remainder.
     // 
     // "f" means "floored", i.e., the quotient is rounded towards negative infinity.
