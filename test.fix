@@ -12,15 +12,10 @@ test = (
 
 test_z : IO ();
 test_z = (
+    test_z_memory;;
     test_z_conversion;;
     test_z_basic_arithmetic;;
     test_z_comparison;;
-
-    // Updating shared data
-    let num1 = MPZ::from_I64(2);
-    let num2 = num1.set_string("7F", 16).as_some;
-    let num3 = num1 * num2;
-    assert_eq(|_|"case 1.6", num3.to_string, "254");;
 
     // Absolute value
     let x = MPZ::from_I64(-1234);
@@ -32,13 +27,73 @@ test_z = (
     let y = x.mul_2exp(10_U64);
     assert_eq(|_|"case 9", y.to_string, "1263616");;
 
-    // Exact division
-    let x = MPZ::from_I64(1234);
-    let y = MPZ::from_I64(5678 * 1234);
-    let z = MPZ::from_I64(5678);
-    assert(|_|"case 9", y.is_divisible_by(x));;
-    assert(|_|"case 10", y.divide_exactly_by(x) == z);;
-    assert(|_|"case 11", !z.is_divisible_by(x));;
+    pure()
+);
+
+
+test_z_memory : IO ();
+test_z_memory = (
+    // Updating shared data
+    let num1 = MPZ::from_I64(2);
+    let num2 = num1.set_string("7F", 16).as_some;
+    let num3 = num1 * num2;
+    assert_eq(|_|"case 1", num3.to_string, "254");;
+
+    // test of `_binary_op` via `tdiv_q` in case of (n, d) is (unique, unique), (unique, shared), (shared, unique), (shared, shared).
+    // (unique, unique)
+    let n = MPZ::from_I64(7);
+    let d = MPZ::from_I64(3);
+    let q = n.tdiv_q(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    // (unique, shared)
+    let n = MPZ::from_I64(7);
+    let d = MPZ::from_I64(3);
+    let q = n.tdiv_q(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    assert_eq(|_|"case 2", n.to_string, "7");;    
+    // (unique, shared)
+    let n = MPZ::from_I64(7);
+    let d = MPZ::from_I64(3);
+    let q = n.tdiv_q(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    assert_eq(|_|"case 2", d.to_string, "3");;    
+    // (shared, shared)
+    let n = MPZ::from_I64(7);
+    let d = MPZ::from_I64(3);
+    let q = n.tdiv_q(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    assert_eq(|_|"case 2", n.to_string, "7");;    
+    assert_eq(|_|"case 2", d.to_string, "3");;
+
+    // test of `_binary_op` via `tdiv_qr` in case of (n, d) is (unique, unique), (unique, shared), (shared, unique), (shared, shared).
+    // (unique, unique)
+    let n = MPZ::from_I64(7);
+    let d = MPZ::from_I64(3);
+    let (q, r) = n.tdiv_qr(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    assert_eq(|_|"case 2", r.to_string, "1");;
+    // (unique, shared)
+    let n = MPZ::from_I64(7);
+    let d = MPZ::from_I64(3);
+    let (q, r) = n.tdiv_qr(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    assert_eq(|_|"case 2", r.to_string, "1");;
+    assert_eq(|_|"case 2", n.to_string, "7");;    
+    // (unique, shared)
+    let n = MPZ::from_I64(7);
+    let d = MPZ::from_I64(3);
+    let (q, r) = n.tdiv_qr(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    assert_eq(|_|"case 2", r.to_string, "1");;
+    assert_eq(|_|"case 2", d.to_string, "3");;    
+    // (shared, shared)
+    let n = MPZ::from_I64(7);
+    let d = MPZ::from_I64(3);
+    let (q, r) = n.tdiv_qr(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    assert_eq(|_|"case 2", r.to_string, "1");;
+    assert_eq(|_|"case 2", n.to_string, "7");;    
+    assert_eq(|_|"case 2", d.to_string, "3");;
 
     pure()
 );
@@ -119,6 +174,7 @@ test_z_basic_arithmetic = (
     assert_eq(|_|"case 16", q.to_string, "2");;
     assert_eq(|_|"case 16", r.to_string, "-1");;
 
+    // truncated division
     let (q, r) = MPZ::from_I64(-5).tdiv_qr(MPZ::from_I64(3));
     assert_eq(|_|"case 18", q.to_string, "-1");;
     assert_eq(|_|"case 18", r.to_string, "-2");;
@@ -128,6 +184,14 @@ test_z_basic_arithmetic = (
 
     let r = MPZ::from_I64(-5).tdiv_r(MPZ::from_I64(3));
     assert_eq(|_|"case 18", r.to_string, "-2");;
+
+    // Exact division
+    let x = MPZ::from_I64(1234);
+    let y = MPZ::from_I64(5678 * 1234);
+    let z = MPZ::from_I64(5678);
+    assert(|_|"case 9", y.is_divisible_by(x));;
+    assert(|_|"case 10", y.divide_exactly_by(x) == z);;
+    assert(|_|"case 11", !z.is_divisible_by(x));;
 
     pure()
 );

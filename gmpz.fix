@@ -101,18 +101,33 @@ namespace MPZ {
     // Apply a binary operation which returns two values of GMP (taking (out0, out1, lhs, rhs) as arguments) to two `MPZ` values.
     _binary_op2 : ((MPZHandle, MPZHandle, MPZHandle, MPZHandle) -> IO ()) -> MPZ -> MPZ -> (MPZ, MPZ);
     _binary_op2 = |act, lhs, rhs| (
-        // let (is_unique, lhs) = lhs.unsafe_is_unique;
-        // if is_unique { 
-        //     rhs._borrow(|rhs_ptr|
-        //         lhs._mutate(|lhs_ptr| act((lhs_ptr, lhs_ptr, rhs_ptr))).@0
-        //     )
-        // };
-        // let (is_uqniue, rhs) = rhs.unsafe_is_unique;
-        // if is_unique { 
-        //     lhs._borrow(|lhs_ptr|
-        //         rhs._mutate(|rhs_ptr| act((rhs_ptr, lhs_ptr, rhs_ptr))).@0
-        //     )
-        // };
+        let (lhs_is_unique, lhs) = lhs.unsafe_is_unique;
+        let (rhs_is_unique, rhs) = rhs.unsafe_is_unique;
+        if lhs_is_unique && rhs_is_unique {
+            lhs._mutate(|lhs_ptr| 
+                rhs._mutate(|rhs_ptr|
+                    act((lhs_ptr, rhs_ptr, lhs_ptr, rhs_ptr))
+                ).@0.pure
+            )
+        };
+        if lhs_is_unique && !rhs_is_unique {
+            rhs._borrow(|rhs_ptr|
+                lhs._mutate(|lhs_ptr| 
+                    MPZ::zero._mutate(|out2_ptr|
+                        act((lhs_ptr, out2_ptr, lhs_ptr, rhs_ptr))
+                    ).@0.pure
+                )
+            )
+        };
+        if !lhs_is_unique && rhs_is_unique {
+            lhs._borrow(|lhs_ptr|
+                rhs._mutate(|rhs_ptr| 
+                    MPZ::zero._mutate(|out2_ptr|
+                        act((rhs_ptr, out2_ptr, lhs_ptr, rhs_ptr))
+                    ).@0.pure
+                )
+            )
+        };
         lhs._borrow(|lhs_ptr|
             rhs._borrow(|rhs_ptr|
                 MPZ::zero._mutate(|out1_ptr| 
