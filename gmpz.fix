@@ -309,12 +309,24 @@ namespace MPZ {
     // # Parameters
     // - `d`: The divisor.
     // - `n`: The dividend.
-    divisible : MPZ -> MPZ -> Bool;
-    divisible = |d, n| (
+    divisible_p : MPZ -> MPZ -> Bool;
+    divisible_p = |d, n| (
         d._borrow(|d_ptr| (
             n._borrow(|n_ptr| (
-                FFI_CALL[I32 __gmpz_divisible_p(Ptr, Ptr), n_ptr, d_ptr] != 0_I32
+                FFI_CALL[CInt __gmpz_divisible_p(Ptr, Ptr), n_ptr, d_ptr] != 0.to_CInt
             ))
+        ))
+    );
+
+    // Checks if `n` is divisible by `2^b`.
+    //
+    // # Parameters
+    // - `bit`: The exponent of 2.
+    // - `n`: The dividend.
+    divisible_2exp_p : U64 -> MPZ -> Bool;
+    divisible_2exp_p = |bit, n| (
+        n._borrow(|n_ptr| (
+            FFI_CALL[CInt __gmpz_divisible_2exp_p(Ptr, CUnsignedLong), n_ptr, bit.to_CUnsignedLong] != 0.to_CInt
         ))
     );
 

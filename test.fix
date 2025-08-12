@@ -261,9 +261,12 @@ test_z_basic_arithmetic = (
     let x = MPZ::from_I64(1234);
     let y = MPZ::from_I64(5678 * 1234);
     let z = MPZ::from_I64(5678);
-    assert(|_|"", y.divisible(x));;
+    assert(|_|"", y.divisible_p(x));;
     assert(|_|"", y.divexact(x) == z);;
-    assert(|_|"", !z.divisible(x));;
+    assert(|_|"", !z.divisible_p(x));;
+    let x = MPZ::from_I64(16);
+    assert(|_|"", x.divisible_2exp_p(4_U64));;
+    assert(|_|"", !x.divisible_2exp_p(5_U64));;
 
     pure()
 );
