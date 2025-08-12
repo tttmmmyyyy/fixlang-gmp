@@ -402,7 +402,6 @@ namespace MPZ {
         )
     );
 
-
     // Divides `n` by `d` and returns the quotient and remainder.
     // 
     // "f" means "floored", i.e., the quotient is rounded towards negative infinity.
@@ -445,6 +444,36 @@ namespace MPZ {
         MPZ::_binary_op(
             |(r_ptr, n_ptr, d_ptr)| FFI_CALL_IO[() __gmpz_fdiv_r(Ptr, Ptr, Ptr), r_ptr, n_ptr, d_ptr],
             n, d
+        )
+    );
+
+    // Divides `n` by `2^b` and returns the quotient.
+    // 
+    // "f" means "floored", i.e., the quotient is rounded towards negative infinity.
+    // 
+    // # Parameters
+    // - `bit`: The exponent of 2.
+    // - `n`: The dividend.
+    fdiv_q_2exp : U64 -> MPZ -> MPZ;
+    fdiv_q_2exp = |bit, n| (
+        MPZ::_unary_op(
+            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_fdiv_q_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.to_CUnsignedLong],
+            n
+        )
+    );
+
+    // Divides `n` by `2^b` and returns the remainder.
+    // 
+    // "f" means "floored", i.e., the quotient is rounded towards negative infinity.
+    // 
+    // # Parameters
+    // - `bit`: The exponent of 2.
+    // - `n`: The dividend.
+    fdiv_r_2exp : U64 -> MPZ -> MPZ;
+    fdiv_r_2exp = |bit, n| (
+        MPZ::_unary_op(
+            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_fdiv_r_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.to_CUnsignedLong],
+            n
         )
     );
 
@@ -492,6 +521,36 @@ namespace MPZ {
             n, d
         )
     );
+
+    // Divides `n` by `2^b` and returns the quotient.
+    // 
+    // "c" means "ceiling", i.e., the quotient is rounded towards positive infinity.
+    // 
+    // # Parameters
+    // - `bit`: The exponent of 2.
+    // - `n`: The dividend.
+    cdiv_q_2exp : U64 -> MPZ -> MPZ;
+    cdiv_q_2exp = |bit, n| (
+        MPZ::_unary_op(
+            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_cdiv_q_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.to_CUnsignedLong],
+            n
+        )
+    );
+
+    // Divides `n` by `2^b` and returns the remainder.
+    // 
+    // "c" means "ceiling", i.e., the quotient is rounded towards positive infinity.
+    // 
+    // # Parameters
+    // - `bit`: The exponent of 2.
+    // - `n`: The dividend.
+    cdiv_r_2exp : U64 -> MPZ -> MPZ;
+    cdiv_r_2exp = |bit, n| (
+        MPZ::_unary_op(
+            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_cdiv_r_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.to_CUnsignedLong],
+            n
+        )
+    );    
 
     // // Arithmetics
 
