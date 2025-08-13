@@ -447,12 +447,35 @@ test_z_bit : IO ();
 test_z_bit = (
     let x = MPZ::from_string("101010", 2).as_some;
     let y = MPZ::from_string("110011", 2).as_some;
-    let z = x.bit_and(y);
+    let z = x.and(y);
     assert_eq(|_|"case 0", z.get_string(2), "100010");;
-    let z = x.bit_or(y);
+    let z = x.or(y);
     assert_eq(|_|"case 1", z.get_string(2), "111011");;
-    let z = x.bit_xor(y);
+    let z = x.xor(y);
     assert_eq(|_|"case 2", z.get_string(2), "11001");; // leading zero removed
+    let z = x.com;
+    assert_eq(|_|"case 3", z, -x-mpz(1));;
+    
+    assert_eq(|_|"case 4", x.scan0(0_U64), 0_U64);;
+    assert_eq(|_|"case 4", x.scan1(0_U64), 1_U64);;
+
+    // popcount
+    assert_eq(|_|"case 5", x.popcount, 3_U64);;
+
+    // hamdist
+    assert_eq(|_|"case 6", x.hamdist(y), 3_U64);;
+
+    // setbit
+    assert_eq(|_|"case 7", x.setbit(2_U64).get_string(2), "101110");;
+
+    // clrbit
+    assert_eq(|_|"case 8", x.clrbit(1_U64).get_string(2), "101000");;
+
+    // combit
+    assert_eq(|_|"case 9", x.combit(1_U64).get_string(2), "101000");;
+
+    // tstbit
+    assert(|_|"case 10", x.tstbit(1_U64));;
 
     pure()
 );

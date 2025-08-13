@@ -956,8 +956,8 @@ namespace MPZ {
     // # Parameters
     // - `lhs`: The left-hand side value.
     // - `rhs`: The right-hand side value.
-    bit_and : MPZ -> MPZ -> MPZ;
-    bit_and = |lhs, rhs| (
+    and : MPZ -> MPZ -> MPZ;
+    and = |lhs, rhs| (
         MPZ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_and(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             lhs, rhs
@@ -969,8 +969,8 @@ namespace MPZ {
     // # Parameters
     // - `lhs`: The left-hand-side value.
     // - `rhs`: The right-hand-side value.
-    bit_or : MPZ -> MPZ -> MPZ;
-    bit_or = |lhs, rhs| (
+    or : MPZ -> MPZ -> MPZ;
+    or = |lhs, rhs| (
         MPZ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_ior(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             lhs, rhs
@@ -982,12 +982,125 @@ namespace MPZ {
     // # Parameters
     // - `lhs`: The left-hand-side value.
     // - `rhs`: The right-hand-side value.
-    bit_xor : MPZ -> MPZ -> MPZ;
-    bit_xor = |lhs, rhs| (
+    xor : MPZ -> MPZ -> MPZ;
+    xor = |lhs, rhs| (
         MPZ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_xor(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             lhs, rhs
         )
+    );
+
+    // Bitwise complement operation on a `MPZ` value.
+    //
+    // # Parameters
+    // - `n`: The `MPZ` value to complement.
+    com : MPZ -> MPZ;
+    com = |n| (
+        MPZ::_unary_op(
+            |(out_ptr, in_ptr)| FFI_CALL_IO[() __gmpz_com(Ptr, Ptr), out_ptr, in_ptr],
+            n
+        )
+    );
+
+    // Counts the number of bits set to `1` in a `MPZ` value.
+    // 
+    // For the behavior when `n` is negative, see the document of `mpz_popcount` in GMP.
+    // 
+    // # Parameters
+    // - `n`: The `MPZ` value to count bits in.
+    popcount : MPZ -> U64;
+    popcount = |n| (
+        n._borrow(|n_ptr| (
+            FFI_CALL[CUnsignedLong __gmpz_popcount(Ptr), n_ptr].to_U64
+        ))
+    );
+
+    // Calculates the Hamming distance between two `MPZ` values.
+    // 
+    // For the behavior when `lhs` or `rhs` is negative, see the document of `mpz_hamdist` in GMP.
+    // 
+    // # Parameters
+    // - `lhs`: The left-hand-side value.
+    // - `rhs`: The right-hand-side value.
+    hamdist : MPZ -> MPZ -> U64;
+    hamdist = |lhs, rhs| (
+        lhs._borrow(|lhs_ptr| (
+            rhs._borrow(|rhs_ptr| (
+                FFI_CALL[CUnsignedLong __gmpz_hamdist(Ptr, Ptr), lhs_ptr, rhs_ptr].to_U64
+            ))
+        ))
+    );
+
+    // Scans `0` bit in a `MPZ` value starting from the specified bit.
+    // 
+    // # Parameters
+    // - `bit`: The bit to start scanning from.
+    // - `n`: The `MPZ` value to scan.
+    scan0 : U64 -> MPZ -> U64;
+    scan0 = |bit, n| (
+        n._borrow(|n_ptr| (
+            FFI_CALL[CUnsignedLong __gmpz_scan0(Ptr, CUnsignedLong), n_ptr, bit.to_CUnsignedLong].to_U64
+        ))
+    );
+
+    // Scans `1` bit in a `MPZ` value starting from the specified bit.
+    // 
+    // # Parameters
+    // - `bit`: The bit to start scanning from.
+    // - `n`: The `MPZ` value to scan.
+    scan1 : U64 -> MPZ -> U64;
+    scan1 = |bit, n| (
+        n._borrow(|n_ptr| (
+            FFI_CALL[CUnsignedLong __gmpz_scan1(Ptr, CUnsignedLong), n_ptr, bit.to_CUnsignedLong].to_U64
+        ))
+    );
+
+    // Sets the specified bit in a `MPZ` value to `1`.
+    // 
+    // # Parameters
+    // - `bit`: The bit to set.
+    // - `n`: The `MPZ` value to modify.
+    setbit : U64 -> MPZ -> MPZ;
+    setbit = |bit, n| (
+        n._mutate(|n_ptr| (
+            FFI_CALL_IO[() __gmpz_setbit(Ptr, CUnsignedLong), n_ptr, bit.to_CUnsignedLong]
+        )).@0
+    );
+
+    // Sets the specified bit in a `MPZ` value to `0`.
+    // 
+    // # Parameters
+    // - `bit`: The bit to clear.
+    // - `n`: The `MPZ` value to modify.
+    clrbit : U64 -> MPZ -> MPZ;
+    clrbit = |bit, n| (
+        n._mutate(|n_ptr| (
+            FFI_CALL_IO[() __gmpz_clrbit(Ptr, CUnsignedLong), n_ptr, bit.to_CUnsignedLong]
+        )).@0
+    );
+
+    // Toggles the specified bit in a `MPZ` value.
+    //
+    // # Parameters
+    // - `bit`: The bit to toggle.
+    // - `n`: The `MPZ` value to modify.
+    combit : U64 -> MPZ -> MPZ;
+    combit = |bit, n| (
+        n._mutate(|n_ptr| (
+            FFI_CALL_IO[() __gmpz_combit(Ptr, CUnsignedLong), n_ptr, bit.to_CUnsignedLong]
+        )).@0
+    );
+
+    // Checks if the specified bit in a `MPZ` value is set to `1`.
+    // 
+    // # Parameters
+    // - `bit`: The bit to check.
+    // - `n`: The `MPZ` value to check.
+    tstbit : U64 -> MPZ -> Bool;
+    tstbit = |bit, n| (
+        n._borrow(|n_ptr| (
+            FFI_CALL[CInt __gmpz_tstbit(Ptr, CUnsignedLong), n_ptr, bit.to_CUnsignedLong] != 0.to_CInt
+        ))
     );
 }
 
