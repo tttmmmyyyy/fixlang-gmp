@@ -192,6 +192,10 @@ namespace MPZ {
     from_decimal : String -> Option MPZ;
     from_decimal = |dec| MPZ::from_string(dec, 10);
 
+    // Create a `MPZ` value from an `I64`.
+    mpz : I64 -> MPZ;
+    mpz = MPZ::from_I64;
+
     // Sets the value of a MPZ to the given I64 value.
     set_I64 : I64 -> MPZ -> MPZ;
     set_I64 = |val, num| (

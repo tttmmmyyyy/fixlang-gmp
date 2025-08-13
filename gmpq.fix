@@ -107,6 +107,10 @@ namespace MPQ {
     one = MPQ::from_U64(1_U64, 1_U64);
 
     // Creates a new `MPQ` value from I64 numerator and denominator.
+    mpq : I64 -> I64 -> MPQ;
+    mpq = MPQ::from_I64;
+
+    // Creates a new `MPQ` value from I64 numerator and denominator.
     // 
     // # Parameters
     // - `num`: The numerator as an `I64` value.

@@ -21,6 +21,9 @@ test_z = (
     assert_eq(|_|"zero", MPZ::zero.to_string, "0");;
     assert_eq(|_|"one", MPZ::one.to_string, "1");;
 
+    // mpz
+    assert_eq(|_|"mpz", mpz(42).to_string, "42");;
+
     // Absolute value
     let x = MPZ::from_I64(-1234);
     let y = x.abs;
@@ -386,6 +389,9 @@ test_q = (
     let d = x.get_den;
     assert_eq(|_|"case 0.5", n.to_string, "1");;
     assert_eq(|_|"case 0.5", d.to_string, "1");;
+
+    // mpq
+    // assert_eq(|_|"mpq", mpq(42, 14).to_string, "3");;
 
     let x = MPQ::from_MPZ(MPZ::from_I64(1234));
     let y = MPQ::from_MPZ(MPZ::from_I64(5678));
