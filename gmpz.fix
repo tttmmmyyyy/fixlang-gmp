@@ -40,10 +40,6 @@ namespace MPZHandle {
 type MPZ = unbox struct { _0 : Destructor MPZHandle };
 
 namespace MPZ {
-    // Swap the elements of a pair.
-    _swap_pair : (a, b) -> (b, a);
-    _swap_pair = |(a, b)| (b, a);
-
     // Initialize a new MPZ using specified GMPZ's initialization action.
     _init_by : (MPZHandle -> IO a) -> (MPZ, a);
     _init_by = |ctor| do {
@@ -195,11 +191,15 @@ namespace MPZ {
         )
     );
     
-    // The zero value.
+    // Create a `MPZ` value from an `I64`.
+    mpz : I64 -> MPZ;
+    mpz = MPZ::from_I64;
+
+    // The value `0`
     zero : MPZ;
     zero = MPZ::_init_by(|handle| FFI_CALL_IO[() __gmpz_init(Ptr), handle]).@0;
 
-    // The one value.
+    // The value `1`
     one : MPZ;
     one = MPZ::from_I64(1);
 
@@ -209,14 +209,14 @@ namespace MPZ {
     // See document of `mpz_set_str` in GMP for details.
     // 
     // # Parameters
-    // - `dec`: The string representation of the integer.
+    // - `str`: The string representation of the integer.
     // - `base`: The base of the string representation.
     // - `num`: The `MPZ` value to set.
     set_string : String -> I64 -> MPZ -> Option MPZ;
-    set_string = |dec, base, num| (
-        dec.borrow_c_str(|dec_c_str| (
+    set_string = |str, base, num| (
+        str.borrow_c_str(|str_c_str| (
             let (num, res) = num._mutate(|ptr| 
-                FFI_CALL_IO[CInt __gmpz_set_str(Ptr, Ptr, CInt), ptr, dec_c_str, base.to_CInt]
+                FFI_CALL_IO[CInt __gmpz_set_str(Ptr, Ptr, CInt), ptr, str_c_str, base.to_CInt]
             );
             if res == -1.to_CInt { Option::none() };
             Option::some $ num
@@ -229,28 +229,18 @@ namespace MPZ {
     // See document of `mpz_set_str` in GMP for details.
     // 
     // # Parameters
-    // - `dec`: The string representation of the integer.
+    // - `str`: The string representation of the integer.
     // - `base`: The base of the string representation.
     from_string : String -> I64 -> Option MPZ;
-    from_string = |dec, base| (
-        dec.borrow_c_str(|dec_c_str| (
+    from_string = |str, base| (
+        str.borrow_c_str(|str_c_str| (
             let (num, res) = MPZ::_init_by(|ptr| 
-                FFI_CALL_IO[CInt __gmpz_init_set_str(Ptr, Ptr, CInt), ptr, dec_c_str, base.to_CInt]
+                FFI_CALL_IO[CInt __gmpz_init_set_str(Ptr, Ptr, CInt), ptr, str_c_str, base.to_CInt]
             );
             if res == -1.to_CInt { Option::none() };
             Option::some $ num
         ))
     );
-
-    // Creates a `MPZ` value represented by a decimal string.
-    // 
-    // If the string is not a valid representation of an integer in the given base, this function returns none.
-    from_decimal : String -> Option MPZ;
-    from_decimal = |dec| MPZ::from_string(dec, 10);
-
-    // Create a `MPZ` value from an `I64`.
-    mpz : I64 -> MPZ;
-    mpz = MPZ::from_I64;
 
     // Sets the value of a MPZ to the given I64 value.
     set_I64 : I64 -> MPZ -> MPZ;
@@ -258,7 +248,7 @@ namespace MPZ {
         num._mutate(|ptr| FFI_CALL_IO[() __gmpz_set_si(Ptr, CLong), ptr, val]).@0
     );
 
-    // Creats a `MPZ` value represented by an I64 value.
+    // Creates a `MPZ` value represented by an I64 value.
     from_I64 : I64 -> MPZ;
     from_I64 = |val| MPZ::_init_by(|ptr| FFI_CALL_IO[() __gmpz_init_set_si(Ptr, CLong), ptr, val]).@0;
    

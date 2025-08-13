@@ -296,12 +296,6 @@ test_z_conversion : IO ();
 test_z_conversion = (
     let num = MPZ::zero;
     assert_eq(|_|"case 0", num.to_string, "0");;
-    
-    let num = MPZ::from_decimal("012345678990123456789").as_some;
-    assert_eq(|_|"case 1", num.to_string, "12345678990123456789");;
-
-    let num = MPZ::from_decimal("xyz");
-    assert(|_|"case 1.5", num.is_none);;
 
     let num = MPZ::from_I64(-12345);
     assert_eq(|_|"case 2", num.to_string, "-12345");;
