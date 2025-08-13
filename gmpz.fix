@@ -623,6 +623,40 @@ namespace MPZ {
         )
     );
 
+    // Calculates `x + a * b`.
+    // 
+    // # Parameters
+    // - `a`
+    // - `b`
+    // - `x`
+    addmul : MPZ -> MPZ -> MPZ -> MPZ;
+    addmul = |op1, op2, rop| (
+        op1._borrow(|op1_ptr| (
+            op2._borrow(|op2_ptr| (
+                rop._mutate(|rop_ptr| (
+                    FFI_CALL_IO[() __gmpz_addmul(Ptr, Ptr, Ptr), rop_ptr, op1_ptr, op2_ptr]
+                )).@0
+            ))
+        ))
+    );
+
+    // Calculates `x - a * b`.
+    // 
+    // # Parameters
+    // - `a`
+    // - `b`
+    // - `x`
+    submul : MPZ -> MPZ -> MPZ -> MPZ;
+    submul = |op1, op2, rop| (
+        op1._borrow(|op1_ptr| (
+            op2._borrow(|op2_ptr| (
+                rop._mutate(|rop_ptr| (
+                    FFI_CALL_IO[() __gmpz_submul(Ptr, Ptr, Ptr), rop_ptr, op1_ptr, op2_ptr]
+                )).@0
+            ))
+        ))
+    );
+
     // // Arithmetics
 
     // get_gcd : MPZ -> MPZ -> MPZ;
