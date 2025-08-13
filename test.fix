@@ -16,6 +16,7 @@ test_z = (
     test_z_conversion;;
     test_z_basic_arithmetic;;
     test_z_comparison;;
+    test_z_pow;;
 
     // zero and one
     assert_eq(|_|"zero", MPZ::zero.to_string, "0");;
@@ -23,11 +24,6 @@ test_z = (
 
     // mpz
     assert_eq(|_|"mpz", mpz(42).to_string, "42");;
-
-    // Absolute value
-    let x = MPZ::from_I64(-1234);
-    let y = x.abs;
-    assert_eq(|_|"case 8", y.to_string, "1234");;
 
     pure()
 );
@@ -287,6 +283,11 @@ test_z_basic_arithmetic = (
     let y = x.mul_2exp(10_U64);
     assert_eq(|_|"case 9", y.to_string, "1263616");;
 
+    // Absolute value
+    let x = MPZ::from_I64(-1234);
+    let y = x.abs;
+    assert_eq(|_|"case 8", y.to_string, "1234");;
+
     pure()
 );
 
@@ -382,6 +383,20 @@ test_z_comparison = (
     assert(|_|"case 8", !(x > x));;
     assert(|_|"case 8", x <= x);;
     assert(|_|"case 8", x >= x);;
+
+    pure()
+);
+
+test_z_pow : IO ();
+test_z_pow = (
+    let z = mpz(2).powm(mpz(10), mpz(1000));
+    assert_eq(|_|"case 0", z.to_string, "24");;
+
+    let z = mpz(2).powm_sec(mpz(10), mpz(1000));
+    assert_eq(|_|"case 1", z.to_string, "24");;
+
+    let z = mpz(2).pow_ui(10_U64);
+    assert_eq(|_|"case 2", z.to_string, "1024");;
 
     pure()
 );

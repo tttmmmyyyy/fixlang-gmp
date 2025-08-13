@@ -138,6 +138,42 @@ namespace MPZ {
             )
         )
     );
+
+    // Apply a tertiary operation of GMP (taking (out, op1, op2, op3) as arguments) to two `MPZ` values.
+    _tertiary_op : ((MPZHandle, MPZHandle, MPZHandle, MPZHandle) -> IO ()) -> MPZ -> MPZ -> MPZ -> MPZ;
+    _tertiary_op = |act, op1, op2, op3| (
+        let (is_unique, op1) = op1.unsafe_is_unique;
+        if is_unique {
+            op2._borrow(|op2_ptr|
+                op3._borrow(|op3_ptr|
+                    op1._mutate(|op1_ptr| act((op1_ptr, op1_ptr, op2_ptr, op3_ptr))).@0
+                )
+            )
+        };
+        let (is_unique, op2) = op2.unsafe_is_unique;
+        if is_unique {
+            op1._borrow(|op1_ptr|
+                op3._borrow(|op3_ptr|
+                    op2._mutate(|op2_ptr| act((op2_ptr, op1_ptr, op2_ptr, op3_ptr))).@0
+                )
+            )
+        };
+        let (is_unique, op3) = op3.unsafe_is_unique;
+        if is_unique {
+            op1._borrow(|op1_ptr|
+                op2._borrow(|op2_ptr|
+                    op3._mutate(|op3_ptr| act((op3_ptr, op1_ptr, op2_ptr, op3_ptr))).@0
+                )
+            )
+        };
+        op1._borrow(|op1_ptr|
+            op2._borrow(|op2_ptr|
+                op3._borrow(|op3_ptr|
+                    MPZ::zero._mutate(|out_ptr| act((out_ptr, op1_ptr, op2_ptr, op3_ptr))).@0
+                )
+            )
+        )
+    );
     
     // The zero value.
     zero : MPZ;
@@ -655,6 +691,51 @@ namespace MPZ {
                 )).@0
             ))
         ))
+    );
+
+    // Power
+
+    // Calculates `b^e mod m`.
+    // 
+    // # Parameters
+    // - `e`: The exponent.
+    // - `m`: The modulus.
+    // - `b`: The base.
+    powm : MPZ -> MPZ -> MPZ -> MPZ;
+    powm = |exp, mod, base| (
+        MPZ::_tertiary_op(
+            |(out_ptr, base_ptr, exp_ptr, mod_ptr)| FFI_CALL_IO[() __gmpz_powm(Ptr, Ptr, Ptr, Ptr), out_ptr, base_ptr, exp_ptr, mod_ptr],
+            base, exp, mod
+        )
+    );
+
+    // Calculates `b^e mod m`.
+    // 
+    // This is a secure version of `powm`. For details, see the document of `mpz_powm_sec` in GMP.
+    // 
+    // # Parameters
+    // - `e`: The exponent.
+    // - `m`: The modulus.
+    // - `b`: The base.
+    powm_sec : MPZ -> MPZ -> MPZ -> MPZ;
+    powm_sec = |exp, mod, base| (
+        MPZ::_tertiary_op(
+            |(out_ptr, base_ptr, exp_ptr, mod_ptr)| FFI_CALL_IO[() __gmpz_powm(Ptr, Ptr, Ptr, Ptr), out_ptr, base_ptr, exp_ptr, mod_ptr],
+            base, exp, mod
+        )
+    );    
+
+    // Calculates `b^e`.
+    // 
+    // # Parameters
+    // - `e`: The exponent.
+    // - `b`: The base.
+    pow_ui : U64 -> MPZ -> MPZ;
+    pow_ui = |exp, base| (
+        MPZ::_unary_op(
+            |(out_ptr, base_ptr)| FFI_CALL_IO[() __gmpz_pow_ui(Ptr, Ptr, CUnsignedLong), out_ptr, base_ptr, exp.to_CUnsignedLong],
+            base
+        )
     );
 
     // // Arithmetics
