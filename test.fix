@@ -407,6 +407,10 @@ test_z_root = (
     let z = mpz(27).root(3_U64);
     assert_eq(|_|"case 0", z, mpz(3));;
 
+    let (root, rem) = mpz(27).root_rem(2_U64);
+    assert_eq(|_|"case 1", root, mpz(5));;
+    assert_eq(|_|"case 1", rem, mpz(2));;
+
     pure()
 );
 

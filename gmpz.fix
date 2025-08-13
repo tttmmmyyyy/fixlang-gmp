@@ -76,6 +76,26 @@ namespace MPZ {
         }
     );
 
+    // Apply a unary operation of GMP (taking (out1, out2, in) as arguments) to a `MPZ` value.
+    _unary_op2 : ((MPZHandle, MPZHandle, MPZHandle) -> IO ()) -> MPZ -> (MPZ, MPZ);
+    _unary_op2 = |act, num| (
+        let (is_unique, num) = num.unsafe_is_unique;
+        if is_unique {
+            num._mutate(|num_ptr| 
+                MPZ::zero._mutate(|out2_ptr|
+                    act((num_ptr, out2_ptr, num_ptr))
+                ).@0.pure
+            )
+        };
+        num._borrow(|num_ptr|
+            MPZ::zero._mutate(|out1_ptr|
+                MPZ::zero._mutate(|out2_ptr|
+                    act((out1_ptr, out2_ptr, num_ptr))
+                ).@0.pure
+            )
+        )
+    );
+
     // Apply a binary operation of GMP (taking (out, lhs, rhs) as arguments) to two `MPZ` values.
     _binary_op : ((MPZHandle, MPZHandle, MPZHandle) -> IO ()) -> MPZ -> MPZ -> MPZ;
     _binary_op = |act, lhs, rhs| (
@@ -749,6 +769,22 @@ namespace MPZ {
     root = |n, x| (
         MPZ::_unary_op(
             |(out_ptr, op_ptr)| FFI_CALL_IO[() __gmpz_root(Ptr, Ptr, CUnsignedLong), out_ptr, op_ptr, n.to_CUnsignedLong],
+            x
+        )
+    );
+
+    // Calculates the n-th root of `x` and the remainder.
+    // 
+    // # Returns
+    // A pair (root, remainder) such that `x = root^n + remainder`.
+    // 
+    // # Parameters
+    // - `n`: The root to calculate.
+    // - `x`: The value to calculate the root of.
+    root_rem : U64 -> MPZ -> (MPZ, MPZ);
+    root_rem = |n, x| (
+        MPZ::_unary_op2(
+            |(out_ptr, rem_ptr, op_ptr)| FFI_CALL_IO[() __gmpz_rootrem(Ptr, Ptr, Ptr, CUnsignedLong), out_ptr, rem_ptr, op_ptr, n.to_CUnsignedLong],
             x
         )
     );
