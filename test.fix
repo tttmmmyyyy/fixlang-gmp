@@ -18,6 +18,7 @@ test_z = (
     test_z_comparison;;
     test_z_pow;;
     test_z_root;;
+    test_z_bit;;
 
     // zero and one
     assert_eq(|_|"zero", MPZ::zero.to_string, "0");;
@@ -347,7 +348,7 @@ test_z_conversion = (
     assert_eq(|_|"case 0", n.to_string, "0");;
 
     let n = MPZ::from_I64(255);
-    assert_eq(|_|"case 1", n.get_string(16_I8), "ff");;
+    assert_eq(|_|"case 1", n.get_string(16), "ff");;
 
     pure()
 );
@@ -438,6 +439,20 @@ test_z_root = (
 
     assert(|_|"case 4", mpz(27).perfect_power_p);;
     assert(|_|"case 4", !mpz(27).perfect_square_p);;
+
+    pure()
+);
+
+test_z_bit : IO ();
+test_z_bit = (
+    let x = MPZ::from_string("101010", 2).as_some;
+    let y = MPZ::from_string("110011", 2).as_some;
+    let z = x.bit_and(y);
+    assert_eq(|_|"case 0", z.get_string(2), "100010");;
+    let z = x.bit_or(y);
+    assert_eq(|_|"case 1", z.get_string(2), "111011");;
+    let z = x.bit_xor(y);
+    assert_eq(|_|"case 2", z.get_string(2), "11001");; // leading zero removed
 
     pure()
 );

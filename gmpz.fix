@@ -357,10 +357,13 @@ namespace MPZ {
     // Converts a `MPZ` value to a string in the given base.
     // 
     // # Parameters
-    // - `base`: The base of the string representation.
+    // - `base`: The base of the string representation, which must be in the range [-36, -2] or [2, 62].
     // - `num`: The `MPZ` value to convert.
-    get_string : I8 -> MPZ -> String;
+    get_string : I64 -> MPZ -> String;
     get_string = |base, num| (
+        if base < -36 || base > 62 || (-2 < base && base < 2) {
+            undefined("[MPZ::get_string] base must be in the range [-36, -2] or [2, 62]")
+        };
         let base = base.to_CInt;
         num._borrow(|num_ptr| (
             let len_base = FFI_CALL[CSizeT __gmpz_sizeinbase(Ptr, CInt), num_ptr, base];
@@ -945,6 +948,47 @@ namespace MPZ {
         if r > 0 { 1 };
         0
     );
+
+    // Bit operations
+
+    // Logical and operation on two `MPZ` values.
+    // 
+    // # Parameters
+    // - `lhs`: The left-hand side value.
+    // - `rhs`: The right-hand side value.
+    bit_and : MPZ -> MPZ -> MPZ;
+    bit_and = |lhs, rhs| (
+        MPZ::_binary_op(
+            |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_and(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
+            lhs, rhs
+        )
+    );
+
+    // Logical or operation on two `MPZ` values.
+    // 
+    // # Parameters
+    // - `lhs`: The left-hand-side value.
+    // - `rhs`: The right-hand-side value.
+    bit_or : MPZ -> MPZ -> MPZ;
+    bit_or = |lhs, rhs| (
+        MPZ::_binary_op(
+            |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_ior(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
+            lhs, rhs
+        )
+    );
+
+    // Logical xor operation on two `MPZ` values.
+    // 
+    // # Parameters
+    // - `lhs`: The left-hand-side value.
+    // - `rhs`: The right-hand-side value.
+    bit_xor : MPZ -> MPZ -> MPZ;
+    bit_xor = |lhs, rhs| (
+        MPZ::_binary_op(
+            |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_xor(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
+            lhs, rhs
+        )
+    );
 }
 
 impl MPZ : Add {
@@ -1001,7 +1045,7 @@ impl MPZ : LessThanOrEq {
 }
 
 impl MPZ : ToString {
-    to_string = |num| num.get_string(10_I8);
+    to_string = |num| num.get_string(10);
 }
 
 impl MPZ : Hash {
