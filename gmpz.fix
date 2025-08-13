@@ -856,8 +856,96 @@ namespace MPZ {
         ))
     );
 
-}
+    // Number theoretic functions
 
+    // Comparisons
+
+    // Compares two `MPZ` values.
+    // 
+    // # Returns
+    // - a negative if `lhs < rhs`
+    // - zero if `lhs == rhs`
+    // - a positive if `lhs > rhs`
+    //
+    // # Parameters
+    // - `lhs`: The left-hand side value.
+    // - `rhs`: The right-hand side value.
+    cmp : MPZ -> MPZ -> I64;
+    cmp = |lhs, rhs| (
+        lhs._borrow(|lhs_ptr| (
+            rhs._borrow(|rhs_ptr| (
+                FFI_CALL[CInt __gmpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr].to_I64
+            ))
+        ))
+    );
+
+    // Compares a `MPZ` value and an `F64` value.
+    // 
+    // # Returns
+    // - a negative if `lhs < rhs`
+    // - zero if `lhs == rhs`
+    // - a positive if `lhs > rhs`
+    //
+    // # Parameters
+    // - `lhs`: The left-hand side value.
+    // - `rhs`: The right-hand side value.
+    cmp_d : MPZ -> F64 -> I64;
+    cmp_d = |lhs, rhs| (
+        lhs._borrow(|lhs_ptr| (
+            FFI_CALL[CInt __gmpz_cmp_d(Ptr, CDouble), lhs_ptr, rhs].to_I64
+        ))
+    );
+
+    // Compares absolute values of two `MPZ` values.
+    // 
+    // # Returns
+    // - a negative if `|lhs| < |rhs|`
+    // - zero if `|lhs| == |rhs|`
+    // - a positive if `|lhs| > |rhs|`
+    //
+    // # Parameters
+    // - `lhs`: The left-hand side value.
+    // - `rhs`: The right-hand side value.
+    cmpabs : MPZ -> MPZ -> I64;
+    cmpabs = |lhs, rhs| (
+        lhs._borrow(|lhs_ptr| (
+            rhs._borrow(|rhs_ptr| (
+                FFI_CALL[CInt __gmpz_cmpabs(Ptr, Ptr), lhs_ptr, rhs_ptr].to_I64
+            ))
+        ))
+    );
+
+    // Compares absolute values of a `MPZ` value and an `F64` value.
+    // 
+    // # Returns
+    // - a negative if `|lhs| < |rhs|`
+    // - zero if `|lhs| == |rhs|`
+    // - a positive if `|lhs| > |rhs|`
+    //
+    // # Parameters
+    // - `lhs`: The left-hand side value.
+    // - `rhs`: The right-hand side value.
+    cmpabs_d : MPZ -> F64 -> I64;
+    cmpabs_d = |lhs, rhs| (
+        lhs._borrow(|lhs_ptr| (
+            FFI_CALL[CInt __gmpz_cmpabs_d(Ptr, CDouble), lhs_ptr, rhs].to_I64
+        ))
+    );
+
+    // Returns the sign of a `MPZ` value.
+    // 
+    // # Returns
+    // - `-1` if `n < 0`
+    // - `0` if `n == 0`
+    // - `1` if `n > 0`
+    sgn : MPZ -> I64;
+    sgn = |n| (
+        let r = cmp(n, MPZ::zero);
+        if r < 0 { -1 };
+        if r > 0 { 1 };
+        0
+    );
+}
 
 impl MPZ : Add {
     add = |lhs, rhs| (
@@ -893,13 +981,7 @@ impl MPZ : Neg {
 }
 
 impl MPZ : Eq {
-    eq = |lhs, rhs| (
-        lhs._borrow(|lhs_ptr| (
-            rhs._borrow(|rhs_ptr| (
-                FFI_CALL[CInt __gmpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] == 0.to_CInt
-            ))
-        ))
-    );
+    eq = |lhs, rhs| MPZ::cmp(lhs, rhs) == 0;
 }
 
 impl MPZ : Rem {
@@ -911,26 +993,12 @@ impl MPZ : Div {
 }
 
 impl MPZ : LessThan {
-    less_than = |lhs, rhs| (
-        lhs._borrow(|lhs_ptr| (
-            rhs._borrow(|rhs_ptr| (
-                FFI_CALL[CInt __gmpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] < 0.to_CInt
-            ))
-        ))
-    );
+    less_than = |lhs, rhs| MPZ::cmp(lhs, rhs) < 0;
 }
 
 impl MPZ : LessThanOrEq {
-    less_than_or_eq = |lhs, rhs| (
-        lhs._borrow(|lhs_ptr| (
-            rhs._borrow(|rhs_ptr| (
-                let ord = FFI_CALL[CInt __gmpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr];
-                ord < 0.to_CInt || ord == 0.to_CInt
-            ))
-        ))
-    );
+    less_than_or_eq = |lhs, rhs| MPZ::cmp(lhs, rhs) <= 0;
 }
-
 
 impl MPZ : ToString {
     to_string = |num| num.get_string(10_I8);

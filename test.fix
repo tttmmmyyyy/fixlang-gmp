@@ -385,6 +385,24 @@ test_z_comparison = (
     assert(|_|"case 8", x <= x);;
     assert(|_|"case 8", x >= x);;
 
+    assert(|_|"case 9", cmp(zero, one) < 0);;
+    assert(|_|"case 9", cmp(zero, zero) == 0);;
+    assert(|_|"case 9", cmp(one, zero) > 0);;
+
+    assert(|_|"case 10", cmp_d(zero, -0.5) > 0);; 
+    assert(|_|"case 10", cmp_d(zero, 0.5) < 0);; 
+
+    assert(|_|"case 11", cmpabs(mpz(-2), mpz(-1)) > 0);;
+    assert(|_|"case 11", cmpabs(mpz(-2), mpz(2)) == 0);;
+    assert(|_|"case 11", cmpabs(mpz(1), mpz(-2)) < 0);;
+
+    assert(|_|"case 12", cmpabs_d(mpz(-2), -1.5) > 0);;
+    assert(|_|"case 12", cmpabs_d(mpz(1), -2.5) < 0);;
+
+    assert_eq(|_|"case 13", mpz(-2).sgn, -1);;
+    assert_eq(|_|"case 13", mpz(0).sgn, 0);;
+    assert_eq(|_|"case 13", mpz(2).sgn, 1);;
+
     pure()
 );
 
