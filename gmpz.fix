@@ -364,6 +364,38 @@ namespace MPZ {
         )
     );
 
+    // Checks if two values `a`, `b` are congruent modulo `m`.
+    //
+    // # Parameters
+    // - `m`: The modulus.
+    // - `a`: The first value.
+    // - `b`: The second value.
+    congruent_p : MPZ -> MPZ -> MPZ -> Bool;
+    congruent_p = |m, a, b| (
+        a._borrow(|a_ptr| (
+            b._borrow(|b_ptr| (
+                m._borrow(|m_ptr| (
+                    FFI_CALL[CInt __gmpz_congruent_p(Ptr, Ptr, Ptr), a_ptr, b_ptr, m_ptr] != 0.to_CInt
+                ))
+            ))
+        ))
+    );
+
+    // Checks if two values `a`, `b` are congruent modulo `2^b`.
+    // 
+    // # Parameters
+    // - `bit`: The exponent of 2.
+    // - `a`: The first value.
+    // - `b`: The second value.
+    congruent_2exp_p : U64 -> MPZ -> MPZ -> Bool;
+    congruent_2exp_p = |bit, a, b| (
+        a._borrow(|a_ptr| (
+            b._borrow(|b_ptr| (
+                FFI_CALL[CInt __gmpz_congruent_2exp_p(Ptr, Ptr, CUnsignedLong), a_ptr, b_ptr, bit.to_CUnsignedLong] != 0.to_CInt
+            ))
+        ))
+    );
+
     // Division and remainder
 
     // Divides `n` by `d` and returns the quotient and remainder.

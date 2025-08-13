@@ -277,6 +277,10 @@ test_z_basic_arithmetic = (
     let r = n.mod(d);
     assert_eq(|_|"case 0", r.to_string, "1");;
 
+    // Congruence
+    assert(|_|"mpz congruent_p 1", mpz(1).congruent_p(mpz(2), mpz(3)));;
+    assert(|_|"mpz congruent_2exp_p", mpz(8).congruent_2exp_p(3_U64, mpz(0)));;
+
     pure()
 );
 
@@ -392,6 +396,8 @@ test_q = (
 
     // mpq
     // assert_eq(|_|"mpq", mpq(42, 14).to_string, "3");;
+    
+    // todo: to_string
 
     let x = MPQ::from_MPZ(MPZ::from_I64(1234));
     let y = MPQ::from_MPZ(MPZ::from_I64(5678));
