@@ -17,12 +17,13 @@ test_z = (
     test_z_basic_arithmetic;;
     test_z_comparison;;
     test_z_pow;;
+    test_z_root;;
 
     // zero and one
     assert_eq(|_|"zero", MPZ::zero.to_string, "0");;
     assert_eq(|_|"one", MPZ::one.to_string, "1");;
 
-    // mpz
+    // constructor
     assert_eq(|_|"mpz", mpz(42).to_string, "42");;
 
     pure()
@@ -397,6 +398,14 @@ test_z_pow = (
 
     let z = mpz(2).pow_ui(10_U64);
     assert_eq(|_|"case 2", z.to_string, "1024");;
+
+    pure()
+);
+
+test_z_root : IO ();
+test_z_root = (
+    let z = mpz(27).root(3_U64);
+    assert_eq(|_|"case 0", z, mpz(3));;
 
     pure()
 );

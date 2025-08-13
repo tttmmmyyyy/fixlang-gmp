@@ -738,6 +738,21 @@ namespace MPZ {
         )
     );
 
+    // Roots
+
+    // Calculates the integer part of the n-th root of `x`.
+    // 
+    // # Parameters
+    // - `n`: The root to calculate.
+    // - `x`: The value to calculate the root of.
+    root : U64 -> MPZ -> MPZ;
+    root = |n, x| (
+        MPZ::_unary_op(
+            |(out_ptr, op_ptr)| FFI_CALL_IO[() __gmpz_root(Ptr, Ptr, CUnsignedLong), out_ptr, op_ptr, n.to_CUnsignedLong],
+            x
+        )
+    );
+
     // // Arithmetics
 
     // get_gcd : MPZ -> MPZ -> MPZ;
