@@ -411,6 +411,16 @@ test_z_root = (
     assert_eq(|_|"case 1", root, mpz(5));;
     assert_eq(|_|"case 1", rem, mpz(2));;
 
+    let z = mpz(27).sqrt;
+    assert_eq(|_|"case 2", z, mpz(5));;
+
+    let (root, rem) = mpz(27).sqrt_rem;
+    assert_eq(|_|"case 3", root, mpz(5));;
+    assert_eq(|_|"case 3", rem, mpz(2));;
+
+    assert(|_|"case 4", mpz(27).perfect_power_p);;
+    assert(|_|"case 4", !mpz(27).perfect_square_p);;
+
     pure()
 );
 

@@ -789,6 +789,49 @@ namespace MPZ {
         )
     );
 
+    // Calculates the integer part of the root of `x` and the remainder.
+    //
+    // # Parameters
+    // - `x`: The value to calculate the root of.
+    sqrt : MPZ -> MPZ;
+    sqrt = |x| (
+        MPZ::_unary_op(
+            |(out_ptr, op_ptr)| FFI_CALL_IO[() __gmpz_sqrt(Ptr, Ptr), out_ptr, op_ptr],
+            x
+        )
+    );
+
+    // Calculates the square root of `x` and the remainder.
+    // 
+    // # Returns
+    // A pair (root, remainder) such that `x = root^2 + remainder
+    //
+    // # Parameters
+    // - `x`: The value to calculate the square root of.
+    sqrt_rem : MPZ -> (MPZ, MPZ);
+    sqrt_rem = |x| (
+        MPZ::_unary_op2(
+            |(out_ptr, rem_ptr, op_ptr)| FFI_CALL_IO[() __gmpz_sqrtrem(Ptr, Ptr, Ptr), out_ptr, rem_ptr, op_ptr],
+            x
+        )
+    );
+
+    // Checks if `x` is a perfect power, i.e., `x = a^b` for some integers `a` and `b >= 2`.
+    perfect_power_p : MPZ -> Bool;
+    perfect_power_p = |x| (
+        x._borrow(|x_ptr| (
+            FFI_CALL[CInt __gmpz_perfect_power_p(Ptr), x_ptr] != 0.to_CInt
+        ))
+    );
+
+    // Checks if `x` is a perfect square, i.e., `x = a^2` for some integer `a`.
+    perfect_square_p : MPZ -> Bool;
+    perfect_square_p = |x| (
+        x._borrow(|x_ptr| (
+            FFI_CALL[CInt __gmpz_perfect_square_p(Ptr), x_ptr] != 0.to_CInt
+        ))
+    );
+
     // // Arithmetics
 
     // get_gcd : MPZ -> MPZ -> MPZ;
