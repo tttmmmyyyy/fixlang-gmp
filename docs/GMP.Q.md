@@ -1,6 +1,6 @@
 # GMP.Q
 
-Defined in gmp-fix@0.3.4
+Defined in gmp-fix@0.4.0
 
 ## Values
 
@@ -13,17 +13,6 @@ Type: `Std::FFI::CInt`
 Size of `__mpq_struct`.
 
 ### namespace GMP.Q::MPQ
-
-#### from_I64
-
-Type: `Std::I64 -> Std::I64 -> GMP.Q::MPQ`
-
-Creates a new `MPQ` value from I64 numerator and denominator.
-
-##### Parameters
-
-- `num`: The numerator as an `I64` value.
-- `den`: The denominator as an `I64` value.
 
 #### from_MPZ
 
@@ -49,6 +38,23 @@ Type: `GMP.Q::MPQ -> GMP.Z::MPZ`
 #### get_num
 
 Type: `GMP.Q::MPQ -> GMP.Z::MPZ`
+
+#### init_set_si
+
+Type: `Std::I64 -> Std::I64 -> GMP.Q::MPQ`
+
+Creates a new `MPQ` value from I64 numerator and denominator.
+
+##### Parameters
+
+- `num`: The numerator as an `I64` value.
+- `den`: The denominator as an `I64` value.
+
+#### mpq
+
+Type: `Std::I64 -> Std::I64 -> GMP.Q::MPQ`
+
+Creates a new `MPQ` value from I64 numerator and denominator.
 
 #### one
 

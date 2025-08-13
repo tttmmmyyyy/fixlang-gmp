@@ -196,7 +196,7 @@ namespace MPZ {
     // # Parameters
     // - `n`: The `I64` value to convert.
     mpz : I64 -> MPZ;
-    mpz = MPZ::from_I64;
+    mpz = MPZ::init_set_si;
 
     // The value `0`
     zero : MPZ;
@@ -204,7 +204,7 @@ namespace MPZ {
 
     // The value `1`
     one : MPZ;
-    one = MPZ::from_I64(1);
+    one = MPZ::init_set_si(1);
 
     // Sets the value of a MPZ to the given string in the given base.
     // 
@@ -215,8 +215,8 @@ namespace MPZ {
     // - `str`: The string representation of the integer.
     // - `base`: The base of the string representation.
     // - `num`: The `MPZ` value to set.
-    set_string : String -> I64 -> MPZ -> Option MPZ;
-    set_string = |str, base, x| (
+    set_str : String -> I64 -> MPZ -> Option MPZ;
+    set_str = |str, base, x| (
         str.borrow_c_str(|str_c_str| (
             let (x, res) = x._mutate(|ptr| 
                 FFI_CALL_IO[CInt __gmpz_set_str(Ptr, Ptr, CInt), ptr, str_c_str, base.to_CInt]
@@ -234,8 +234,8 @@ namespace MPZ {
     // # Parameters
     // - `str`: The string representation of the integer.
     // - `base`: The base of the string representation.
-    from_string : String -> I64 -> Option MPZ;
-    from_string = |str, base| (
+    init_set_str : String -> I64 -> Option MPZ;
+    init_set_str = |str, base| (
         str.borrow_c_str(|str_c_str| (
             let (num, res) = MPZ::_init_by(|ptr| 
                 FFI_CALL_IO[CInt __gmpz_init_set_str(Ptr, Ptr, CInt), ptr, str_c_str, base.to_CInt]
@@ -250,8 +250,8 @@ namespace MPZ {
     // # Parameters
     // - `val`: The I64 value to set.
     // - `x`: The `MPZ` value to set.
-    set_I64 : I64 -> MPZ -> MPZ;
-    set_I64 = |val, x| (
+    set_si : I64 -> MPZ -> MPZ;
+    set_si = |val, x| (
         x._mutate(|ptr| FFI_CALL_IO[() __gmpz_set_si(Ptr, CLong), ptr, val]).@0
     );
 
@@ -259,8 +259,8 @@ namespace MPZ {
     // 
     // # Parameters
     // - `val`: The I64 value to represent.
-    from_I64 : I64 -> MPZ;
-    from_I64 = |val| MPZ::_init_by(|ptr| FFI_CALL_IO[() __gmpz_init_set_si(Ptr, CLong), ptr, val]).@0;
+    init_set_si : I64 -> MPZ;
+    init_set_si = |val| MPZ::_init_by(|ptr| FFI_CALL_IO[() __gmpz_init_set_si(Ptr, CLong), ptr, val]).@0;
    
     // Sets the value of a MPZ to the given U64 value.
     // 
@@ -1159,6 +1159,13 @@ impl MPZ : LessThanOrEq {
 
 impl MPZ : ToString {
     to_string = |num| num.get_string(10);
+}
+
+impl MPZ : FromString {
+    from_string = |s| match init_set_str(s, 10) {
+        none() => err $ "Failed to parse MPZ as a decimal string",
+        some(value) => ok $ value
+    };
 }
 
 impl MPZ : Hash {

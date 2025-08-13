@@ -108,15 +108,15 @@ namespace MPQ {
 
     // Creates a new `MPQ` value from I64 numerator and denominator.
     mpq : I64 -> I64 -> MPQ;
-    mpq = MPQ::from_I64;
+    mpq = MPQ::init_set_si;
 
     // Creates a new `MPQ` value from I64 numerator and denominator.
     // 
     // # Parameters
     // - `num`: The numerator as an `I64` value.
     // - `den`: The denominator as an `I64` value.
-    from_I64 : I64 -> I64 -> MPQ;
-    from_I64 = |num, den| (
+    init_set_si : I64 -> I64 -> MPQ;
+    init_set_si = |num, den| (
         let (num, den) = if den > 0 { (num, den.to_U64) } else { (-num, (-den).to_U64) };
         MPQ::_init_by(|handle|
             FFI_CALL_IO[() __gmpq_init(Ptr), handle];;

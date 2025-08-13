@@ -33,49 +33,49 @@ test_z = (
 
 test_z_memory : IO ();
 test_z_memory = (
-    // Test of `_mutate` via `set_string` in case of unique or shared.
+    // Test of `_mutate` via `set_str` in case of unique or shared.
     // unique
-    let n = MPZ::from_I64(2);
-    let n = n.set_string("7F", 16).as_some;
-    assert_eq(|_|"case set_string 1", n.to_string, "127");;
+    let n = MPZ::init_set_si(2);
+    let n = n.set_str("7F", 16).as_some;
+    assert_eq(|_|"case set_str 1", n.to_string, "127");;
     // shared
-    let n = MPZ::from_I64(2);
-    let m = n.set_string("7F", 16).as_some;
-    assert_eq(|_|"case set_string 2", m.to_string, "127");;
-    assert_eq(|_|"case set_string 3", n.to_string, "2");;
+    let n = MPZ::init_set_si(2);
+    let m = n.set_str("7F", 16).as_some;
+    assert_eq(|_|"case set_str 2", m.to_string, "127");;
+    assert_eq(|_|"case set_str 3", n.to_string, "2");;
 
     // Test of `_unary_op` via `abs` in case of unique or shared.
     // unique
-    let n = MPZ::from_I64(-1234);
+    let n = MPZ::init_set_si(-1234);
     let m = n.abs;
     assert_eq(|_|"case 2", m.to_string, "1234");;
     // shared
-    let n = MPZ::from_I64(-1234);
+    let n = MPZ::init_set_si(-1234);
     let m = n.abs;
     assert_eq(|_|"case 2", m.to_string, "1234");;
     assert_eq(|_|"case 2", n.to_string, "-1234");;
 
     // Test of `_binary_op` via `tdiv_q` in case of (n, d) is (unique, unique), (unique, shared), (shared, unique), (shared, shared).
     // (unique, unique)
-    let n = MPZ::from_I64(7);
-    let d = MPZ::from_I64(3);
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
     let q = n.tdiv_q(d);
     assert_eq(|_|"case 2", q.to_string, "2");;
     // (unique, shared)
-    let n = MPZ::from_I64(7);
-    let d = MPZ::from_I64(3);
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
     let q = n.tdiv_q(d);
     assert_eq(|_|"case 2", q.to_string, "2");;
     assert_eq(|_|"case 2", n.to_string, "7");;    
     // (unique, shared)
-    let n = MPZ::from_I64(7);
-    let d = MPZ::from_I64(3);
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
     let q = n.tdiv_q(d);
     assert_eq(|_|"case 2", q.to_string, "2");;
     assert_eq(|_|"case 2", d.to_string, "3");;    
     // (shared, shared)
-    let n = MPZ::from_I64(7);
-    let d = MPZ::from_I64(3);
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
     let q = n.tdiv_q(d);
     assert_eq(|_|"case 2", q.to_string, "2");;
     assert_eq(|_|"case 2", n.to_string, "7");;    
@@ -83,39 +83,39 @@ test_z_memory = (
 
     // Test of `_binary_op` via `tdiv_q` in case of (n, n) is given where n is unique or shared.
     // unique
-    let n = MPZ::from_I64(7);
+    let n = MPZ::init_set_si(7);
     let q = n.tdiv_q(n);
     assert_eq(|_|"case 3", q.to_string, "1");;
     // shared
-    let n = MPZ::from_I64(7);
+    let n = MPZ::init_set_si(7);
     let q = n.tdiv_q(n);
     assert_eq(|_|"case 3", q.to_string, "1");;
     assert_eq(|_|"case 3", n.to_string, "7");;
 
     // Test of `_binary_op` via `tdiv_qr` in case of (n, d) is (unique, unique), (unique, shared), (shared, unique), (shared, shared).
     // (unique, unique)
-    let n = MPZ::from_I64(7);
-    let d = MPZ::from_I64(3);
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
     let (q, r) = n.tdiv_qr(d);
     assert_eq(|_|"case 2", q.to_string, "2");;
     assert_eq(|_|"case 2", r.to_string, "1");;
     // (unique, shared)
-    let n = MPZ::from_I64(7);
-    let d = MPZ::from_I64(3);
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
     let (q, r) = n.tdiv_qr(d);
     assert_eq(|_|"case 2", q.to_string, "2");;
     assert_eq(|_|"case 2", r.to_string, "1");;
     assert_eq(|_|"case 2", n.to_string, "7");;    
     // (unique, shared)
-    let n = MPZ::from_I64(7);
-    let d = MPZ::from_I64(3);
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
     let (q, r) = n.tdiv_qr(d);
     assert_eq(|_|"case 2", q.to_string, "2");;
     assert_eq(|_|"case 2", r.to_string, "1");;
     assert_eq(|_|"case 2", d.to_string, "3");;    
     // (shared, shared)
-    let n = MPZ::from_I64(7);
-    let d = MPZ::from_I64(3);
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
     let (q, r) = n.tdiv_qr(d);
     assert_eq(|_|"case 2", q.to_string, "2");;
     assert_eq(|_|"case 2", r.to_string, "1");;
@@ -124,12 +124,12 @@ test_z_memory = (
 
     // Test of `_binary_op2` via `tdiv_qr` in case of (n, n) is given whre n is unique or shared.
     // unique
-    let n = MPZ::from_I64(7);
+    let n = MPZ::init_set_si(7);
     let (q, r) = n.tdiv_qr(n);
     assert_eq(|_|"case 3", q.to_string, "1");;
     assert_eq(|_|"case 3", r.to_string, "0");;
     // shared
-    let n = MPZ::from_I64(7);
+    let n = MPZ::init_set_si(7);
     let (q, r) = n.tdiv_qr(n);
     assert_eq(|_|"case 3", q.to_string, "1");;
     assert_eq(|_|"case 3", r.to_string, "0");;
@@ -141,132 +141,132 @@ test_z_memory = (
 test_z_basic_arithmetic : IO ();
 test_z_basic_arithmetic = (
     // Addition
-    let x = MPZ::from_I64(1234);
-    let y = MPZ::from_I64(5678);
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
     let z = x + y;
     assert_eq(|_|"case 4", z.to_string, "6912");;
 
     // Subtraction (both unique)
-    let x = MPZ::from_I64(1234);
-    let y = MPZ::from_I64(5678);
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
     let z = x - y;
     assert_eq(|_|"case 5", z.to_string, "-4444");;
 
     // Subtraction (lhs shared)
-    let x = MPZ::from_I64(1234);
-    let y = MPZ::from_I64(5678);
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
     let z = x - y;
     assert_eq(|_|"case 5.1", z.to_string, "-4444");;
     let z = z - x;
     assert_eq(|_|"case 5.1.0", z.to_string, "-5678");;
 
     // Subtraction (rhs shared)
-    let x = MPZ::from_I64(1234);
-    let y = MPZ::from_I64(5678);
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
     let z = x - y;
     assert_eq(|_|"case 5.2", z.to_string, "-4444");;
     let z = z + y;
     assert_eq(|_|"case 5.2.0", z.to_string, "1234");;
 
     // Subtraction (both shared)
-    let x = MPZ::from_I64(1234);
-    let y = MPZ::from_I64(5678);
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
     let z = x - y;
     assert_eq(|_|"case 5.3", z.to_string, "-4444");;
     let z = z - x + y;
     assert_eq(|_|"case 5.3.0", z.to_string, "0");;
 
     // Multiplication
-    let x = MPZ::from_I64(1234);
-    let y = MPZ::from_I64(5678);
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
     let z = x * y;
     assert_eq(|_|"case 6", z.to_string, "7006652");;
 
     // Negation
-    let x = MPZ::from_I64(1234);
+    let x = MPZ::init_set_si(1234);
     let y = -x;
     assert_eq(|_|"case 7", y.to_string, "-1234");;
 
     // Negation (shared)
-    let x = MPZ::from_I64(1234);
+    let x = MPZ::init_set_si(1234);
     let y = -x;
     let z = y + x;
     assert_eq(|_|"case 7.1", z.to_string, "0");;
 
     // Division
-    let q = MPZ::from_I64(5) / MPZ::from_I64(2);
-    let r = MPZ::from_I64(5) % MPZ::from_I64(2);
+    let q = MPZ::init_set_si(5) / MPZ::init_set_si(2);
+    let r = MPZ::init_set_si(5) % MPZ::init_set_si(2);
     assert_eq(|_|"case 15", q.to_string, "2");;
     assert_eq(|_|"case 15", r.to_string, "1");;
 
-    let q = MPZ::from_I64(5) / MPZ::from_I64(-2);
-    let r = MPZ::from_I64(5) % MPZ::from_I64(-2);
+    let q = MPZ::init_set_si(5) / MPZ::init_set_si(-2);
+    let r = MPZ::init_set_si(5) % MPZ::init_set_si(-2);
     assert_eq(|_|"case 15.5", q.to_string, "-2");;
     assert_eq(|_|"case 15.5", r.to_string, "1");;
 
-    let q = MPZ::from_I64(-5) / MPZ::from_I64(2);
-    let r = MPZ::from_I64(-5) % MPZ::from_I64(2);
+    let q = MPZ::init_set_si(-5) / MPZ::init_set_si(2);
+    let r = MPZ::init_set_si(-5) % MPZ::init_set_si(2);
     assert_eq(|_|"case 16", q.to_string, "-2");;
     assert_eq(|_|"case 16", r.to_string, "-1");;
 
-    let q = MPZ::from_I64(-5) / MPZ::from_I64(-2);
-    let r = MPZ::from_I64(-5) % MPZ::from_I64(-2);
+    let q = MPZ::init_set_si(-5) / MPZ::init_set_si(-2);
+    let r = MPZ::init_set_si(-5) % MPZ::init_set_si(-2);
     assert_eq(|_|"case 16", q.to_string, "2");;
     assert_eq(|_|"case 16", r.to_string, "-1");;
 
     // truncated division
-    let (q, r) = MPZ::from_I64(-5).tdiv_qr(MPZ::from_I64(3));
+    let (q, r) = MPZ::init_set_si(-5).tdiv_qr(MPZ::init_set_si(3));
     assert_eq(|_|"case 18", q.to_string, "-1");;
     assert_eq(|_|"case 18", r.to_string, "-2");;
-    let q = MPZ::from_I64(-5).tdiv_q(MPZ::from_I64(3));
+    let q = MPZ::init_set_si(-5).tdiv_q(MPZ::init_set_si(3));
     assert_eq(|_|"case 18", q.to_string, "-1");;
-    let r = MPZ::from_I64(-5).tdiv_r(MPZ::from_I64(3));
+    let r = MPZ::init_set_si(-5).tdiv_r(MPZ::init_set_si(3));
     assert_eq(|_|"case 18", r.to_string, "-2");;
-    let q = MPZ::from_I64(13).tdiv_q_2exp(2_U64);
+    let q = MPZ::init_set_si(13).tdiv_q_2exp(2_U64);
     assert_eq(|_|"case 18", q.to_string, "3");;
-    let r = MPZ::from_I64(13).tdiv_r_2exp(2_U64);
+    let r = MPZ::init_set_si(13).tdiv_r_2exp(2_U64);
     assert_eq(|_|"case 18", r.to_string, "1");;
 
     // ceiling division
-    let (q, r) = MPZ::from_I64(-5).cdiv_qr(MPZ::from_I64(3));
+    let (q, r) = MPZ::init_set_si(-5).cdiv_qr(MPZ::init_set_si(3));
     assert_eq(|_|"case 18", q.to_string, "-1");;
     assert_eq(|_|"case 18", r.to_string, "-2");;
-    let q = MPZ::from_I64(-5).cdiv_q(MPZ::from_I64(3));
+    let q = MPZ::init_set_si(-5).cdiv_q(MPZ::init_set_si(3));
     assert_eq(|_|"case 18", q.to_string, "-1");;
-    let r = MPZ::from_I64(-5).cdiv_r(MPZ::from_I64(3));
+    let r = MPZ::init_set_si(-5).cdiv_r(MPZ::init_set_si(3));
     assert_eq(|_|"case 18", r.to_string, "-2");;
-    let q = MPZ::from_I64(13).cdiv_q_2exp(2_U64);
+    let q = MPZ::init_set_si(13).cdiv_q_2exp(2_U64);
     assert_eq(|_|"case 18", q.to_string, "4");;
-    let r = MPZ::from_I64(13).cdiv_r_2exp(2_U64);
+    let r = MPZ::init_set_si(13).cdiv_r_2exp(2_U64);
     assert_eq(|_|"case 18", r.to_string, "-3");;    
 
     // floor division
-    let (q, r) = MPZ::from_I64(-5).fdiv_qr(MPZ::from_I64(3));
+    let (q, r) = MPZ::init_set_si(-5).fdiv_qr(MPZ::init_set_si(3));
     assert_eq(|_|"case 18", q.to_string, "-2");;
     assert_eq(|_|"case 18", r.to_string, "1");;
-    let q = MPZ::from_I64(-5).fdiv_q(MPZ::from_I64(3));
+    let q = MPZ::init_set_si(-5).fdiv_q(MPZ::init_set_si(3));
     assert_eq(|_|"case 18", q.to_string, "-2");;
-    let r = MPZ::from_I64(-5).fdiv_r(MPZ::from_I64(3));
+    let r = MPZ::init_set_si(-5).fdiv_r(MPZ::init_set_si(3));
     assert_eq(|_|"case 18", r.to_string, "1");;
-    let q = MPZ::from_I64(13).fdiv_q_2exp(2_U64);
+    let q = MPZ::init_set_si(13).fdiv_q_2exp(2_U64);
     assert_eq(|_|"case 18", q.to_string, "3");;
-    let r = MPZ::from_I64(13).fdiv_r_2exp(2_U64);
+    let r = MPZ::init_set_si(13).fdiv_r_2exp(2_U64);
     assert_eq(|_|"case 18", r.to_string, "1");;        
 
     // Exact division
-    let x = MPZ::from_I64(1234);
-    let y = MPZ::from_I64(5678 * 1234);
-    let z = MPZ::from_I64(5678);
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678 * 1234);
+    let z = MPZ::init_set_si(5678);
     assert(|_|"", y.divisible_p(x));;
     assert(|_|"", y.divexact(x) == z);;
     assert(|_|"", !z.divisible_p(x));;
-    let x = MPZ::from_I64(16);
+    let x = MPZ::init_set_si(16);
     assert(|_|"", x.divisible_2exp_p(4_U64));;
     assert(|_|"", !x.divisible_2exp_p(5_U64));;
 
     // Modulo
-    let n = MPZ::from_I64(5);
-    let d = MPZ::from_I64(2);
+    let n = MPZ::init_set_si(5);
+    let d = MPZ::init_set_si(2);
     let r = n.mod(d);
     assert_eq(|_|"case 0", r.to_string, "1");;
 
@@ -281,12 +281,12 @@ test_z_basic_arithmetic = (
     assert_eq(|_|"mpz submul", mpz(1).submul(mpz(2), mpz(3)), mpz(-5));;
 
     // mul_2exp
-    let x = MPZ::from_I64(1234);
+    let x = MPZ::init_set_si(1234);
     let y = x.mul_2exp(10_U64);
     assert_eq(|_|"case 9", y.to_string, "1263616");;
 
     // Absolute value
-    let x = MPZ::from_I64(-1234);
+    let x = MPZ::init_set_si(-1234);
     let y = x.abs;
     assert_eq(|_|"case 8", y.to_string, "1234");;
 
@@ -298,10 +298,10 @@ test_z_conversion = (
     let num = MPZ::zero;
     assert_eq(|_|"case 0", num.to_string, "0");;
 
-    let num = MPZ::from_I64(-12345);
+    let num = MPZ::init_set_si(-12345);
     assert_eq(|_|"case 2", num.to_string, "-12345");;
 
-    let num = num.set_I64(54321);
+    let num = num.set_si(54321);
     assert_eq(|_|"case 2.1", num.to_string, "54321");;
 
     let num = MPZ::from_U64(31415_U64);
@@ -317,37 +317,37 @@ test_z_conversion = (
     assert_eq(|_|"case 4", num.to_string, "3");;
 
     // Test `to_I64`
-    let num = MPZ::from_I64(1234);
+    let num = MPZ::init_set_si(1234);
     assert_eq(|_|"case to_I64 success", num.to_I64.as_some, 1234);;
 
-    let num = MPZ::from_string("12345678901234567890123", 10).as_some;
+    let num = (from_string("12345678901234567890123").as_ok : MPZ);
     assert(|_|"case to_I64 fail", num.to_I64.is_none);;
 
     // Test `to_U64`
     let num = MPZ::from_U64(1234_U64);
     assert_eq(|_|"case to_U64 success", num.to_U64.as_some, 1234_U64);;
 
-    let num = MPZ::from_string("12345678901234567890123", 10).as_some;
+    let num = (from_string("12345678901234567890123").as_ok : MPZ);
     assert(|_|"case to_U64 fail", num.to_U64.is_none);;
 
     // Test `to_F64`
-    let num = MPZ::from_I64(1234);
+    let num = MPZ::init_set_si(1234);
     assert_eq(|_|"case to_F64", num.MPZ::to_F64, 1234.0);;
 
     // Test `to_F64_2exp`
-    let num = MPZ::from_string("5", 10).as_some;
+    let num = from_string("5").as_ok : MPZ;
     let (mantissa, exponent) = num.to_F64_2exp;
     assert_eq(|_|"case to_F64_2exp mantissa", mantissa, 0.625);;
     assert_eq(|_|"case to_F64_2exp exponent", exponent, 3);;
 
     // Test `set_MPQ`
-    let q = MPQ::from_I64(6, 5);
-    let n = MPZ::from_I64(0);
+    let q = MPQ::init_set_si(6, 5);
+    let n = MPZ::init_set_si(0);
     let m = n.set_MPQ(q);
     assert_eq(|_|"case 0", m.to_string, "1");;
     assert_eq(|_|"case 0", n.to_string, "0");;
 
-    let n = MPZ::from_I64(255);
+    let n = MPZ::init_set_si(255);
     assert_eq(|_|"case 1", n.get_string(16), "ff");;
 
     pure()
@@ -355,32 +355,32 @@ test_z_conversion = (
 
 test_z_comparison : IO ();
 test_z_comparison = (
-    let x = MPZ::from_I64(1234);
-    let y = MPZ::from_I64(5678);
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
     assert(|_|"case 7", x != y);;
 
-    let x = MPZ::from_I64(1234);
-    let y = MPZ::from_I64(1234);
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(1234);
     assert(|_|"case 7", x == y);;
 
-    let x = MPZ::from_I64(1234);
+    let x = MPZ::init_set_si(1234);
     assert(|_|"case 7", x == x);;
 
-    let x = MPZ::from_I64(1234);
-    let y = MPZ::from_I64(5678);
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
     assert(|_|"case 8", x < y);;
     assert(|_|"case 8", !(x > y));;
     assert(|_|"case 8", x <= y);;
     assert(|_|"case 8", !(x >= y));;
 
-    let x = MPZ::from_I64(1234);
-    let y = MPZ::from_I64(1234);
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(1234);
     assert(|_|"case 8", !(x < y));;
     assert(|_|"case 8", !(x > y));;
     assert(|_|"case 8", x <= y);;
     assert(|_|"case 8", x >= y);;
 
-    let x = MPZ::from_I64(1234);
+    let x = MPZ::init_set_si(1234);
     assert(|_|"case 8", !(x < x));;
     assert(|_|"case 8", !(x > x));;
     assert(|_|"case 8", x <= x);;
@@ -445,8 +445,8 @@ test_z_root = (
 
 test_z_bit : IO ();
 test_z_bit = (
-    let x = MPZ::from_string("101010", 2).as_some;
-    let y = MPZ::from_string("110011", 2).as_some;
+    let x = init_set_str("101010", 2).as_some;
+    let y = init_set_str("110011", 2).as_some;
     let z = x.and(y);
     assert_eq(|_|"case 0", z.get_string(2), "100010");;
     let z = x.or(y);
@@ -499,24 +499,24 @@ test_q = (
     
     // todo: to_string
 
-    let x = MPQ::from_MPZ(MPZ::from_I64(1234));
-    let y = MPQ::from_MPZ(MPZ::from_I64(5678));
+    let x = MPQ::from_MPZ(MPZ::init_set_si(1234));
+    let y = MPQ::from_MPZ(MPZ::init_set_si(5678));
     let z = y / x;
     let n = z.get_num;
     let d = z.get_den;
     assert_eq(|_|"case 1", n.to_string, "2839");;
     assert_eq(|_|"case 1", d.to_string, "617");;
 
-    let x = MPQ::from_MPZ(MPZ::from_I64(1234));
-    let y = MPQ::from_MPZ(MPZ::from_I64(5678));
+    let x = MPQ::from_MPZ(MPZ::init_set_si(1234));
+    let y = MPQ::from_MPZ(MPZ::init_set_si(5678));
     let z = y / x;
     let f = z.MPQ::to_F64;
     assert_eq(|_|"case 2", f.to_string_precision(9_U8), "4.601296596");;
 
-    let xn = MPQ::from_MPZ(MPZ::from_I64(12));
-    let xd = MPQ::from_MPZ(MPZ::from_I64(34));
-    let yn = MPQ::from_MPZ(MPZ::from_I64(56));
-    let yd = MPQ::from_MPZ(MPZ::from_I64(78));
+    let xn = MPQ::from_MPZ(MPZ::init_set_si(12));
+    let xd = MPQ::from_MPZ(MPZ::init_set_si(34));
+    let yn = MPQ::from_MPZ(MPZ::init_set_si(56));
+    let yd = MPQ::from_MPZ(MPZ::init_set_si(78));
     let x = xn / xd;
     let y = yn / yd;
 
@@ -542,19 +542,19 @@ test_q = (
 
     assert_eq(|_|"case 8", (x + -x), MPQ::zero);;
 
-    let x = MPQ::from_I64(1234, 5678);
+    let x = MPQ::init_set_si(1234, 5678);
     assert_eq(|_|"case 9", x.get_num.to_string, "617");;
     assert_eq(|_|"case 9", x.get_den.to_string, "2839");;
 
-    let x = MPQ::from_I64(-1234, 5678);
+    let x = MPQ::init_set_si(-1234, 5678);
     assert_eq(|_|"case 10", x.get_num.to_string, "-617");;
     assert_eq(|_|"case 10", x.get_den.to_string, "2839");;
 
-    let x = MPQ::from_I64(1234, -5678);
+    let x = MPQ::init_set_si(1234, -5678);
     assert_eq(|_|"case 11", x.get_num.to_string, "-617");;
     assert_eq(|_|"case 11", x.get_den.to_string, "2839");;
 
-    let x = MPQ::from_I64(-1234, -5678);
+    let x = MPQ::init_set_si(-1234, -5678);
     assert_eq(|_|"case 12", x.get_num.to_string, "617");;
     assert_eq(|_|"case 12", x.get_den.to_string, "2839");;
 
