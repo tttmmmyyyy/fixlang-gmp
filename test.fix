@@ -309,6 +309,12 @@ test_z_conversion = (
     let num = num.set_U64(27182_U64);
     assert_eq(|_|"case 3.1", num.to_string, "27182");;
 
+    let num = num.set_F64(3.14159);
+    assert_eq(|_|"case 4", num.to_string, "3");;
+
+    let num = MPZ::from_F64(3.14159);
+    assert_eq(|_|"case 4", num.to_string, "3");;
+
     // Test `to_I64`
     let num = MPZ::from_I64(1234);
     assert_eq(|_|"case to_I64 success", num.to_I64.as_some, 1234);;
