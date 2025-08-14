@@ -72,22 +72,22 @@ namespace MPZ {
     );
 
     // Apply a unary operation of GMP (taking (out1, out2, in) as arguments) to a `MPZ` value.
-    _unary_op2 : ((MPZHandle, MPZHandle, MPZHandle) -> IO ()) -> MPZ -> (MPZ, MPZ);
+    _unary_op2 : ((MPZHandle, MPZHandle, MPZHandle) -> IO a) -> MPZ -> (MPZ, MPZ, a);
     _unary_op2 = |act, num| (
         let (is_unique, num) = num.unsafe_is_unique;
         if is_unique {
             num._mutate(|num_ptr| 
                 MPZ::zero._mutate(|out2_ptr|
                     act((num_ptr, out2_ptr, num_ptr))
-                ).@0.pure
-            )
+                ).pure
+            ).|(x, (y, z))| (x, y, z)
         };
         num._borrow(|num_ptr|
             MPZ::zero._mutate(|out1_ptr|
                 MPZ::zero._mutate(|out2_ptr|
                     act((out1_ptr, out2_ptr, num_ptr))
-                ).@0.pure
-            )
+                ).pure
+            ).|(x, (y, z))| (x, y, z)
         )
     );
 
@@ -861,7 +861,7 @@ namespace MPZ {
         MPZ::_unary_op2(
             |(out_ptr, rem_ptr, op_ptr)| FFI_CALL_IO[() __gmpz_rootrem(Ptr, Ptr, Ptr, CUnsignedLong), out_ptr, rem_ptr, op_ptr, n.to_CUnsignedLong],
             x
-        )
+        ).|(x, y, _)| (x, y)
     );
 
     // Calculates the integer part of the root of `x` and the remainder.
@@ -888,7 +888,7 @@ namespace MPZ {
         MPZ::_unary_op2(
             |(out_ptr, rem_ptr, op_ptr)| FFI_CALL_IO[() __gmpz_sqrtrem(Ptr, Ptr, Ptr), out_ptr, rem_ptr, op_ptr],
             x
-        )
+        ).|(x, y, _)| (x, y)
     );
 
     // Checks if `x` is a perfect power, i.e., `x = a^b` for some integers `a` and `b >= 2`.
