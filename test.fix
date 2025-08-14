@@ -39,7 +39,7 @@ test_z_special_constructor = (
 
 test_z_memory : IO ();
 test_z_memory = (
-    // Test of `_mutate` via `set_str` in case of unique or shared.
+    // Test of `_mutate` via `set_str`
     // unique
     let n = MPZ::init_set_si(2);
     let n = n.set_str("7F", 16).as_some;
@@ -50,7 +50,7 @@ test_z_memory = (
     assert_eq(|_|"case set_str 2", m.to_string, "127");;
     assert_eq(|_|"case set_str 3", n.to_string, "2");;
 
-    // Test of `_unary_op` via `abs` in case of unique or shared.
+    // Test of `_unary_op` via `abs`
     // unique
     let n = MPZ::init_set_si(-1234);
     let m = n.abs;
@@ -61,7 +61,19 @@ test_z_memory = (
     assert_eq(|_|"case 2", m.to_string, "1234");;
     assert_eq(|_|"case 2", n.to_string, "-1234");;
 
-    // Test of `_binary_op` via `tdiv_q` in case of (n, d) is (unique, unique), (unique, shared), (shared, unique), (shared, shared).
+    // Test of `_unary_op2` via `sqrt_rem`
+    // unique
+    let (root, rem) = mpz(27).sqrt_rem;
+    assert_eq(|_|"_unary_op2", root, mpz(5));;
+    assert_eq(|_|"_unary_op2", rem, mpz(2));;
+    // shared
+    let x = mpz(27);
+    let (root, rem) = x.sqrt_rem;
+    assert_eq(|_|"_unary_op2", root, mpz(5));;
+    assert_eq(|_|"_unary_op2", rem, mpz(2));;
+    assert_eq(|_|"_unary_op2", x, mpz(27));;
+
+    // Test of `_binary_op` via `tdiv_q`
     // (unique, unique)
     let n = MPZ::init_set_si(7);
     let d = MPZ::init_set_si(3);
@@ -87,7 +99,7 @@ test_z_memory = (
     assert_eq(|_|"case 2", n.to_string, "7");;    
     assert_eq(|_|"case 2", d.to_string, "3");;
 
-    // Test of `_binary_op` via `tdiv_q` in case of (n, n) is given where n is unique or shared.
+    // Test of `_binary_op` via `tdiv_q` for input of type (x, x)
     // unique
     let n = MPZ::init_set_si(7);
     let q = n.tdiv_q(n);
@@ -98,7 +110,7 @@ test_z_memory = (
     assert_eq(|_|"case 3", q.to_string, "1");;
     assert_eq(|_|"case 3", n.to_string, "7");;
 
-    // Test of `_binary_op` via `tdiv_qr` in case of (n, d) is (unique, unique), (unique, shared), (shared, unique), (shared, shared).
+    // Test of `_binary_op2` via `tdiv_qr`
     // (unique, unique)
     let n = MPZ::init_set_si(7);
     let d = MPZ::init_set_si(3);
@@ -128,7 +140,7 @@ test_z_memory = (
     assert_eq(|_|"case 2", n.to_string, "7");;    
     assert_eq(|_|"case 2", d.to_string, "3");;
 
-    // Test of `_binary_op2` via `tdiv_qr` in case of (n, n) is given whre n is unique or shared.
+    // Test of `_binary_op2` via `tdiv_qr` for input of type (x, x)
     // unique
     let n = MPZ::init_set_si(7);
     let (q, r) = n.tdiv_qr(n);
@@ -140,6 +152,91 @@ test_z_memory = (
     assert_eq(|_|"case 3", q.to_string, "1");;
     assert_eq(|_|"case 3", r.to_string, "0");;
     assert_eq(|_|"case 3", n.to_string, "7");;
+
+    // Test of `_binary_op3` via `gcdext`
+    // (unique, unique)
+    let x = mpz(48);
+    let y = mpz(18);
+    assert_eq(|_|"_binary_op3", gcdext(x, y), (mpz(6), mpz(-1), mpz(3)));;
+    // (unique, shared)
+    let x = mpz(48);
+    let y = mpz(18);
+    assert_eq(|_|"_binary_op3", gcdext(x, y), (mpz(6), mpz(-1), mpz(3)));;
+    assert_eq(|_|"_binary_op3", y, mpz(18));;
+    // (shared, unique)
+    let x = mpz(48);
+    let y = mpz(18);
+    assert_eq(|_|"_binary_op3", gcdext(x, y), (mpz(6), mpz(-1), mpz(3)));;
+    assert_eq(|_|"_binary_op3", x, mpz(48));;
+    // (shared, shared)
+    let x = mpz(48);
+    let y = mpz(18);
+    assert_eq(|_|"_binary_op3", gcdext(x, y), (mpz(6), mpz(-1), mpz(3)));;
+    assert_eq(|_|"_binary_op3", x, mpz(48));;
+    assert_eq(|_|"_binary_op3", y, mpz(18));;
+
+    // Test of `_binary_op3` via `gcdext` for input of type (x, x)
+    // unique
+    let x = mpz(48);
+    assert_eq(|_|"_binary_op3", gcdext(x, x), (mpz(48), mpz(0), mpz(1)));;
+    // shared
+    let x = mpz(48);
+    assert_eq(|_|"_binary_op3", gcdext(x, x), (mpz(48), mpz(0), mpz(1)));;
+    assert_eq(|_|"_binary_op3", x, mpz(48));;
+
+    // Test of `_tertiary_op` via `powm`
+    // (unique, unique, unique)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;
+    // (unique, unique, shared)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;
+    assert_eq(|_|"_tertiary_op", z, mpz(1000));;
+    // (unique, shared, unique)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;
+    assert_eq(|_|"_tertiary_op", y, mpz(10));;
+    // (shared, unique, unique)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;
+    assert_eq(|_|"_tertiary_op", x, mpz(2));;
+    // (shared, unique, shared)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;    
+    assert_eq(|_|"_tertiary_op", x, mpz(2));;
+    assert_eq(|_|"_tertiary_op", z, mpz(1000));;
+    // (shared, shared, unique)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;
+    assert_eq(|_|"_tertiary_op", x, mpz(2));;
+    assert_eq(|_|"_tertiary_op", y, mpz(10));;
+    // (unique, shared, shared)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;
+    assert_eq(|_|"_tertiary_op", y, mpz(10));;
+    assert_eq(|_|"_tertiary_op", z, mpz(1000));;
+    // (shared, shared, shared)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;
+    assert_eq(|_|"_tertiary_op", x, mpz(2));;
+    assert_eq(|_|"_tertiary_op", y, mpz(10));;
+    assert_eq(|_|"_tertiary_op", z, mpz(1000));;
 
     pure()
 );
