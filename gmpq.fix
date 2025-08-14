@@ -40,10 +40,6 @@ namespace MPQHandle {
 type MPQ = unbox struct { _0 : Destructor MPQHandle };
 
 namespace MPQ {
-    // Swap the elements of a pair.
-    _swap_pair : (a, b) -> (b, a);
-    _swap_pair = |(a, b)| (b, a);
-
     // Initialize a new MPQ using specified GMPQ's initialization action.
     _init_by : (MPQHandle -> IO a) -> (MPQ, a);
     _init_by = |ctor| do {
