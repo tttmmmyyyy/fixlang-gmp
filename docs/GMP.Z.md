@@ -47,6 +47,17 @@ Logical and operation on two `MPZ` values.
 - `lhs`: The left-hand side value.
 - `rhs`: The right-hand side value.
 
+#### bin_ui
+
+Type: `GMP.Z::MPZ -> Std::U64 -> GMP.Z::MPZ`
+
+Calculates the binomial coefficient `n choose k`.
+
+##### Parameters
+
+- `k`: The number of items to choose.
+- `n`: The total number of items.
+
 #### cdiv_q
 
 Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ`
@@ -271,6 +282,37 @@ Checks if `n` is divisible by `d`.
 - `d`: The divisor.
 - `n`: The dividend.
 
+#### fac2_ui
+
+Type: `Std::U64 -> GMP.Z::MPZ`
+
+Calculates the double factorial of a non-negative integer `n`.
+
+##### Parameters
+
+- `n`: The non-negative integer to calculate the double factorial of.
+
+#### fac_ui
+
+Type: `Std::U64 -> GMP.Z::MPZ`
+
+Calculates the factorial of a non-negative integer `n`.
+
+##### Parameters
+
+- `n`: The non-negative integer to calculate the factorial of.
+
+#### facm_uiui
+
+Type: `Std::U64 -> Std::U64 -> GMP.Z::MPZ`
+
+Calculates the factorial of `n!^(m)`
+
+##### Parameters
+
+- `m`
+- `n`: The non-negative integer to calculate the factorial of.
+
 #### fdiv_q
 
 Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ`
@@ -335,6 +377,26 @@ Divides `n` by `2^b` and returns the remainder.
 
 - `bit`: The exponent of 2.
 - `n`: The dividend.
+
+#### fib2_ui
+
+Type: `Std::U64 -> (GMP.Z::MPZ, GMP.Z::MPZ)`
+
+Calculates the Fibonacci number at position `n` and returns both the Fibonacci number and the previous one.
+
+##### Parameters
+
+- `n`: The position in the Fibonacci sequence.
+
+#### fib_ui
+
+Type: `Std::U64 -> GMP.Z::MPZ`
+
+Calculates the Fibonacci number at position `n`.
+
+##### Parameters
+
+- `n`: The position in the Fibonacci sequence.
 
 #### gcd
 
@@ -462,6 +524,28 @@ Creates a `MPZ` value represented by an U64 value.
 
 - `val`: The U64 value to represent.
 
+#### invert
+
+Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> Std::Option GMP.Z::MPZ`
+
+Calculates the modular inverse of `n` modulo `m`.
+
+##### Parameters
+
+- `m`: The modulus.
+- `n`: The value to invert.
+
+#### jacobi
+
+Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> Std::I64`
+
+Calculates the Jacobi symbol (a/b) for two `MPZ` values.
+
+##### Parameters
+
+- `a`
+- `b`
+
 #### lcm
 
 Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ`
@@ -472,6 +556,37 @@ Calculates the least common multiple of two `MPZ` values.
 
 - `n`: The first value.
 - `m`: The second value.
+
+#### legendre
+
+Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> Std::I64`
+
+Calculates the Legendre symbol (a/p) for an `MPZ` value `a` and a prime `p`.
+
+##### Parameters
+
+- `a`: The value to calculate the Legendre symbol for.
+- `p`: The prime number.
+
+#### lucnum2_ui
+
+Type: `Std::U64 -> (GMP.Z::MPZ, GMP.Z::MPZ)`
+
+Calculates the Lucas number at position `n` and returns both the Lucas number and the previous one.
+
+##### Parameters
+
+- `n`: The position in the Lucas sequence.
+
+#### lucnum_ui
+
+Type: `Std::U64 -> GMP.Z::MPZ`
+
+Calculates the Lucas number at position `n`.
+
+##### Parameters
+
+- `n`: The position in the Lucas sequence.
 
 #### mod
 
@@ -588,6 +703,16 @@ This is a secure version of `powm`. For details, see the document of `mpz_powm_s
 - `m`: The modulus.
 - `b`: The base.
 
+#### primorial_ui
+
+Type: `Std::U64 -> GMP.Z::MPZ`
+
+Calculates the primorial of a non-negative integer `n`, which is the product of all prime numbers less than or equal to `n`.
+
+##### Parameters
+
+- `n`
+
 #### probab_prime_p
 
 Type: `Std::I64 -> GMP.Z::MPZ -> Std::I64`
@@ -602,6 +727,21 @@ Checks if `x` is a prime number.
 
 - `k`: The number of iterations to perform for the probabilistic test.
 - `x`: The value to check.
+
+#### remove
+
+Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> (GMP.Z::MPZ, Std::U64)`
+
+Removes the factor `f` from `n`.
+
+##### Returns
+
+A tuple `(m, count)` where `m` is the result and `count` is the number of times `f` was removed from `n`.
+
+##### Parameters
+
+- `f`: The factor to remove.
+- `n`: The value to remove the factor from.
 
 #### root
 

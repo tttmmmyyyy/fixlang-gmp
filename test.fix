@@ -25,8 +25,7 @@ test_z = (
     pure()
 );
 
-
-test_z_special_constructor : IO ()
+test_z_special_constructor : IO ();
 test_z_special_constructor = (
     // zero and one
     assert_eq(|_|"zero", MPZ::zero.to_string, "0");;
@@ -34,7 +33,7 @@ test_z_special_constructor = (
 
     // constructor
     assert_eq(|_|"mpz", mpz(42).to_string, "42");;
-    
+
     pure()
 );
 
