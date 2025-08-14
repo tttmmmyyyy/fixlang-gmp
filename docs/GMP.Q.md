@@ -20,7 +20,7 @@ Type: `GMP.Z::MPZ -> GMP.Q::MPQ`
 
 Creates a `MPQ` value represented by an MPZ value.
 
-#### from_U64
+#### init_set_ui
 
 Type: `Std::U64 -> Std::U64 -> GMP.Q::MPQ`
 

@@ -267,8 +267,8 @@ namespace MPZ {
     // # Parameters
     // - `val`: The U64 value to set.
     // - `x`: The `MPZ` value to set.
-    set_U64 : U64 -> MPZ -> MPZ;
-    set_U64 = |val, x| (
+    set_ui : U64 -> MPZ -> MPZ;
+    set_ui = |val, x| (
         x._mutate(|ptr| FFI_CALL_IO[() __gmpz_set_ui(Ptr, CUnsignedLong), ptr, val]).@0
     );
 
@@ -276,12 +276,12 @@ namespace MPZ {
     // 
     // # Parameters
     // - `val`: The U64 value to represent.
-    from_U64 : U64 -> MPZ;
-    from_U64 = |val| MPZ::_init_by(|ptr| FFI_CALL_IO[() __gmpz_init_set_ui(Ptr, CUnsignedLong), ptr, val]).@0;
+    init_set_ui : U64 -> MPZ;
+    init_set_ui = |val| MPZ::_init_by(|ptr| FFI_CALL_IO[() __gmpz_init_set_ui(Ptr, CUnsignedLong), ptr, val]).@0;
 
     // Sets the value of a MPZ to the integer part of a F64 value.
-    set_F64 : F64 -> MPZ -> MPZ;
-    set_F64 = |val, x| (
+    set_d : F64 -> MPZ -> MPZ;
+    set_d = |val, x| (
         x._mutate(|ptr| FFI_CALL_IO[() __gmpz_set_d(Ptr, CDouble), ptr, val]).@0
     );
 

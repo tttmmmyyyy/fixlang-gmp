@@ -346,7 +346,7 @@ Creates a `MPZ` value represented by a F64 value.
 
 - `val`: The F64 value to represent.
 
-#### from_U64
+#### init_set_ui
 
 Type: `Std::U64 -> GMP.Z::MPZ`
 
@@ -557,7 +557,7 @@ Scans `1` bit in a `MPZ` value starting from the specified bit.
 - `bit`: The bit to start scanning from.
 - `n`: The `MPZ` value to scan.
 
-#### set_F64
+#### set_d
 
 Type: `Std::F64 -> GMP.Z::MPZ -> GMP.Z::MPZ`
 
