@@ -993,6 +993,34 @@ namespace MPZ {
         }
     );
 
+    // Calculates the Jacobi symbol (a/b) for two `MPZ` values.
+    // 
+    // # Parameters
+    // - `a`
+    // - `b`
+    jacobi : MPZ -> MPZ -> I64;
+    jacobi = |b, a| (
+        b._borrow(|b_ptr| (
+            a._borrow(|a_ptr| (
+                FFI_CALL[CInt __gmpz_jacobi(Ptr, Ptr), a_ptr, b_ptr].to_I64
+            ))
+        ))
+    );
+
+    // Calculates the Legendre symbol (a/p) for an `MPZ` value `a` and a prime `p`.
+    // 
+    // # Parameters
+    // - `a`: The value to calculate the Legendre symbol for.
+    // - `p`: The prime number.
+    legendre : MPZ -> MPZ -> I64;
+    legendre = |a, p| (
+        a._borrow(|a_ptr| (
+            p._borrow(|p_ptr| (
+                FFI_CALL[CInt __gmpz_legendre(Ptr, Ptr), a_ptr, p_ptr].to_I64
+            ))
+        ))
+    );
+
     // Comparisons
 
     // Compares two `MPZ` values.
