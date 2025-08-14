@@ -12,6 +12,7 @@ test = (
 
 test_z : IO ();
 test_z = (
+    test_z_special_constructor;;
     test_z_memory;;
     test_z_conversion;;
     test_z_basic_arithmetic;;
@@ -21,16 +22,21 @@ test_z = (
     test_z_bit;;
     test_z_number_theory;;
 
+    pure()
+);
+
+
+test_z_special_constructor : IO ()
+test_z_special_constructor = (
     // zero and one
     assert_eq(|_|"zero", MPZ::zero.to_string, "0");;
     assert_eq(|_|"one", MPZ::one.to_string, "1");;
 
     // constructor
     assert_eq(|_|"mpz", mpz(42).to_string, "42");;
-
+    
     pure()
 );
-
 
 test_z_memory : IO ();
 test_z_memory = (

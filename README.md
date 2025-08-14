@@ -15,6 +15,7 @@ Most Fix functions are named by dropping the GMP prefix (e.g., `mpz_` or `mpq_`)
 Due to Fix's allowed naming conventions, some functions deviate from this rule. For example, `mpz_2fac_ui` is named `MPZ::fac2_ui`.
 
 For convenience, "representative" constructor functions like `MPZ::mpz : I64 -> MPZ` and `MPQ::mpq : I64 -> I64 -> MPQ` have been added.
+Additionally, constants such as `MPZ::zero : MPZ` and `MPZ::one : MPZ` have been added.
 
 # Argument Order and Idiomatic Fix
 
