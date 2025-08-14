@@ -336,7 +336,7 @@ Divides `n` by `2^b` and returns the remainder.
 - `bit`: The exponent of 2.
 - `n`: The dividend.
 
-#### from_F64
+#### init_set_d
 
 Type: `Std::F64 -> GMP.Z::MPZ`
 

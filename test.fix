@@ -313,15 +313,15 @@ test_z_conversion = (
     let num = num.set_d(3.14159);
     assert_eq(|_|"case 4", num.to_string, "3");;
 
-    let num = MPZ::from_F64(3.14159);
+    let num = MPZ::init_set_d(3.14159);
     assert_eq(|_|"case 4", num.to_string, "3");;
 
     // Test `to_I64`
     let num = MPZ::init_set_si(1234);
-    assert_eq(|_|"case to_I64 success", num.to_I64.as_some, 1234);;
+    assert_eq(|_|"case to_I64 success", num.get_si.as_some, 1234);;
 
     let num = (from_string("12345678901234567890123").as_ok : MPZ);
-    assert(|_|"case to_I64 fail", num.to_I64.is_none);;
+    assert(|_|"case to_I64 fail", num.get_si.is_none);;
 
     // Test `to_U64`
     let num = MPZ::init_set_ui(1234_U64);
@@ -343,7 +343,7 @@ test_z_conversion = (
     // Test `set_MPQ`
     let q = MPQ::init_set_si(6, 5);
     let n = MPZ::init_set_si(0);
-    let m = n.set_MPQ(q);
+    let m = n.set_q(q);
     assert_eq(|_|"case 0", m.to_string, "1");;
     assert_eq(|_|"case 0", n.to_string, "0");;
 
