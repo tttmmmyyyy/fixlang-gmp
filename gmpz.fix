@@ -1021,6 +1021,128 @@ namespace MPZ {
         ))
     );
 
+    // Removes the factor `f` from `n`.
+    // 
+    // # Returns
+    // A tuple `(m, count)` where `m` is the result and `count` is the number of times `f` was removed from `n`.
+    //
+    // # Parameters
+    // - `f`: The factor to remove.
+    // - `n`: The value to remove the factor from.
+    remove : MPZ -> MPZ -> (MPZ, U64);
+    remove = |f, n| (
+        MPZ::_binary_op(
+            |(out_ptr, n_ptr, f_ptr)| FFI_CALL_IO[CUnsignedLong __gmpz_remove(Ptr, Ptr, Ptr), out_ptr, n_ptr, f_ptr].map(to_U64),
+            n, f
+        )
+    );
+
+    // Calculates the factorial of a non-negative integer `n`.
+    // 
+    // # Parameters
+    // - `n`: The non-negative integer to calculate the factorial of.
+    fac_ui : U64 -> MPZ;
+    fac_ui = |n| (
+        MPZ::zero._mutate(
+            |out_ptr| FFI_CALL_IO[() __gmpz_fac_ui(Ptr, CUnsignedLong), out_ptr, n.to_CUnsignedLong]
+        ).@0
+    );
+
+    // Calculates the double factorial of a non-negative integer `n`.
+    // 
+    // # Parameters
+    // - `n`: The non-negative integer to calculate the double factorial of.
+    fac2_ui : U64 -> MPZ;
+    fac2_ui = |n| (
+        MPZ::zero._mutate(
+            |out_ptr| FFI_CALL_IO[() __gmpz_2fac_ui(Ptr, CUnsignedLong), out_ptr, n.to_CUnsignedLong]
+        ).@0
+    );
+
+    // Calculates the factorial of `n!^(m)` 
+    // 
+    // # Parameters
+    // - `m`
+    // - `n`: The non-negative integer to calculate the factorial of.
+    facm_uiui : U64 -> U64 -> MPZ;
+    facm_uiui = |m, n| (
+        MPZ::zero._mutate(
+            |out_ptr| FFI_CALL_IO[() __gmpz_mfac_uiui(Ptr, CUnsignedLong, CUnsignedLong), out_ptr, n.to_CUnsignedLong, m.to_CUnsignedLong]
+        ).@0
+    );
+
+    // Calculates the primorial of a non-negative integer `n`, which is the product of all prime numbers less than or equal to `n`.
+    // 
+    // # Parameters
+    // - `n`
+    primorial_ui : U64 -> MPZ;
+    primorial_ui = |n| (
+        MPZ::zero._mutate(
+            |out_ptr| FFI_CALL_IO[() __gmpz_primorial_ui(Ptr, CUnsignedLong), out_ptr, n.to_CUnsignedLong]
+        ).@0
+    );
+
+    // Calculates the binomial coefficient `n choose k`.
+    // 
+    // # Parameters
+    // - `k`: The number of items to choose.
+    // - `n`: The total number of items.
+    bin_ui : MPZ -> U64 -> MPZ;
+    bin_ui = |n, k| (
+        MPZ::_unary_op(
+            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_bin_ui(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, k.to_CUnsignedLong],
+            n
+        ).@0
+    );
+
+    // Calculates the Fibonacci number at position `n`.
+    // 
+    // # Parameters
+    // - `n`: The position in the Fibonacci sequence.
+    fib_ui : U64 -> MPZ;
+    fib_ui = |n| (
+        MPZ::zero._mutate(
+            |out_ptr| FFI_CALL_IO[() __gmpz_fib_ui(Ptr, CUnsignedLong), out_ptr, n.to_CUnsignedLong]
+        ).@0
+    );
+
+    // Calculates the Fibonacci number at position `n` and returns both the Fibonacci number and the previous one.
+    // 
+    // # Parameters
+    // - `n`: The position in the Fibonacci sequence.
+    fib2_ui : U64 -> (MPZ, MPZ);
+    fib2_ui = |n| (
+        MPZ::zero._mutate(|out_ptr|
+            MPZ::zero._mutate(|out_prev_ptr|
+                FFI_CALL_IO[() __gmpz_fib2_ui(Ptr, Ptr, CUnsignedLong), out_ptr, out_prev_ptr, n.to_CUnsignedLong]
+            ).@0.pure
+        )
+    );
+
+    // Calculates the Lucas number at position `n`.
+    // 
+    // # Parameters
+    // - `n`: The position in the Lucas sequence.
+    lucnum_ui : U64 -> MPZ;
+    lucnum_ui = |n| (
+        MPZ::zero._mutate(
+            |out_ptr| FFI_CALL_IO[() __gmpz_lucnum_ui(Ptr, CUnsignedLong), out_ptr, n.to_CUnsignedLong]
+        ).@0
+    );
+
+    // Calculates the Lucas number at position `n` and returns both the Lucas number and the previous one.
+    // 
+    // # Parameters
+    // - `n`: The position in the Lucas sequence.
+    lucnum2_ui : U64 -> (MPZ, MPZ);
+    lucnum2_ui = |n| (
+        MPZ::zero._mutate(|out_ptr|
+            MPZ::zero._mutate(|out_prev_ptr|
+                FFI_CALL_IO[() __gmpz_lucnum2_ui(Ptr, Ptr, CUnsignedLong), out_ptr, out_prev_ptr, n.to_CUnsignedLong]
+            ).@0.pure
+        )
+    );
+
     // Comparisons
 
     // Compares two `MPZ` values.

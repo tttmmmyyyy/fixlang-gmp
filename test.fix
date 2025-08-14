@@ -507,6 +507,36 @@ test_z_number_theory = (
     // legendre
     assert_eq(|_|"legendre", mpz(5).legendre(mpz(3)), -1);;
 
+    // remove 
+    assert_eq(|_|"remove", mpz(48).remove(mpz(2)), (mpz(3), 4_U64));;
+
+    // fac_ui 
+    assert_eq(|_|"fac_ui", fac_ui(5_U64), mpz(120));;
+
+    // fac2_ui
+    assert_eq(|_|"fac2_ui", fac2_ui(5_U64), mpz(15));;
+
+    // facm_uiui
+    assert_eq(|_|"facm_uiui", 5_U64.facm_uiui(3_U64), mpz(10));;
+
+    // primorial_ui
+    assert_eq(|_|"primorial_ui", primorial_ui(5_U64), mpz(30));;
+    
+    // bin_ui
+    assert_eq(|_|"bin_ui", bin_ui(mpz(5), 2_U64), mpz(10));;
+
+    // fib_ui
+    assert_eq(|_|"fib_ui", fib_ui(10_U64), mpz(55));;
+
+    // fib2_ui
+    assert_eq(|_|"fib2_ui", fib2_ui(10_U64), (mpz(55), mpz(34)));;
+
+    // lucnum_ui 
+    assert_eq(|_|"lucnum_ui", lucnum_ui(10_U64), mpz(123));;
+
+    // lucnum2_ui
+    assert_eq(|_|"lucnum2_ui", lucnum2_ui(10_U64), (mpz(123), mpz(76)));;
+
     pure()
 );
 
