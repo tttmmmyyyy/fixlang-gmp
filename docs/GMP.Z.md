@@ -336,27 +336,31 @@ Divides `n` by `2^b` and returns the remainder.
 - `bit`: The exponent of 2.
 - `n`: The dividend.
 
-#### init_set_d
+#### get_d
 
-Type: `Std::F64 -> GMP.Z::MPZ`
+Type: `GMP.Z::MPZ -> Std::F64`
 
-Creates a `MPZ` value represented by a F64 value.
+Converts a `MPZ` value to an F64 value.
 
-##### Parameters
+For details, see the document of `mpz_get_d` in GMP.
 
-- `val`: The F64 value to represent.
+#### get_d_exp
 
-#### init_set_ui
+Type: `GMP.Z::MPZ -> (Std::F64, Std::I64)`
 
-Type: `Std::U64 -> GMP.Z::MPZ`
+Converts a `MPZ` value to the pair (F64 value, exponent).
 
-Creates a `MPZ` value represented by an U64 value.
+For details, see the document of `mpz_get_d_2exp` in GMP.
 
-##### Parameters
+#### get_si
 
-- `val`: The U64 value to represent.
+Type: `GMP.Z::MPZ -> Std::Option Std::I64`
 
-#### get_string
+Converts a `MPZ` value to an I64 value.
+
+If the value is too large to fit in an I64, this function returns none.
+
+#### get_str
 
 Type: `Std::I64 -> GMP.Z::MPZ -> Std::String`
 
@@ -366,6 +370,14 @@ Converts a `MPZ` value to a string in the given base.
 
 - `base`: The base of the string representation, which must be in the range [-36, -2] or [2, 62].
 - `num`: The `MPZ` value to convert.
+
+#### get_ui
+
+Type: `GMP.Z::MPZ -> Std::Option Std::U64`
+
+Converts a `MPZ` value to an U64 value.
+
+If the value is too large to fit in an U64, this function returns none.
 
 #### hamdist
 
@@ -379,6 +391,16 @@ For the behavior when `lhs` or `rhs` is negative, see the document of `mpz_hamdi
 
 - `lhs`: The left-hand-side value.
 - `rhs`: The right-hand-side value.
+
+#### init_set_d
+
+Type: `Std::F64 -> GMP.Z::MPZ`
+
+Creates a `MPZ` value represented by a F64 value.
+
+##### Parameters
+
+- `val`: The F64 value to represent.
 
 #### init_set_si
 
@@ -403,6 +425,16 @@ See document of `mpz_set_str` in GMP for details.
 
 - `str`: The string representation of the integer.
 - `base`: The base of the string representation.
+
+#### init_set_ui
+
+Type: `Std::U64 -> GMP.Z::MPZ`
+
+Creates a `MPZ` value represented by an U64 value.
+
+##### Parameters
+
+- `val`: The U64 value to represent.
 
 #### mod
 
@@ -563,7 +595,7 @@ Type: `Std::F64 -> GMP.Z::MPZ -> GMP.Z::MPZ`
 
 Sets the value of a MPZ to the integer part of a F64 value.
 
-#### set_MPQ
+#### set_q
 
 Type: `GMP.Q::MPQ -> GMP.Z::MPZ -> GMP.Z::MPZ`
 
@@ -572,17 +604,6 @@ Sets the value of a MPZ to the integer part of a MPQ value.
 ##### Parameters
 
 - `q`: The `MPQ` value to set.
-- `x`: The `MPZ` value to set.
-
-#### set_U64
-
-Type: `Std::U64 -> GMP.Z::MPZ -> GMP.Z::MPZ`
-
-Sets the value of a MPZ to the given U64 value.
-
-##### Parameters
-
-- `val`: The U64 value to set.
 - `x`: The `MPZ` value to set.
 
 #### set_si
@@ -610,6 +631,17 @@ See document of `mpz_set_str` in GMP for details.
 - `str`: The string representation of the integer.
 - `base`: The base of the string representation.
 - `num`: The `MPZ` value to set.
+
+#### set_ui
+
+Type: `Std::U64 -> GMP.Z::MPZ -> GMP.Z::MPZ`
+
+Sets the value of a MPZ to the given U64 value.
+
+##### Parameters
+
+- `val`: The U64 value to set.
+- `x`: The `MPZ` value to set.
 
 #### setbit
 
@@ -734,38 +766,6 @@ Divides `n` by `2^b` and returns the remainder.
 
 - `bit`: The exponent of 2.
 - `n`: The dividend.
-
-#### to_F64
-
-Type: `GMP.Z::MPZ -> Std::F64`
-
-Converts a `MPZ` value to an F64 value.
-
-For details, see the document of `mpz_get_d` in GMP.
-
-#### to_F64_2exp
-
-Type: `GMP.Z::MPZ -> (Std::F64, Std::I64)`
-
-Converts a `MPZ` value to the pair (F64 value, exponent).
-
-For details, see the document of `mpz_get_d_2exp` in GMP.
-
-#### to_I64
-
-Type: `GMP.Z::MPZ -> Std::Option Std::I64`
-
-Converts a `MPZ` value to an I64 value.
-
-If the value is too large to fit in an I64, this function returns none.
-
-#### to_U64
-
-Type: `GMP.Z::MPZ -> Std::Option Std::U64`
-
-Converts a `MPZ` value to an U64 value.
-
-If the value is too large to fit in an U64, this function returns none.
 
 #### tstbit
 

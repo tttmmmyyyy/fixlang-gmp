@@ -322,8 +322,8 @@ namespace MPZ {
     // Converts a `MPZ` value to an U64 value.
     //
     // If the value is too large to fit in an U64, this function returns none.
-    to_U64 : MPZ -> Option U64;
-    to_U64 = |num| (
+    get_ui : MPZ -> Option U64;
+    get_ui = |num| (
         num._borrow(|num_ptr| (
             let fits = FFI_CALL[CInt __gmpz_fits_ulong_p(Ptr), num_ptr];
             if fits == 0.to_CInt { Option::none() };
@@ -335,8 +335,8 @@ namespace MPZ {
     // Converts a `MPZ` value to an F64 value.
     //
     // For details, see the document of `mpz_get_d` in GMP.
-    to_F64 : MPZ -> F64;
-    to_F64 = |num| (
+    get_d : MPZ -> F64;
+    get_d = |num| (
         num._borrow(|num_ptr| (
             FFI_CALL[CDouble __gmpz_get_d(Ptr), num_ptr].to_F64
         ))
@@ -345,8 +345,8 @@ namespace MPZ {
     // Converts a `MPZ` value to the pair (F64 value, exponent).
     // 
     // For details, see the document of `mpz_get_d_2exp` in GMP.
-    to_F64_2exp : MPZ -> (F64, I64);
-    to_F64_2exp = |num| (
+    get_d_exp : MPZ -> (F64, I64);
+    get_d_exp = |num| (
         let exp = Box::make(0.to_CLong);
         let (exp, man) = num._borrow(|num_ptr| exp.mutate_boxed(|exp_ptr| 
             FFI_CALL_IO[CDouble __gmpz_get_d_2exp(Ptr, Ptr), exp_ptr, num_ptr]
@@ -359,10 +359,10 @@ namespace MPZ {
     // # Parameters
     // - `base`: The base of the string representation, which must be in the range [-36, -2] or [2, 62].
     // - `num`: The `MPZ` value to convert.
-    get_string : I64 -> MPZ -> String;
-    get_string = |base, num| (
+    get_str : I64 -> MPZ -> String;
+    get_str = |base, num| (
         if base < -36 || base > 62 || (-2 < base && base < 2) {
-            undefined("[MPZ::get_string] base must be in the range [-36, -2] or [2, 62]")
+            undefined("[MPZ::get_str] base must be in the range [-36, -2] or [2, 62]")
         };
         let base = base.to_CInt;
         num._borrow(|num_ptr| (
@@ -1158,7 +1158,7 @@ impl MPZ : LessThanOrEq {
 }
 
 impl MPZ : ToString {
-    to_string = |num| num.get_string(10);
+    to_string = |num| num.get_str(10);
 }
 
 impl MPZ : FromString {

@@ -20,17 +20,6 @@ Type: `GMP.Z::MPZ -> GMP.Q::MPQ`
 
 Creates a `MPQ` value represented by an MPZ value.
 
-#### init_set_ui
-
-Type: `Std::U64 -> Std::U64 -> GMP.Q::MPQ`
-
-Creates a new `MPQ` value from an `U64` value.
-
-##### Parameters
-
-- `num`: The numerator as an `U64` value.
-- `den`: The denominator as an `U64` value.
-
 #### get_den
 
 Type: `GMP.Q::MPQ -> GMP.Z::MPZ`
@@ -49,6 +38,17 @@ Creates a new `MPQ` value from I64 numerator and denominator.
 
 - `num`: The numerator as an `I64` value.
 - `den`: The denominator as an `I64` value.
+
+#### init_set_ui
+
+Type: `Std::U64 -> Std::U64 -> GMP.Q::MPQ`
+
+Creates a new `MPQ` value from an `U64` value.
+
+##### Parameters
+
+- `num`: The numerator as an `U64` value.
+- `den`: The denominator as an `U64` value.
 
 #### mpq
 
