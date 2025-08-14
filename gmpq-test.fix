@@ -1,0 +1,90 @@
+module GMP.Q.Test;
+
+import GMP.Z;
+import GMP.Q;
+
+
+test_q : IO ();
+test_q = (
+    let x = MPQ::zero;
+    let n = x.get_num;
+    let d = x.get_den;
+    assert_eq(|_|"case 0", n.to_string, "0");;
+    assert_eq(|_|"case 0", d.to_string, "1");;
+
+    let x = MPQ::one;
+    let n = x.get_num;
+    let d = x.get_den;
+    assert_eq(|_|"case 0.5", n.to_string, "1");;
+    assert_eq(|_|"case 0.5", d.to_string, "1");;
+
+    // mpq
+    // assert_eq(|_|"mpq", mpq(42, 14).to_string, "3");;
+    
+    // todo: to_string
+
+    let x = MPQ::from_MPZ(MPZ::init_set_si(1234));
+    let y = MPQ::from_MPZ(MPZ::init_set_si(5678));
+    let z = y / x;
+    let n = z.get_num;
+    let d = z.get_den;
+    assert_eq(|_|"case 1", n.to_string, "2839");;
+    assert_eq(|_|"case 1", d.to_string, "617");;
+
+    let x = MPQ::from_MPZ(MPZ::init_set_si(1234));
+    let y = MPQ::from_MPZ(MPZ::init_set_si(5678));
+    let z = y / x;
+    let f = z.MPQ::to_F64;
+    assert_eq(|_|"case 2", f.to_string_precision(9_U8), "4.601296596");;
+
+    let xn = MPQ::from_MPZ(MPZ::init_set_si(12));
+    let xd = MPQ::from_MPZ(MPZ::init_set_si(34));
+    let yn = MPQ::from_MPZ(MPZ::init_set_si(56));
+    let yd = MPQ::from_MPZ(MPZ::init_set_si(78));
+    let x = xn / xd;
+    let y = yn / yd;
+
+    let z = x + y;
+    assert_eq(|_|"case 3", z.get_num.to_string, "710");;
+    assert_eq(|_|"case 3", z.get_den.to_string, "663");;
+
+    let z = x - y;
+    assert_eq(|_|"case 4", z.get_num.to_string, "-242");;
+    assert_eq(|_|"case 4", z.get_den.to_string, "663");;
+
+    let z = x * y;
+    assert_eq(|_|"case 5", z.get_num.to_string, "56");;
+    assert_eq(|_|"case 5", z.get_den.to_string, "221");;
+
+    let z = x / y;
+    assert_eq(|_|"case 6", z.get_num.to_string, "117");;
+    assert_eq(|_|"case 6", z.get_den.to_string, "238");;
+
+    let z = -x;
+    assert_eq(|_|"case 7", z.get_num.to_string, "-6");;
+    assert_eq(|_|"case 7", z.get_den.to_string, "17");;
+
+    assert_eq(|_|"case 8", (x + -x), MPQ::zero);;
+
+    let x = MPQ::init_set_si(1234, 5678);
+    assert_eq(|_|"case 9", x.get_num.to_string, "617");;
+    assert_eq(|_|"case 9", x.get_den.to_string, "2839");;
+
+    let x = MPQ::init_set_si(-1234, 5678);
+    assert_eq(|_|"case 10", x.get_num.to_string, "-617");;
+    assert_eq(|_|"case 10", x.get_den.to_string, "2839");;
+
+    let x = MPQ::init_set_si(1234, -5678);
+    assert_eq(|_|"case 11", x.get_num.to_string, "-617");;
+    assert_eq(|_|"case 11", x.get_den.to_string, "2839");;
+
+    let x = MPQ::init_set_si(-1234, -5678);
+    assert_eq(|_|"case 12", x.get_num.to_string, "617");;
+    assert_eq(|_|"case 12", x.get_den.to_string, "2839");;
+
+    let x = MPQ::init_set_ui(1234_U64, 5678_U64);
+    assert_eq(|_|"case 13", x.get_num.to_string, "617");;
+    assert_eq(|_|"case 13", x.get_den.to_string, "2839");;
+
+    pure()
+);

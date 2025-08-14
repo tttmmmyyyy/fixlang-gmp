@@ -1,0 +1,636 @@
+module GMP.Z.Test;
+
+import GMP.Z;
+import GMP.Q;
+
+test_z : IO ();
+test_z = (
+    test_z_special_constructor;;
+    test_z_memory;;
+    test_z_conversion;;
+    test_z_basic_arithmetic;;
+    test_z_comparison;;
+    test_z_pow;;
+    test_z_root;;
+    test_z_bit;;
+    test_z_number_theory;;
+
+    pure()
+);
+
+test_z_special_constructor : IO ();
+test_z_special_constructor = (
+    // zero and one
+    assert_eq(|_|"zero", MPZ::zero.to_string, "0");;
+    assert_eq(|_|"one", MPZ::one.to_string, "1");;
+
+    // constructor
+    assert_eq(|_|"mpz", mpz(42).to_string, "42");;
+
+    pure()
+);
+
+test_z_memory : IO ();
+test_z_memory = (
+    // Test of `_mutate` via `set_str`
+    // unique
+    let n = MPZ::init_set_si(2);
+    let n = n.set_str("7F", 16).as_some;
+    assert_eq(|_|"case set_str 1", n.to_string, "127");;
+    // shared
+    let n = MPZ::init_set_si(2);
+    let m = n.set_str("7F", 16).as_some;
+    assert_eq(|_|"case set_str 2", m.to_string, "127");;
+    assert_eq(|_|"case set_str 3", n.to_string, "2");;
+
+    // Test of `_unary_op` via `abs`
+    // unique
+    let n = MPZ::init_set_si(-1234);
+    let m = n.abs;
+    assert_eq(|_|"case 2", m.to_string, "1234");;
+    // shared
+    let n = MPZ::init_set_si(-1234);
+    let m = n.abs;
+    assert_eq(|_|"case 2", m.to_string, "1234");;
+    assert_eq(|_|"case 2", n.to_string, "-1234");;
+
+    // Test of `_unary_op2` via `sqrt_rem`
+    // unique
+    let (root, rem) = mpz(27).sqrt_rem;
+    assert_eq(|_|"_unary_op2", root, mpz(5));;
+    assert_eq(|_|"_unary_op2", rem, mpz(2));;
+    // shared
+    let x = mpz(27);
+    let (root, rem) = x.sqrt_rem;
+    assert_eq(|_|"_unary_op2", root, mpz(5));;
+    assert_eq(|_|"_unary_op2", rem, mpz(2));;
+    assert_eq(|_|"_unary_op2", x, mpz(27));;
+
+    // Test of `_binary_op` via `tdiv_q`
+    // (unique, unique)
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
+    let q = n.tdiv_q(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    // (unique, shared)
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
+    let q = n.tdiv_q(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    assert_eq(|_|"case 2", n.to_string, "7");;    
+    // (unique, shared)
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
+    let q = n.tdiv_q(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    assert_eq(|_|"case 2", d.to_string, "3");;    
+    // (shared, shared)
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
+    let q = n.tdiv_q(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    assert_eq(|_|"case 2", n.to_string, "7");;    
+    assert_eq(|_|"case 2", d.to_string, "3");;
+
+    // Test of `_binary_op` via `tdiv_q` for input of type (x, x)
+    // unique
+    let n = MPZ::init_set_si(7);
+    let q = n.tdiv_q(n);
+    assert_eq(|_|"case 3", q.to_string, "1");;
+    // shared
+    let n = MPZ::init_set_si(7);
+    let q = n.tdiv_q(n);
+    assert_eq(|_|"case 3", q.to_string, "1");;
+    assert_eq(|_|"case 3", n.to_string, "7");;
+
+    // Test of `_binary_op2` via `tdiv_qr`
+    // (unique, unique)
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
+    let (q, r) = n.tdiv_qr(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    assert_eq(|_|"case 2", r.to_string, "1");;
+    // (unique, shared)
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
+    let (q, r) = n.tdiv_qr(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    assert_eq(|_|"case 2", r.to_string, "1");;
+    assert_eq(|_|"case 2", n.to_string, "7");;    
+    // (unique, shared)
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
+    let (q, r) = n.tdiv_qr(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    assert_eq(|_|"case 2", r.to_string, "1");;
+    assert_eq(|_|"case 2", d.to_string, "3");;    
+    // (shared, shared)
+    let n = MPZ::init_set_si(7);
+    let d = MPZ::init_set_si(3);
+    let (q, r) = n.tdiv_qr(d);
+    assert_eq(|_|"case 2", q.to_string, "2");;
+    assert_eq(|_|"case 2", r.to_string, "1");;
+    assert_eq(|_|"case 2", n.to_string, "7");;    
+    assert_eq(|_|"case 2", d.to_string, "3");;
+
+    // Test of `_binary_op2` via `tdiv_qr` for input of type (x, x)
+    // unique
+    let n = MPZ::init_set_si(7);
+    let (q, r) = n.tdiv_qr(n);
+    assert_eq(|_|"case 3", q.to_string, "1");;
+    assert_eq(|_|"case 3", r.to_string, "0");;
+    // shared
+    let n = MPZ::init_set_si(7);
+    let (q, r) = n.tdiv_qr(n);
+    assert_eq(|_|"case 3", q.to_string, "1");;
+    assert_eq(|_|"case 3", r.to_string, "0");;
+    assert_eq(|_|"case 3", n.to_string, "7");;
+
+    // Test of `_binary_op3` via `gcdext`
+    // (unique, unique)
+    let x = mpz(48);
+    let y = mpz(18);
+    assert_eq(|_|"_binary_op3", gcdext(x, y), (mpz(6), mpz(-1), mpz(3)));;
+    // (unique, shared)
+    let x = mpz(48);
+    let y = mpz(18);
+    assert_eq(|_|"_binary_op3", gcdext(x, y), (mpz(6), mpz(-1), mpz(3)));;
+    assert_eq(|_|"_binary_op3", y, mpz(18));;
+    // (shared, unique)
+    let x = mpz(48);
+    let y = mpz(18);
+    assert_eq(|_|"_binary_op3", gcdext(x, y), (mpz(6), mpz(-1), mpz(3)));;
+    assert_eq(|_|"_binary_op3", x, mpz(48));;
+    // (shared, shared)
+    let x = mpz(48);
+    let y = mpz(18);
+    assert_eq(|_|"_binary_op3", gcdext(x, y), (mpz(6), mpz(-1), mpz(3)));;
+    assert_eq(|_|"_binary_op3", x, mpz(48));;
+    assert_eq(|_|"_binary_op3", y, mpz(18));;
+
+    // Test of `_binary_op3` via `gcdext` for input of type (x, x)
+    // unique
+    let x = mpz(48);
+    assert_eq(|_|"_binary_op3", gcdext(x, x), (mpz(48), mpz(0), mpz(1)));;
+    // shared
+    let x = mpz(48);
+    assert_eq(|_|"_binary_op3", gcdext(x, x), (mpz(48), mpz(0), mpz(1)));;
+    assert_eq(|_|"_binary_op3", x, mpz(48));;
+
+    // Test of `_tertiary_op` via `powm`
+    // (unique, unique, unique)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;
+    // (unique, unique, shared)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;
+    assert_eq(|_|"_tertiary_op", z, mpz(1000));;
+    // (unique, shared, unique)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;
+    assert_eq(|_|"_tertiary_op", y, mpz(10));;
+    // (shared, unique, unique)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;
+    assert_eq(|_|"_tertiary_op", x, mpz(2));;
+    // (shared, unique, shared)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;    
+    assert_eq(|_|"_tertiary_op", x, mpz(2));;
+    assert_eq(|_|"_tertiary_op", z, mpz(1000));;
+    // (shared, shared, unique)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;
+    assert_eq(|_|"_tertiary_op", x, mpz(2));;
+    assert_eq(|_|"_tertiary_op", y, mpz(10));;
+    // (unique, shared, shared)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;
+    assert_eq(|_|"_tertiary_op", y, mpz(10));;
+    assert_eq(|_|"_tertiary_op", z, mpz(1000));;
+    // (shared, shared, shared)
+    let x = mpz(2);
+    let y = mpz(10);
+    let z = mpz(1000);
+    assert_eq(|_|"_tertiary_op", x.powm(y, z), mpz(24));;
+    assert_eq(|_|"_tertiary_op", x, mpz(2));;
+    assert_eq(|_|"_tertiary_op", y, mpz(10));;
+    assert_eq(|_|"_tertiary_op", z, mpz(1000));;
+
+    pure()
+);
+
+test_z_basic_arithmetic : IO ();
+test_z_basic_arithmetic = (
+    // Addition
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
+    let z = x + y;
+    assert_eq(|_|"case 4", z.to_string, "6912");;
+
+    // Subtraction (both unique)
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
+    let z = x - y;
+    assert_eq(|_|"case 5", z.to_string, "-4444");;
+
+    // Subtraction (lhs shared)
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
+    let z = x - y;
+    assert_eq(|_|"case 5.1", z.to_string, "-4444");;
+    let z = z - x;
+    assert_eq(|_|"case 5.1.0", z.to_string, "-5678");;
+
+    // Subtraction (rhs shared)
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
+    let z = x - y;
+    assert_eq(|_|"case 5.2", z.to_string, "-4444");;
+    let z = z + y;
+    assert_eq(|_|"case 5.2.0", z.to_string, "1234");;
+
+    // Subtraction (both shared)
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
+    let z = x - y;
+    assert_eq(|_|"case 5.3", z.to_string, "-4444");;
+    let z = z - x + y;
+    assert_eq(|_|"case 5.3.0", z.to_string, "0");;
+
+    // Multiplication
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
+    let z = x * y;
+    assert_eq(|_|"case 6", z.to_string, "7006652");;
+
+    // Negation
+    let x = MPZ::init_set_si(1234);
+    let y = -x;
+    assert_eq(|_|"case 7", y.to_string, "-1234");;
+
+    // Negation (shared)
+    let x = MPZ::init_set_si(1234);
+    let y = -x;
+    let z = y + x;
+    assert_eq(|_|"case 7.1", z.to_string, "0");;
+
+    // Division
+    let q = MPZ::init_set_si(5) / MPZ::init_set_si(2);
+    let r = MPZ::init_set_si(5) % MPZ::init_set_si(2);
+    assert_eq(|_|"case 15", q.to_string, "2");;
+    assert_eq(|_|"case 15", r.to_string, "1");;
+
+    let q = MPZ::init_set_si(5) / MPZ::init_set_si(-2);
+    let r = MPZ::init_set_si(5) % MPZ::init_set_si(-2);
+    assert_eq(|_|"case 15.5", q.to_string, "-2");;
+    assert_eq(|_|"case 15.5", r.to_string, "1");;
+
+    let q = MPZ::init_set_si(-5) / MPZ::init_set_si(2);
+    let r = MPZ::init_set_si(-5) % MPZ::init_set_si(2);
+    assert_eq(|_|"case 16", q.to_string, "-2");;
+    assert_eq(|_|"case 16", r.to_string, "-1");;
+
+    let q = MPZ::init_set_si(-5) / MPZ::init_set_si(-2);
+    let r = MPZ::init_set_si(-5) % MPZ::init_set_si(-2);
+    assert_eq(|_|"case 16", q.to_string, "2");;
+    assert_eq(|_|"case 16", r.to_string, "-1");;
+
+    // truncated division
+    let (q, r) = MPZ::init_set_si(-5).tdiv_qr(MPZ::init_set_si(3));
+    assert_eq(|_|"case 18", q.to_string, "-1");;
+    assert_eq(|_|"case 18", r.to_string, "-2");;
+    let q = MPZ::init_set_si(-5).tdiv_q(MPZ::init_set_si(3));
+    assert_eq(|_|"case 18", q.to_string, "-1");;
+    let r = MPZ::init_set_si(-5).tdiv_r(MPZ::init_set_si(3));
+    assert_eq(|_|"case 18", r.to_string, "-2");;
+    let q = MPZ::init_set_si(13).tdiv_q_2exp(2_U64);
+    assert_eq(|_|"case 18", q.to_string, "3");;
+    let r = MPZ::init_set_si(13).tdiv_r_2exp(2_U64);
+    assert_eq(|_|"case 18", r.to_string, "1");;
+
+    // ceiling division
+    let (q, r) = MPZ::init_set_si(-5).cdiv_qr(MPZ::init_set_si(3));
+    assert_eq(|_|"case 18", q.to_string, "-1");;
+    assert_eq(|_|"case 18", r.to_string, "-2");;
+    let q = MPZ::init_set_si(-5).cdiv_q(MPZ::init_set_si(3));
+    assert_eq(|_|"case 18", q.to_string, "-1");;
+    let r = MPZ::init_set_si(-5).cdiv_r(MPZ::init_set_si(3));
+    assert_eq(|_|"case 18", r.to_string, "-2");;
+    let q = MPZ::init_set_si(13).cdiv_q_2exp(2_U64);
+    assert_eq(|_|"case 18", q.to_string, "4");;
+    let r = MPZ::init_set_si(13).cdiv_r_2exp(2_U64);
+    assert_eq(|_|"case 18", r.to_string, "-3");;    
+
+    // floor division
+    let (q, r) = MPZ::init_set_si(-5).fdiv_qr(MPZ::init_set_si(3));
+    assert_eq(|_|"case 18", q.to_string, "-2");;
+    assert_eq(|_|"case 18", r.to_string, "1");;
+    let q = MPZ::init_set_si(-5).fdiv_q(MPZ::init_set_si(3));
+    assert_eq(|_|"case 18", q.to_string, "-2");;
+    let r = MPZ::init_set_si(-5).fdiv_r(MPZ::init_set_si(3));
+    assert_eq(|_|"case 18", r.to_string, "1");;
+    let q = MPZ::init_set_si(13).fdiv_q_2exp(2_U64);
+    assert_eq(|_|"case 18", q.to_string, "3");;
+    let r = MPZ::init_set_si(13).fdiv_r_2exp(2_U64);
+    assert_eq(|_|"case 18", r.to_string, "1");;        
+
+    // Exact division
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678 * 1234);
+    let z = MPZ::init_set_si(5678);
+    assert(|_|"", y.divisible_p(x));;
+    assert(|_|"", y.divexact(x) == z);;
+    assert(|_|"", !z.divisible_p(x));;
+    let x = MPZ::init_set_si(16);
+    assert(|_|"", x.divisible_2exp_p(4_U64));;
+    assert(|_|"", !x.divisible_2exp_p(5_U64));;
+
+    // Modulo
+    let n = MPZ::init_set_si(5);
+    let d = MPZ::init_set_si(2);
+    let r = n.mod(d);
+    assert_eq(|_|"case 0", r.to_string, "1");;
+
+    // Congruence
+    assert(|_|"mpz congruent_p 1", mpz(1).congruent_p(mpz(2), mpz(3)));;
+    assert(|_|"mpz congruent_2exp_p", mpz(8).congruent_2exp_p(3_U64, mpz(0)));;
+
+    // addmul
+    assert_eq(|_|"mpz addmul", mpz(1).addmul(mpz(2), mpz(3)), mpz(7));;
+
+    // submul
+    assert_eq(|_|"mpz submul", mpz(1).submul(mpz(2), mpz(3)), mpz(-5));;
+
+    // mul_2exp
+    let x = MPZ::init_set_si(1234);
+    let y = x.mul_2exp(10_U64);
+    assert_eq(|_|"case 9", y.to_string, "1263616");;
+
+    // Absolute value
+    let x = MPZ::init_set_si(-1234);
+    let y = x.abs;
+    assert_eq(|_|"case 8", y.to_string, "1234");;
+
+    pure()
+);
+
+test_z_conversion : IO ();
+test_z_conversion = (
+    let num = MPZ::zero;
+    assert_eq(|_|"case 0", num.to_string, "0");;
+
+    let num = MPZ::init_set_si(-12345);
+    assert_eq(|_|"case 2", num.to_string, "-12345");;
+
+    let num = num.set_si(54321);
+    assert_eq(|_|"case 2.1", num.to_string, "54321");;
+
+    let num = MPZ::init_set_ui(31415_U64);
+    assert_eq(|_|"case 3", num.to_string, "31415");;
+
+    let num = num.set_ui(27182_U64);
+    assert_eq(|_|"case 3.1", num.to_string, "27182");;
+
+    let num = num.set_d(3.14159);
+    assert_eq(|_|"case 4", num.to_string, "3");;
+
+    let num = MPZ::init_set_d(3.14159);
+    assert_eq(|_|"case 4", num.to_string, "3");;
+
+    // Test `to_I64`
+    let num = MPZ::init_set_si(1234);
+    assert_eq(|_|"case to_I64 success", num.get_si.as_some, 1234);;
+
+    let num = (from_string("12345678901234567890123").as_ok : MPZ);
+    assert(|_|"case to_I64 fail", num.get_si.is_none);;
+
+    // Test `to_U64`
+    let num = MPZ::init_set_ui(1234_U64);
+    assert_eq(|_|"case to_U64 success", num.get_ui.as_some, 1234_U64);;
+
+    let num = (from_string("12345678901234567890123").as_ok : MPZ);
+    assert(|_|"case to_U64 fail", num.get_ui.is_none);;
+
+    // Test `to_F64`
+    let num = MPZ::init_set_si(1234);
+    assert_eq(|_|"case to_F64", num.get_d, 1234.0);;
+
+    // Test `to_F64_2exp`
+    let num = from_string("5").as_ok : MPZ;
+    let (mantissa, exponent) = num.get_d_exp;
+    assert_eq(|_|"case to_F64_2exp mantissa", mantissa, 0.625);;
+    assert_eq(|_|"case to_F64_2exp exponent", exponent, 3);;
+
+    // Test `set_MPQ`
+    let q = MPQ::init_set_si(6, 5);
+    let n = MPZ::init_set_si(0);
+    let m = n.set_q(q);
+    assert_eq(|_|"case 0", m.to_string, "1");;
+    assert_eq(|_|"case 0", n.to_string, "0");;
+
+    let n = MPZ::init_set_si(255);
+    assert_eq(|_|"case 1", n.get_str(16), "ff");;
+
+    pure()
+);
+
+test_z_comparison : IO ();
+test_z_comparison = (
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
+    assert(|_|"case 7", x != y);;
+
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(1234);
+    assert(|_|"case 7", x == y);;
+
+    let x = MPZ::init_set_si(1234);
+    assert(|_|"case 7", x == x);;
+
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(5678);
+    assert(|_|"case 8", x < y);;
+    assert(|_|"case 8", !(x > y));;
+    assert(|_|"case 8", x <= y);;
+    assert(|_|"case 8", !(x >= y));;
+
+    let x = MPZ::init_set_si(1234);
+    let y = MPZ::init_set_si(1234);
+    assert(|_|"case 8", !(x < y));;
+    assert(|_|"case 8", !(x > y));;
+    assert(|_|"case 8", x <= y);;
+    assert(|_|"case 8", x >= y);;
+
+    let x = MPZ::init_set_si(1234);
+    assert(|_|"case 8", !(x < x));;
+    assert(|_|"case 8", !(x > x));;
+    assert(|_|"case 8", x <= x);;
+    assert(|_|"case 8", x >= x);;
+
+    assert(|_|"case 9", cmp(zero, one) < 0);;
+    assert(|_|"case 9", cmp(zero, zero) == 0);;
+    assert(|_|"case 9", cmp(one, zero) > 0);;
+
+    assert(|_|"case 10", cmp_d(zero, -0.5) > 0);; 
+    assert(|_|"case 10", cmp_d(zero, 0.5) < 0);; 
+
+    assert(|_|"case 11", cmpabs(mpz(-2), mpz(-1)) > 0);;
+    assert(|_|"case 11", cmpabs(mpz(-2), mpz(2)) == 0);;
+    assert(|_|"case 11", cmpabs(mpz(1), mpz(-2)) < 0);;
+
+    assert(|_|"case 12", cmpabs_d(mpz(-2), -1.5) > 0);;
+    assert(|_|"case 12", cmpabs_d(mpz(1), -2.5) < 0);;
+
+    assert_eq(|_|"case 13", mpz(-2).sgn, -1);;
+    assert_eq(|_|"case 13", mpz(0).sgn, 0);;
+    assert_eq(|_|"case 13", mpz(2).sgn, 1);;
+
+    pure()
+);
+
+test_z_pow : IO ();
+test_z_pow = (
+    let z = mpz(2).powm(mpz(10), mpz(1000));
+    assert_eq(|_|"case 0", z.to_string, "24");;
+
+    let z = mpz(2).powm_sec(mpz(10), mpz(1000));
+    assert_eq(|_|"case 1", z.to_string, "24");;
+
+    let z = mpz(2).pow_ui(10_U64);
+    assert_eq(|_|"case 2", z.to_string, "1024");;
+
+    pure()
+);
+
+test_z_root : IO ();
+test_z_root = (
+    let z = mpz(27).root(3_U64);
+    assert_eq(|_|"case 0", z, mpz(3));;
+
+    let (root, rem) = mpz(27).root_rem(2_U64);
+    assert_eq(|_|"case 1", root, mpz(5));;
+    assert_eq(|_|"case 1", rem, mpz(2));;
+
+    let z = mpz(27).sqrt;
+    assert_eq(|_|"case 2", z, mpz(5));;
+
+    let (root, rem) = mpz(27).sqrt_rem;
+    assert_eq(|_|"case 3", root, mpz(5));;
+    assert_eq(|_|"case 3", rem, mpz(2));;
+
+    assert(|_|"case 4", mpz(27).perfect_power_p);;
+    assert(|_|"case 4", !mpz(27).perfect_square_p);;
+
+    pure()
+);
+
+test_z_bit : IO ();
+test_z_bit = (
+    let x = init_set_str("101010", 2).as_some;
+    let y = init_set_str("110011", 2).as_some;
+    let z = x.and(y);
+    assert_eq(|_|"case 0", z.get_str(2), "100010");;
+    let z = x.or(y);
+    assert_eq(|_|"case 1", z.get_str(2), "111011");;
+    let z = x.xor(y);
+    assert_eq(|_|"case 2", z.get_str(2), "11001");; // leading zero removed
+    let z = x.com;
+    assert_eq(|_|"case 3", z, -x-mpz(1));;
+    
+    assert_eq(|_|"case 4", x.scan0(0_U64), 0_U64);;
+    assert_eq(|_|"case 4", x.scan1(0_U64), 1_U64);;
+
+    // popcount
+    assert_eq(|_|"case 5", x.popcount, 3_U64);;
+
+    // hamdist
+    assert_eq(|_|"case 6", x.hamdist(y), 3_U64);;
+
+    // setbit
+    assert_eq(|_|"case 7", x.setbit(2_U64).get_str(2), "101110");;
+
+    // clrbit
+    assert_eq(|_|"case 8", x.clrbit(1_U64).get_str(2), "101000");;
+
+    // combit
+    assert_eq(|_|"case 9", x.combit(1_U64).get_str(2), "101000");;
+
+    // tstbit
+    assert(|_|"case 10", x.tstbit(1_U64));;
+
+    pure()
+);
+
+test_z_number_theory : IO ();
+test_z_number_theory = (
+    assert(|_|"probab_prime_p", mpz(1e9 + 7).probab_prime_p(15) >= 1);;
+    assert(|_|"probab_prime_p", mpz(1e9 + 3).probab_prime_p(15) == 0);;
+
+    assert(|_|"nextprime", mpz(25).nextprime == mpz(29));;
+
+    // gcd
+    assert_eq(|_|"gcd", mpz(48).gcd(mpz(18)), mpz(6));;
+
+    // gcdext
+    assert_eq(|_|"gcdext", gcdext(mpz(48), mpz(18)), (mpz(6), mpz(-1), mpz(3)));;
+
+    // lcm
+    assert_eq(|_|"lcm", mpz(48).lcm(mpz(18)), mpz(144));;
+
+    // invert
+    assert_eq(|_|"invert", mpz(3).invert(mpz(11)), some(mpz(4)));;
+    assert_eq(|_|"invert", mpz(2).invert(mpz(6)), none());;
+
+    // jacobi 
+    assert_eq(|_|"jacobi", mpz(5).jacobi(mpz(3)), -1);;
+
+    // legendre
+    assert_eq(|_|"legendre", mpz(5).legendre(mpz(3)), -1);;
+
+    // remove 
+    assert_eq(|_|"remove", mpz(48).remove(mpz(2)), (mpz(3), 4_U64));;
+
+    // fac_ui 
+    assert_eq(|_|"fac_ui", fac_ui(5_U64), mpz(120));;
+
+    // fac2_ui
+    assert_eq(|_|"fac2_ui", fac2_ui(5_U64), mpz(15));;
+
+    // facm_uiui
+    assert_eq(|_|"facm_uiui", 5_U64.facm_uiui(3_U64), mpz(10));;
+
+    // primorial_ui
+    assert_eq(|_|"primorial_ui", primorial_ui(5_U64), mpz(30));;
+    
+    // bin_ui
+    assert_eq(|_|"bin_ui", bin_ui(mpz(5), 2_U64), mpz(10));;
+
+    // fib_ui
+    assert_eq(|_|"fib_ui", fib_ui(10_U64), mpz(55));;
+
+    // fib2_ui
+    assert_eq(|_|"fib2_ui", fib2_ui(10_U64), (mpz(55), mpz(34)));;
+
+    // lucnum_ui 
+    assert_eq(|_|"lucnum_ui", lucnum_ui(10_U64), mpz(123));;
+
+    // lucnum2_ui
+    assert_eq(|_|"lucnum2_ui", lucnum2_ui(10_U64), (mpz(123), mpz(76)));;
+
+    pure()
+);

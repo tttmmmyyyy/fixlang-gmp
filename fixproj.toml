@@ -7,7 +7,7 @@ files = ["gmpz.fix", "gmpq.fix"]
 dynamic_links = ["gmp"]
 
 [build.test]
-files = ["test.fix"]
+files = ["test.fix", "gmpz-test.fix", "gmpq-test.fix"]
 memcheck = true
 
 [[dependencies]]
