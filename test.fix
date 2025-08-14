@@ -483,8 +483,16 @@ test_z_bit = (
 
 test_z_number_theory : IO ();
 test_z_number_theory = (
-    assert(|_|"case 9", mpz(1e9 + 7).probab_prime_p(15) >= 1);;
-    assert(|_|"case 9", mpz(1e9 + 3).probab_prime_p(15) == 0);;
+    assert(|_|"probab_prime_p", mpz(1e9 + 7).probab_prime_p(15) >= 1);;
+    assert(|_|"probab_prime_p", mpz(1e9 + 3).probab_prime_p(15) == 0);;
+
+    assert(|_|"nextprime", mpz(25).nextprime == mpz(29));;
+
+    // gcd
+    assert_eq(|_|"gcd", mpz(48).gcd(mpz(18)), mpz(6));;
+
+    // gcdext
+    assert_eq(|_|"gcdext", gcdext(mpz(48), mpz(18)), (mpz(6), mpz(-1), mpz(3)));;
 
     pure()
 );

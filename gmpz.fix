@@ -155,6 +155,55 @@ namespace MPZ {
         )
     );
 
+    // Apply a binary operation of GMP (taking (out1, out2, out3, op1, op2) as arguments) to two `MPZ` values.
+    _binary_op3 : ((MPZHandle, MPZHandle, MPZHandle, MPZHandle, MPZHandle) -> IO ()) -> MPZ -> MPZ -> (MPZ, MPZ, MPZ);
+    _binary_op3 = |act, lhs, rhs| (
+        let (lhs_is_unique, lhs) = lhs.unsafe_is_unique;
+        let (rhs_is_unique, rhs) = rhs.unsafe_is_unique;
+        if lhs_is_unique && rhs_is_unique {
+            lhs._mutate(|lhs_ptr| 
+                rhs._mutate(|rhs_ptr|
+                    MPZ::zero._mutate(|out3_ptr|
+                        act((lhs_ptr, rhs_ptr, out3_ptr, lhs_ptr, rhs_ptr))
+                    ).@0.pure
+                ).pure
+            ).|(x, (y, z))| (x, y, z)
+        };
+        if lhs_is_unique && !rhs_is_unique {
+            rhs._borrow(|rhs_ptr|
+                lhs._mutate(|lhs_ptr| 
+                    MPZ::zero._mutate(|out2_ptr|
+                        MPZ::zero._mutate(|out3_ptr|
+                            act((lhs_ptr, out2_ptr, out3_ptr, lhs_ptr, rhs_ptr))
+                        ).@0.pure
+                    ).pure
+                ).|(x, (y, z))| (x, y, z)
+            )
+        };
+        if !lhs_is_unique && rhs_is_unique {
+            lhs._borrow(|lhs_ptr|
+                rhs._mutate(|rhs_ptr| 
+                    MPZ::zero._mutate(|out2_ptr|
+                        MPZ::zero._mutate(|out3_ptr|
+                            act((rhs_ptr, out2_ptr, out3_ptr, lhs_ptr, rhs_ptr))
+                        ).@0.pure
+                    ).pure
+                ).|(x, (y, z))| (x, y, z)
+            )
+        };
+        lhs._borrow(|lhs_ptr|
+            rhs._borrow(|rhs_ptr|
+                MPZ::zero._mutate(|out1_ptr| 
+                    MPZ::zero._mutate(|out2_ptr|
+                        MPZ::zero._mutate(|out3_ptr|
+                            act((out1_ptr, out2_ptr, out3_ptr, lhs_ptr, rhs_ptr))
+                        ).@0.pure
+                    ).pure
+                ).|(x, (y, z))| (x, y, z)
+            )
+        )
+    );
+
     // Apply a tertiary operation of GMP (taking (out, op1, op2, op3) as arguments) to two `MPZ` values.
     _tertiary_op : ((MPZHandle, MPZHandle, MPZHandle, MPZHandle) -> IO ()) -> MPZ -> MPZ -> MPZ -> MPZ;
     _tertiary_op = |act, op1, op2, op3| (
@@ -865,11 +914,53 @@ namespace MPZ {
     // 
     // # Returns 
     // 2 if `x` is definitely prime, 1 if it is probably prime, and 0 if it is definitely composite.
+    // 
+    // # Parameters
+    // - `k`: The number of iterations to perform for the probabilistic test.
+    // - `x`: The value to check.
     probab_prime_p : I64 -> MPZ -> I64;
     probab_prime_p = |k, x| (
         x._borrow(|x_ptr| (
             FFI_CALL[CInt __gmpz_probab_prime_p(Ptr, CInt), x_ptr, k.to_CInt].to_I64
         ))
+    );
+
+    // Calculates (probabilistically) the next prime number greater than `x`.
+    // 
+    // # Parameters
+    // - `x`: The value to find the next prime of.
+    nextprime : MPZ -> MPZ;
+    nextprime = |x| (
+        x._unary_op(|(out_ptr, x_ptr)| FFI_CALL_IO[() __gmpz_nextprime(Ptr, Ptr), out_ptr, x_ptr])
+    );
+
+    // Calculates the greatest common divisor of two `MPZ` values.
+    // 
+    // # Parameters
+    // - `n`
+    // - `m`
+    gcd : MPZ -> MPZ -> MPZ;
+    gcd = |n, m| (
+        MPZ::_binary_op(
+            |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_gcd(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
+            n, m
+        )
+    );
+
+    // Calculates the greatest common divisor `gcd` of two `MPZ` values and also returns coefficients `s` and `t` such that `gcd = n * s + m * t`.
+    // 
+    // # Returns
+    // A tuple `(gcd, s, t)`
+    // 
+    // # Parameters
+    // - `n`: The first value.
+    // - `m`: The second value.
+    gcdext : MPZ -> MPZ -> (MPZ, MPZ, MPZ);
+    gcdext = |n, m| (
+        MPZ::_binary_op3(
+            |(out_ptr, s_ptr, t_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_gcdext(Ptr, Ptr, Ptr, Ptr, Ptr), out_ptr, s_ptr, t_ptr, lhs_ptr, rhs_ptr],
+            n, m
+        )
     );
 
     // Comparisons
