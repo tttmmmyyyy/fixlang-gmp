@@ -975,8 +975,23 @@ namespace MPZ {
         ).@0
     );
 
-    // invert : MPZ -> MPZ -> Option MPZ;
-    // invert = 
+    // Calculates the modular inverse of `n` modulo `m`.
+    // 
+    // # Parameters
+    // - `m`: The modulus.
+    // - `n`: The value to invert.
+    invert : MPZ -> MPZ -> Option MPZ;
+    invert = |m, n| (
+        let (inv, flag) = MPZ::_binary_op(
+            |(inv_ptr, n_ptr, m_ptr)| FFI_CALL_IO[CInt __gmpz_invert(Ptr, Ptr, Ptr), inv_ptr, n_ptr, m_ptr],
+            n, m
+        );
+        if flag == 0.to_CInt {
+            Option::none()
+        } else {
+            Option::some(inv)
+        }
+    );
 
     // Comparisons
 

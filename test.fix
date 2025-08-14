@@ -497,6 +497,10 @@ test_z_number_theory = (
     // lcm
     assert_eq(|_|"lcm", mpz(48).lcm(mpz(18)), mpz(144));;
 
+    // invert
+    assert_eq(|_|"invert", mpz(3).invert(mpz(11)), some(mpz(4)));;
+    assert_eq(|_|"invert", mpz(2).invert(mpz(6)), none());;
+
     pure()
 );
 
