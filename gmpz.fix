@@ -93,23 +93,23 @@ namespace MPZ {
     );
 
     // Apply a binary operation of GMP (taking (out, lhs, rhs) as arguments) to two `MPZ` values.
-    _binary_op : ((MPZHandle, MPZHandle, MPZHandle) -> IO ()) -> MPZ -> MPZ -> MPZ;
+    _binary_op : ((MPZHandle, MPZHandle, MPZHandle) -> IO a) -> MPZ -> MPZ -> (MPZ, a);
     _binary_op = |act, lhs, rhs| (
         let (is_unique, lhs) = lhs.unsafe_is_unique;
         if is_unique { 
             rhs._borrow(|rhs_ptr|
-                lhs._mutate(|lhs_ptr| act((lhs_ptr, lhs_ptr, rhs_ptr))).@0
+                lhs._mutate(|lhs_ptr| act((lhs_ptr, lhs_ptr, rhs_ptr)))
             )
         };
         let (is_uqniue, rhs) = rhs.unsafe_is_unique;
         if is_unique { 
             lhs._borrow(|lhs_ptr|
-                rhs._mutate(|rhs_ptr| act((rhs_ptr, lhs_ptr, rhs_ptr))).@0
+                rhs._mutate(|rhs_ptr| act((rhs_ptr, lhs_ptr, rhs_ptr)))
             )
         };
         lhs._borrow(|lhs_ptr|
             rhs._borrow(|rhs_ptr|
-                MPZ::zero._mutate(|out_ptr| act((out_ptr, lhs_ptr, rhs_ptr))).@0
+                MPZ::zero._mutate(|out_ptr| act((out_ptr, lhs_ptr, rhs_ptr)))
             )
         )
     );
@@ -478,7 +478,7 @@ namespace MPZ {
         MPZ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_divexact(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             n, d
-        )
+        ).@0
     );
 
     // Modulo
@@ -493,7 +493,7 @@ namespace MPZ {
         MPZ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_mod(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             n, d
-        )
+        ).@0
     );
 
     // Checks if two values `a`, `b` are congruent modulo `m`.
@@ -557,7 +557,7 @@ namespace MPZ {
         MPZ::_binary_op(
             |(q_ptr, n_ptr, d_ptr)| FFI_CALL_IO[() __gmpz_tdiv_q(Ptr, Ptr, Ptr), q_ptr, n_ptr, d_ptr],
             n, d
-        )
+        ).@0
     );
 
     // Divides `n` by `d` and returns the remainder.
@@ -572,7 +572,7 @@ namespace MPZ {
         MPZ::_binary_op(
             |(r_ptr, n_ptr, d_ptr)| FFI_CALL_IO[() __gmpz_tdiv_r(Ptr, Ptr, Ptr), r_ptr, n_ptr, d_ptr],
             n, d
-        )
+        ).@0
     );
 
     // Divides `n` by `2^b` and returns the quotient.
@@ -632,7 +632,7 @@ namespace MPZ {
         MPZ::_binary_op(
             |(q_ptr, n_ptr, d_ptr)| FFI_CALL_IO[() __gmpz_fdiv_q(Ptr, Ptr, Ptr), q_ptr, n_ptr, d_ptr],
             n, d
-        )
+        ).@0
     );
 
     // Divides `n` by `d` and returns the remainder.
@@ -647,7 +647,7 @@ namespace MPZ {
         MPZ::_binary_op(
             |(r_ptr, n_ptr, d_ptr)| FFI_CALL_IO[() __gmpz_fdiv_r(Ptr, Ptr, Ptr), r_ptr, n_ptr, d_ptr],
             n, d
-        )
+        ).@0
     );
 
     // Divides `n` by `2^b` and returns the quotient.
@@ -707,7 +707,7 @@ namespace MPZ {
         MPZ::_binary_op(
             |(q_ptr, n_ptr, d_ptr)| FFI_CALL_IO[() __gmpz_cdiv_q(Ptr, Ptr, Ptr), q_ptr, n_ptr, d_ptr],
             n, d
-        )
+        ).@0
     );
 
     // Divides `n` by `d` and returns the remainder.
@@ -722,7 +722,7 @@ namespace MPZ {
         MPZ::_binary_op(
             |(r_ptr, n_ptr, d_ptr)| FFI_CALL_IO[() __gmpz_cdiv_r(Ptr, Ptr, Ptr), r_ptr, n_ptr, d_ptr],
             n, d
-        )
+        ).@0
     );
 
     // Divides `n` by `2^b` and returns the quotient.
@@ -944,7 +944,7 @@ namespace MPZ {
         MPZ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_gcd(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             n, m
-        )
+        ).@0
     );
 
     // Calculates the greatest common divisor `gcd` of two `MPZ` values and also returns coefficients `s` and `t` such that `gcd = n * s + m * t`.
@@ -973,7 +973,7 @@ namespace MPZ {
         MPZ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_lcm(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             n, m
-        )
+        ).@0
     );
 
     // invert : MPZ -> MPZ -> Option MPZ;
@@ -1079,7 +1079,7 @@ namespace MPZ {
         MPZ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_and(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             lhs, rhs
-        )
+        ).@0
     );
 
     // Logical or operation on two `MPZ` values.
@@ -1092,7 +1092,7 @@ namespace MPZ {
         MPZ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_ior(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             lhs, rhs
-        )
+        ).@0
     );
 
     // Logical xor operation on two `MPZ` values.
@@ -1105,7 +1105,7 @@ namespace MPZ {
         MPZ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_xor(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             lhs, rhs
-        )
+        ).@0
     );
 
     // Bitwise complement operation on a `MPZ` value.
@@ -1227,7 +1227,7 @@ impl MPZ : Add {
         MPZ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_add(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             lhs, rhs
-        )
+        ).@0
     );
 }
 
@@ -1236,7 +1236,7 @@ impl MPZ : Sub {
         MPZ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_sub(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             lhs, rhs
-        )
+        ).@0
     );
 }
 
@@ -1245,7 +1245,7 @@ impl MPZ : Mul {
         MPZ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_mul(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             lhs, rhs
-        )
+        ).@0
     );
 }
 

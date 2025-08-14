@@ -336,6 +336,32 @@ Divides `n` by `2^b` and returns the remainder.
 - `bit`: The exponent of 2.
 - `n`: The dividend.
 
+#### gcd
+
+Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ`
+
+Calculates the greatest common divisor of two `MPZ` values.
+
+##### Parameters
+
+- `n`
+- `m`
+
+#### gcdext
+
+Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> (GMP.Z::MPZ, GMP.Z::MPZ, GMP.Z::MPZ)`
+
+Calculates the greatest common divisor `gcd` of two `MPZ` values and also returns coefficients `s` and `t` such that `gcd = n * s + m * t`.
+
+##### Returns
+
+A tuple `(gcd, s, t)`
+
+##### Parameters
+
+- `n`: The first value.
+- `m`: The second value.
+
 #### get_d
 
 Type: `GMP.Z::MPZ -> Std::F64`
@@ -436,6 +462,17 @@ Creates a `MPZ` value represented by an U64 value.
 
 - `val`: The U64 value to represent.
 
+#### lcm
+
+Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ`
+
+Calculates the least common multiple of two `MPZ` values.
+
+##### Parameters
+
+- `n`: The first value.
+- `m`: The second value.
+
 #### mod
 
 Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ`
@@ -462,6 +499,16 @@ Create a `MPZ` value from an `I64`.
 Type: `Std::U64 -> GMP.Z::MPZ -> GMP.Z::MPZ`
 
 Multiplication by a power of 2.
+
+#### nextprime
+
+Type: `GMP.Z::MPZ -> GMP.Z::MPZ`
+
+Calculates (probabilistically) the next prime number greater than `x`.
+
+##### Parameters
+
+- `x`: The value to find the next prime of.
 
 #### one
 
@@ -540,6 +587,21 @@ This is a secure version of `powm`. For details, see the document of `mpz_powm_s
 - `e`: The exponent.
 - `m`: The modulus.
 - `b`: The base.
+
+#### probab_prime_p
+
+Type: `Std::I64 -> GMP.Z::MPZ -> Std::I64`
+
+Checks if `x` is a prime number.
+
+##### Returns
+
+2 if `x` is definitely prime, 1 if it is probably prime, and 0 if it is definitely composite.
+
+##### Parameters
+
+- `k`: The number of iterations to perform for the probabilistic test.
+- `x`: The value to check.
 
 #### root
 
