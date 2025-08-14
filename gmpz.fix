@@ -861,6 +861,17 @@ namespace MPZ {
 
     // Number theoretic functions
 
+    // Checks if `x` is a prime number.
+    // 
+    // # Returns 
+    // 2 if `x` is definitely prime, 1 if it is probably prime, and 0 if it is definitely composite.
+    probab_prime_p : I64 -> MPZ -> I64;
+    probab_prime_p = |k, x| (
+        x._borrow(|x_ptr| (
+            FFI_CALL[CInt __gmpz_probab_prime_p(Ptr, CInt), x_ptr, k.to_CInt].to_I64
+        ))
+    );
+
     // Comparisons
 
     // Compares two `MPZ` values.

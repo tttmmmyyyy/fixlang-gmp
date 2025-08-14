@@ -19,6 +19,7 @@ test_z = (
     test_z_pow;;
     test_z_root;;
     test_z_bit;;
+    test_z_number_theory;;
 
     // zero and one
     assert_eq(|_|"zero", MPZ::zero.to_string, "0");;
@@ -476,6 +477,14 @@ test_z_bit = (
 
     // tstbit
     assert(|_|"case 10", x.tstbit(1_U64));;
+
+    pure()
+);
+
+test_z_number_theory : IO ();
+test_z_number_theory = (
+    assert(|_|"case 9", mpz(1e9 + 7).probab_prime_p(15) >= 1);;
+    assert(|_|"case 9", mpz(1e9 + 3).probab_prime_p(15) == 0);;
 
     pure()
 );
