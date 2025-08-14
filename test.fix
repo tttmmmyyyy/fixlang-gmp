@@ -494,6 +494,9 @@ test_z_number_theory = (
     // gcdext
     assert_eq(|_|"gcdext", gcdext(mpz(48), mpz(18)), (mpz(6), mpz(-1), mpz(3)));;
 
+    // lcm
+    assert_eq(|_|"lcm", mpz(48).lcm(mpz(18)), mpz(144));;
+
     pure()
 );
 

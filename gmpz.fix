@@ -963,6 +963,22 @@ namespace MPZ {
         )
     );
 
+    // Calculates the least common multiple of two `MPZ` values.
+    // 
+    // # Parameters
+    // - `n`: The first value.
+    // - `m`: The second value.
+    lcm : MPZ -> MPZ -> MPZ;
+    lcm = |n, m| (
+        MPZ::_binary_op(
+            |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_lcm(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
+            n, m
+        )
+    );
+
+    // invert : MPZ -> MPZ -> Option MPZ;
+    // invert = 
+
     // Comparisons
 
     // Compares two `MPZ` values.
