@@ -114,7 +114,7 @@ namespace MPZ {
     );
 
     // Apply a binary operation which returns two values of GMP (taking (out0, out1, lhs, rhs) as arguments) to two `MPZ` values.
-    _binary_op2 : ((MPZHandle, MPZHandle, MPZHandle, MPZHandle) -> IO ()) -> MPZ -> MPZ -> (MPZ, MPZ);
+    _binary_op2 : ((MPZHandle, MPZHandle, MPZHandle, MPZHandle) -> IO a) -> MPZ -> MPZ -> (MPZ, MPZ, a);
     _binary_op2 = |act, lhs, rhs| (
         let (lhs_is_unique, lhs) = lhs.unsafe_is_unique;
         let (rhs_is_unique, rhs) = rhs.unsafe_is_unique;
@@ -122,16 +122,16 @@ namespace MPZ {
             lhs._mutate(|lhs_ptr| 
                 rhs._mutate(|rhs_ptr|
                     act((lhs_ptr, rhs_ptr, lhs_ptr, rhs_ptr))
-                ).@0.pure
-            )
+                ).pure
+            ).|(x, (y, z))| (x, y, z)
         };
         if lhs_is_unique && !rhs_is_unique {
             rhs._borrow(|rhs_ptr|
                 lhs._mutate(|lhs_ptr| 
                     MPZ::zero._mutate(|out2_ptr|
                         act((lhs_ptr, out2_ptr, lhs_ptr, rhs_ptr))
-                    ).@0.pure
-                )
+                    ).pure
+                ).|(x, (y, z))| (x, y, z)
             )
         };
         if !lhs_is_unique && rhs_is_unique {
@@ -139,8 +139,8 @@ namespace MPZ {
                 rhs._mutate(|rhs_ptr| 
                     MPZ::zero._mutate(|out2_ptr|
                         act((rhs_ptr, out2_ptr, lhs_ptr, rhs_ptr))
-                    ).@0.pure
-                )
+                    ).pure
+                ).|(x, (y, z))| (x, y, z)
             )
         };
         lhs._borrow(|lhs_ptr|
@@ -148,14 +148,14 @@ namespace MPZ {
                 MPZ::zero._mutate(|out1_ptr| 
                     MPZ::zero._mutate(|out2_ptr|
                         act((out1_ptr, out2_ptr, lhs_ptr, rhs_ptr))
-                    ).@0.pure
-                )
+                    ).pure
+                ).|(x, (y, z))| (x, y, z)
             )
         )
     );
 
     // Apply a binary operation of GMP (taking (out1, out2, out3, op1, op2) as arguments) to two `MPZ` values.
-    _binary_op3 : ((MPZHandle, MPZHandle, MPZHandle, MPZHandle, MPZHandle) -> IO ()) -> MPZ -> MPZ -> (MPZ, MPZ, MPZ);
+    _binary_op3 : ((MPZHandle, MPZHandle, MPZHandle, MPZHandle, MPZHandle) -> IO a) -> MPZ -> MPZ -> (MPZ, MPZ, MPZ, a);
     _binary_op3 = |act, lhs, rhs| (
         let (lhs_is_unique, lhs) = lhs.unsafe_is_unique;
         let (rhs_is_unique, rhs) = rhs.unsafe_is_unique;
@@ -164,9 +164,9 @@ namespace MPZ {
                 rhs._mutate(|rhs_ptr|
                     MPZ::zero._mutate(|out3_ptr|
                         act((lhs_ptr, rhs_ptr, out3_ptr, lhs_ptr, rhs_ptr))
-                    ).@0.pure
+                    ).pure
                 ).pure
-            ).|(x, (y, z))| (x, y, z)
+            ).|(x, (y, (z, w)))| (x, y, z, w)
         };
         if lhs_is_unique && !rhs_is_unique {
             rhs._borrow(|rhs_ptr|
@@ -174,9 +174,9 @@ namespace MPZ {
                     MPZ::zero._mutate(|out2_ptr|
                         MPZ::zero._mutate(|out3_ptr|
                             act((lhs_ptr, out2_ptr, out3_ptr, lhs_ptr, rhs_ptr))
-                        ).@0.pure
+                        ).pure
                     ).pure
-                ).|(x, (y, z))| (x, y, z)
+                ).|(x, (y, (z, w)))| (x, y, z, w)
             )
         };
         if !lhs_is_unique && rhs_is_unique {
@@ -185,9 +185,9 @@ namespace MPZ {
                     MPZ::zero._mutate(|out2_ptr|
                         MPZ::zero._mutate(|out3_ptr|
                             act((rhs_ptr, out2_ptr, out3_ptr, lhs_ptr, rhs_ptr))
-                        ).@0.pure
+                        ).pure
                     ).pure
-                ).|(x, (y, z))| (x, y, z)
+                ).|(x, (y, (z, w)))| (x, y, z, w)
             )
         };
         lhs._borrow(|lhs_ptr|
@@ -196,9 +196,9 @@ namespace MPZ {
                     MPZ::zero._mutate(|out2_ptr|
                         MPZ::zero._mutate(|out3_ptr|
                             act((out1_ptr, out2_ptr, out3_ptr, lhs_ptr, rhs_ptr))
-                        ).@0.pure
+                        ).pure
                     ).pure
-                ).|(x, (y, z))| (x, y, z)
+                ).|(x, (y, (z, w)))| (x, y, z, w)
             )
         )
     );
@@ -541,7 +541,7 @@ namespace MPZ {
         MPZ::_binary_op2(
             |(q_ptr, r_ptr, n_ptr, d_ptr)| FFI_CALL_IO[() __gmpz_tdiv_qr(Ptr, Ptr, Ptr, Ptr), q_ptr, r_ptr, n_ptr, d_ptr],
             n, d
-        )
+        ).|(x, y, _)| (x, y)
     );
 
     // Divides `n` by `d` and returns the quotient.
@@ -616,7 +616,7 @@ namespace MPZ {
         MPZ::_binary_op2(
             |(q_ptr, r_ptr, n_ptr, d_ptr)| FFI_CALL_IO[() __gmpz_fdiv_qr(Ptr, Ptr, Ptr, Ptr), q_ptr, r_ptr, n_ptr, d_ptr],
             n, d
-        )
+        ).|(x, y, _)| (x, y)
     );
 
     // Divides `n` by `d` and returns the quotient.
@@ -691,7 +691,7 @@ namespace MPZ {
         MPZ::_binary_op2(
             |(q_ptr, r_ptr, n_ptr, d_ptr)| FFI_CALL_IO[() __gmpz_cdiv_qr(Ptr, Ptr, Ptr, Ptr), q_ptr, r_ptr, n_ptr, d_ptr],
             n, d
-        )
+        ).|(x, y, _)| (x, y)
     );
 
     // Divides `n` by `d` and returns the quotient.
@@ -959,7 +959,7 @@ namespace MPZ {
         MPZ::_binary_op3(
             |(out_ptr, s_ptr, t_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpz_gcdext(Ptr, Ptr, Ptr, Ptr, Ptr), out_ptr, s_ptr, t_ptr, lhs_ptr, rhs_ptr],
             n, m
-        )
+        ).|(x, y, z, _)| (x, y, z)
     );
 
     // Calculates the least common multiple of two `MPZ` values.
