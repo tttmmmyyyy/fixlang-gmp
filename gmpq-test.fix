@@ -6,7 +6,9 @@ import GMP.Q;
 test_q : IO ();
 test_q = (
     test_q_special_constructor;;
+    test_q_conversion;;
     test_q_basic_arithmetic;;
+    test_q_comparison;;
 
     pure()
 );
@@ -95,7 +97,7 @@ test_q_conversion = (
     // get_d
     let z = mpq(1234, 5678);
     let f = z.MPQ::get_d;
-    assert_eq(|_|"get_d", f.to_string_precision(9_U8), "4.601296596");;
+    assert_eq(|_|"get_d", f.to_string_precision(9_U8), "0.217330046");;
 
     pure()
 );
@@ -138,6 +140,16 @@ test_q_basic_arithmetic = (
     assert_eq(|_|"case 7", z.get_den.to_string, "17");;
 
     assert_eq(|_|"case 8", (x + -x), MPQ::zero);;
+
+    pure()
+);
+
+test_q_comparison : IO ();
+test_q_comparison = (
+    
+    assert(|_|"cmp", MPQ::cmp(zero, one) < 0);;
+    assert(|_|"cmp", MPQ::cmp(zero, zero) == 0);;
+    assert(|_|"cmp", MPQ::cmp(one, zero) > 0);;
 
     pure()
 );

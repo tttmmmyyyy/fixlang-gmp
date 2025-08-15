@@ -482,9 +482,9 @@ test_z_comparison = (
     assert(|_|"case 8", x <= x);;
     assert(|_|"case 8", x >= x);;
 
-    assert(|_|"case 9", cmp(zero, one) < 0);;
-    assert(|_|"case 9", cmp(zero, zero) == 0);;
-    assert(|_|"case 9", cmp(one, zero) > 0);;
+    assert(|_|"case 9", MPZ::cmp(zero, one) < 0);;
+    assert(|_|"case 9", MPZ::cmp(zero, zero) == 0);;
+    assert(|_|"case 9", MPZ::cmp(one, zero) > 0);;
 
     assert(|_|"case 10", cmp_d(zero, -0.5) > 0);; 
     assert(|_|"case 10", cmp_d(zero, 0.5) < 0);; 

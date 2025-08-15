@@ -293,6 +293,10 @@ namespace MPQ {
         ))
     );
 
+    // Gets the denominator of the `MPQ` value.
+    // 
+    // # Parameters
+    // - `num`: The `MPQ` value from which to get the denominator.
     get_den : MPQ -> MPZ;
     get_den = |num| (
         num._borrow(|num_ptr| (
@@ -314,6 +318,25 @@ namespace MPQ {
             FFI_CALL_IO[() free(Ptr), str_ptr];;
             str.pure
         ).unsafe_perform)
+    );
+
+    // Compares two `MPQ` values.
+    // 
+    // # Returns
+    // - a negative if `lhs` is less than `rhs`,
+    // - zero if they are equal,
+    // - a positive if `lhs` is greater than `rhs`.
+    // 
+    // # Parameters
+    // - `lhs`: The left-hand side `MPQ` value.
+    // - `rhs`: The right-hand side `MPQ` value.
+    cmp : MPQ -> MPQ -> I64;
+    cmp = |lhs, rhs| (
+        lhs._borrow(|lhs_ptr| (
+            rhs._borrow(|rhs_ptr| (
+                FFI_CALL[CInt __gmpq_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr].to_I64
+            ))
+        ))
     );
 }
 

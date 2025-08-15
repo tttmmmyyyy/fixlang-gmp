@@ -1222,7 +1222,7 @@ namespace MPZ {
     // - `1` if `n > 0`
     sgn : MPZ -> I64;
     sgn = |n| (
-        let r = cmp(n, MPZ::zero);
+        let r = MPZ::cmp(n, MPZ::zero);
         if r < 0 { -1 };
         if r > 0 { 1 };
         0
