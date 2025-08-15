@@ -252,15 +252,17 @@ namespace MPQ {
     // # Parameters
     // - `str`: The string representation of the rational number.
     // - `base`: The base of the string representation.
-    init_set_str : String -> I64 -> MPQ;
+    init_set_str : String -> I64 -> Option MPQ;
     init_set_str = |str, base| (
         str.borrow_c_str(|c_str_ptr|
-            MPQ::_init_by(|handle|
+            let (num, res) = MPQ::_init_by(|handle|
                 FFI_CALL_IO[() __gmpq_init(Ptr), handle];;
-                FFI_CALL_IO[() __gmpq_set_str(Ptr, Ptr, CInt), handle, c_str_ptr, base.to_CInt];;
+                let res = *FFI_CALL_IO[CInt __gmpq_set_str(Ptr, Ptr, CInt), handle, c_str_ptr, base.to_CInt];
                 FFI_CALL_IO[() __gmpq_canonicalize(Ptr), handle];;
-                pure()
-            ).@0
+                res.pure
+            );
+            if res == -1.to_CInt { Option::none() };
+            Option::some $ num
         )
     );
 
@@ -270,14 +272,16 @@ namespace MPQ {
     // - `str`: The string representation of the rational number.
     // - `base`: The base of the string representation.
     // - `q`: The `MPQ` value to be set.
-    set_str : String -> I64 -> MPQ -> MPQ;
+    set_str : String -> I64 -> MPQ -> Option MPQ;
     set_str = |str, base, q| (
         str.borrow_c_str(|c_str_ptr|
-            q._mutate(|q_ptr| 
-                FFI_CALL_IO[() __gmpq_set_str(Ptr, Ptr, CInt), q_ptr, c_str_ptr, base.to_CInt];;
+            let (num, res) = q._mutate(|q_ptr| 
+                let res = *FFI_CALL_IO[CInt __gmpq_set_str(Ptr, Ptr, CInt), q_ptr, c_str_ptr, base.to_CInt];
                 FFI_CALL_IO[() __gmpq_canonicalize(Ptr), q_ptr];;
-                pure()
-            ).@0        
+                res.pure
+            );
+            if res == -1.to_CInt { Option::none() };
+            Option::some $ num
         )
     );
     
@@ -338,6 +342,54 @@ namespace MPQ {
             ))
         ))
     );
+
+    // Compares an `MPQ` value with an `MPZ` value.
+    // 
+    // # Returns
+    // - a negative if `lhs` is less than `rhs`,
+    // - zero if they are equal,
+    // - a positive if `lhs` is greater than `rhs`.
+    //
+    // # Parameters
+    // - `lhs`: The left-hand side `MPQ` value.
+    // - `rhs`: The right-hand side `MPZ` value.
+    cmp_z : MPQ -> MPZ -> I64;
+    cmp_z = |lhs, rhs| (
+        lhs._borrow(|lhs_ptr| (
+            rhs._borrow(|rhs_ptr| (
+                FFI_CALL[CInt __gmpq_cmp_z(Ptr, Ptr), lhs_ptr, rhs_ptr].to_I64
+            ))
+        ))
+    );
+
+    // Checks if two `MPQ` values are equal.
+    // 
+    // # Parameters
+    // - `lhs`: The left-hand side `MPQ` value.
+    // - `rhs`: The right-hand side `MPQ` value.
+    equal : MPQ -> MPQ -> Bool;
+    equal = |lhs, rhs| (
+        lhs._borrow(|lhs_ptr| (
+            rhs._borrow(|rhs_ptr| (
+                FFI_CALL[I64 __gmpq_equal(Ptr, Ptr), lhs_ptr, rhs_ptr] == 1
+            ))
+        ))
+    );
+
+    // Returns the sign of a `MPQ` value.
+    // 
+    // # Returns
+    // - `-1` if `n < 0`
+    // - `0` if `n == 0`
+    // - `1` if `n > 0`
+    sgn : MPQ -> I64;
+    sgn = |num| (
+        let r = MPQ::cmp(num, MPQ::zero);
+        if r < 0 { -1 };
+        if r > 0 { 1 };
+        0
+    );
+
 }
 
 impl MPQ : Add {
@@ -383,13 +435,14 @@ impl MPQ : Neg {
 }
 
 impl MPQ : Eq {
-    eq = |lhs, rhs| (
-        lhs._borrow(|lhs_ptr| (
-            rhs._borrow(|rhs_ptr| (
-                FFI_CALL[I64 __gmpq_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr] == 0
-            ))
-        ))
-    );
+    eq = equal;
+}
+
+impl MPQ : FromString {
+    from_string = |s| match MPQ::init_set_str(s, 10) {
+        none() => err $ "Failed to parse MPQ as a decimal string",
+        some(value) => ok $ value
+    };
 }
 
 impl MPQ : ToString {

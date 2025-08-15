@@ -88,16 +88,26 @@ test_q_conversion = (
 
     // init_set_str
     let a = MPQ::init_set_str("-1234/5678", 10);
-    assert_eq(|_|"init_set_str", a.to_string, "-617/2839");;
+    assert_eq(|_|"init_set_str", a.as_some.to_string, "-617/2839");;
+    let a = MPQ::init_set_str("xyz", 10);
+    assert(|_|"init_set_str", a.is_none);;
 
     // set_str
-    let a = a.set_str("1234/5678", 10);
-    assert_eq(|_|"set_str", a.to_string, "617/2839");;
+    let a = MPQ::zero.set_str("1234/5678", 10);
+    assert_eq(|_|"set_str", a.as_some.to_string, "617/2839");;
+    let a = MPQ::zero.set_str("xyz", 10);
+    assert(|_|"set_str", a.is_none);;
 
     // get_d
     let z = mpq(1234, 5678);
     let f = z.MPQ::get_d;
     assert_eq(|_|"get_d", f.to_string_precision(9_U8), "0.217330046");;
+
+    // from_string
+    let z = from_string("-1234/5678") : Result ErrMsg MPQ;
+    assert_eq(|_|"from_string", z.as_ok.to_string, "-617/2839");;
+    let z = from_string("xyz") : Result ErrMsg MPQ;
+    assert(|_|"from_string", z.is_err);;
 
     pure()
 );
@@ -146,10 +156,28 @@ test_q_basic_arithmetic = (
 
 test_q_comparison : IO ();
 test_q_comparison = (
-    
+
     assert(|_|"cmp", MPQ::cmp(zero, one) < 0);;
     assert(|_|"cmp", MPQ::cmp(zero, zero) == 0);;
     assert(|_|"cmp", MPQ::cmp(one, zero) > 0);;
+
+    assert(|_|"cmp_z", MPQ::cmp_z(zero, one) < 0);;
+    assert(|_|"cmp_z", MPQ::cmp_z(zero, zero) == 0);;
+    assert(|_|"cmp_z", MPQ::cmp_z(one, zero) > 0);;
+
+    // equal 
+    assert(|_|"equal", MPQ::equal(zero, zero));;
+    assert(|_|"equal", MPQ::equal(one, one));;
+    assert(|_|"equal", MPQ::equal(zero, one) == false);;
+
+    assert(|_|"==", MPQ::zero == MPQ::zero);;
+    assert(|_|"==", MPQ::one == MPQ::one);;
+    assert(|_|"!=", MPQ::zero != MPQ::one);;
+
+    // sgn 
+    assert_eq(|_|"sgn zero", MPQ::sgn(MPQ::zero), 0);;
+    assert_eq(|_|"sgn one", MPQ::sgn(MPQ::one), 1);;
+    assert_eq(|_|"sgn minus one", MPQ::sgn(-MPQ::one), -1);;
 
     pure()
 );
