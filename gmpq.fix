@@ -112,7 +112,22 @@ namespace MPQ {
     // - `den`: The denominator as an `I64` value.
     init_set_si : I64 -> I64 -> MPQ;
     init_set_si = |num, den| (
-        let (num, den) = if den > 0 { (num, den.to_U64) } else { (-num, (-den).to_U64) };
+        if num == I64::minimum && den < 0 && den != I64::minimum {
+            // In this case we cannot represent (-num)/(-den) without overflowing, 
+            // go another way to construct it.
+            MPQ::init_set(mpz(num)) / MPQ::init_set(mpz(den))
+        };
+        let (num, den) = if den > 0 { 
+            (num, den.to_U64)
+        } else if den == I64::minimum {
+            if num == I64::minimum {
+                (1, 1_U64)
+            } else {
+                (-num, 1_U64.shift_left(63_U64))
+            }
+        } else {
+            (-num, (-den).to_U64)
+        };
         MPQ::_init_by(|handle|
             FFI_CALL_IO[() __gmpq_init(Ptr), handle];;
             FFI_CALL_IO[() __gmpq_set_si(Ptr, I64, U64), handle, num, den];;
@@ -137,8 +152,11 @@ namespace MPQ {
     );
 
     // Creates a `MPQ` value represented by an MPZ value.
-    from_MPZ : MPZ -> MPQ;
-    from_MPZ = |val| val._borrow(|val_ptr|
+    // 
+    // # Parameters
+    // - `val`: The `MPZ` value to be converted to `MPQ
+    init_set : MPZ -> MPQ;
+    init_set = |val| val._borrow(|val_ptr|
         MPQ::_init_by(|handle|
             FFI_CALL_IO[() __gmpq_init(Ptr), handle];;
             FFI_CALL_IO[() __gmpq_set_z(Ptr, Ptr), handle, val_ptr]

@@ -41,30 +41,35 @@ test_q_special_constructor = (
 
     // mpq
     assert_eq(|_|"mpq", mpq(-14, 12).to_string, "-7/6");;
+    assert_eq(|_|"mpq", mpq(-14, -12).to_string, "7/6");;
+    assert_eq(|_|"mpq", mpq(I64::minimum, I64::minimum).to_string, "1");;
+    assert_eq(|_|"mpq", mpq(I64::minimum + 1, I64::minimum).to_string, "9223372036854775807/9223372036854775808");;
+    assert_eq(|_|"mpq", mpq(I64::minimum, -1).to_string, "9223372036854775808");;
+    assert_eq(|_|"mpq", mpq(I64::minimum, 1).to_string, "-9223372036854775808");;
 
     pure()
 );
 
 test_q_basic_arithmetic : IO ();
 test_q_basic_arithmetic = (
-    let x = MPQ::from_MPZ(MPZ::init_set_si(1234));
-    let y = MPQ::from_MPZ(MPZ::init_set_si(5678));
+    let x = MPQ::init_set(MPZ::init_set_si(1234));
+    let y = MPQ::init_set(MPZ::init_set_si(5678));
     let z = y / x;
     let n = z.get_num;
     let d = z.get_den;
     assert_eq(|_|"case 1", n.to_string, "2839");;
     assert_eq(|_|"case 1", d.to_string, "617");;
 
-    let x = MPQ::from_MPZ(MPZ::init_set_si(1234));
-    let y = MPQ::from_MPZ(MPZ::init_set_si(5678));
+    let x = MPQ::init_set(MPZ::init_set_si(1234));
+    let y = MPQ::init_set(MPZ::init_set_si(5678));
     let z = y / x;
     let f = z.MPQ::to_F64;
     assert_eq(|_|"case 2", f.to_string_precision(9_U8), "4.601296596");;
 
-    let xn = MPQ::from_MPZ(MPZ::init_set_si(12));
-    let xd = MPQ::from_MPZ(MPZ::init_set_si(34));
-    let yn = MPQ::from_MPZ(MPZ::init_set_si(56));
-    let yd = MPQ::from_MPZ(MPZ::init_set_si(78));
+    let xn = MPQ::init_set(MPZ::init_set_si(12));
+    let xd = MPQ::init_set(MPZ::init_set_si(34));
+    let yn = MPQ::init_set(MPZ::init_set_si(56));
+    let yd = MPQ::init_set(MPZ::init_set_si(78));
     let x = xn / xd;
     let y = yn / yd;
 
