@@ -148,28 +148,49 @@ namespace MPQ {
         ).@0
     );
 
-    // Creates a `MPQ` value represented by an MPZ value.
+    // Creates a `MPQ` value by an MPZ value.
     // 
     // # Parameters
     // - `val`: The `MPZ` value to be converted to `MPQ
-    init_set : MPZ -> MPQ;
-    init_set = |val| val._borrow(|val_ptr|
+    init_set_z : MPZ -> MPQ;
+    init_set_z = |val| val._borrow(|val_ptr|
         MPQ::_init_by(|handle|
             FFI_CALL_IO[() __gmpq_init(Ptr), handle];;
             FFI_CALL_IO[() __gmpq_set_z(Ptr, Ptr), handle, val_ptr]
         ).@0
     );
 
+    // Sets the `MPQ` value to a floating-point number.
+    //  
+    // # Parameters
+    // - `f`: The floating-point number to set.
+    // - `q`: The `MPQ` value to be set.
+    set_d : F64 -> MPQ -> MPQ;
+    set_d = |f, q| (
+        q._mutate(|q_ptr| (
+            let f = f.to_CDouble;
+            FFI_CALL_IO[() __gmpq_set_d(Ptr, CDouble), q_ptr, f];;
+            pure()
+        )).@0
+    );
+
     // Converts a `MPZ` value to an F64 value.
     //
     // For details, see the document of `mpz_get_d` in GMP.
-    to_F64 : MPQ -> F64;
-    to_F64 = |num| (
+    // 
+    // # Parameters
+    // - `num`: The `MPQ` value to be converted to F64.
+    get_d : MPQ -> F64;
+    get_d = |num| (
         num._borrow(|num_ptr| (
             FFI_CALL[CDouble __gmpq_get_d(Ptr), num_ptr].to_F64
         ))
     );
-
+    
+    // Gets the numerator of the `MPQ` value.
+    // 
+    // # Parameters
+    // - `num`: The `MPQ` value from which to get the numerator.
     get_num : MPQ -> MPZ;
     get_num = |num| (
         num._borrow(|num_ptr| (
