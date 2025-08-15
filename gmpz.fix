@@ -402,26 +402,23 @@ namespace MPZ {
         (man, exp.@value.to_I64)
     );
 
-    // Converts a `MPZ` value to a string in the given base.
+    // Get the string representation of a `MPZ` value in the given base.
     // 
     // # Parameters
     // - `base`: The base of the string representation, which must be in the range [-36, -2] or [2, 62].
     // - `num`: The `MPZ` value to convert.
     get_str : I64 -> MPZ -> String;
     get_str = |base, num| (
-        if base < -36 || base > 62 || (-2 < base && base < 2) {
-            undefined("[MPZ::get_str] base must be in the range [-36, -2] or [2, 62]")
+        if !(-36 <= base && base <= -2 || 2 <= base && base <= 62) {
+            undefined("[MPZ::get_str] `base` must be in the range [-36, -2] or [2, 62]")
         };
-        let base = base.to_CInt;
-        num._borrow(|num_ptr| (
-            let len_base = FFI_CALL[CSizeT __gmpz_sizeinbase(Ptr, CInt), num_ptr, base];
-            let len = len_base.to_I64 + 2;
-            let buf = Array::fill(len, 0_U8);
-            let (buf, _) = buf.mutate_boxed(|buf_ptr| 
-                FFI_CALL_IO[Ptr __gmpz_get_str(Ptr, CInt, Ptr), buf_ptr, base, num_ptr]
-            );
-            String::_unsafe_from_c_str(buf)
-        ))
+        let base = base.to_CInt;        
+        num._borrow(|x_ptr| (
+            let str_ptr = FFI_CALL[Ptr __gmpz_get_str(Ptr, CInt, Ptr), nullptr, base.to_CInt, x_ptr];
+            let str = String::_unsafe_from_c_str_ptr(str_ptr);
+            FFI_CALL_IO[() free(Ptr), str_ptr];;
+            str.pure
+        ).unsafe_perform)
     );
 
     // Calculates the absolute value of a `MPZ` value.

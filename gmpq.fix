@@ -60,36 +60,35 @@ namespace MPQ {
     );
 
     // Apply a unary operation of GMP (taking (out, in) as arguments) to a `MPQ` value.
-    _unary_op : ((MPQHandle, MPQHandle) -> IO ()) -> MPQ -> MPQ;
+    _unary_op : ((MPQHandle, MPQHandle) -> IO a) -> MPQ -> (MPQ, a);
     _unary_op = |act, num| (
         let (is_unique, num) = num.unsafe_is_unique;
         if is_unique {
-            num._mutate(|num_ptr| act((num_ptr, num_ptr))).@0
-        } else {
-            num._borrow(|num_ptr|
-                MPQ::zero._mutate(|out_ptr| act((out_ptr, num_ptr))).@0
-            )
-        }
+            num._mutate(|num_ptr| act((num_ptr, num_ptr)))
+        };
+        num._borrow(|num_ptr|
+            MPQ::zero._mutate(|out_ptr| act((out_ptr, num_ptr)))
+        )
     );
 
     // Apply a binary operation of GMP (taking (out, lhs, rhs) as arguments) to two `MPQ` values.
-    _binary_op : ((MPQHandle, MPQHandle, MPQHandle) -> IO ()) -> MPQ -> MPQ -> MPQ;
+    _binary_op : ((MPQHandle, MPQHandle, MPQHandle) -> IO a) -> MPQ -> MPQ -> (MPQ, a);
     _binary_op = |act, lhs, rhs| (
         let (is_unique, lhs) = lhs.unsafe_is_unique;
         if is_unique { 
             rhs._borrow(|rhs_ptr|
-                lhs._mutate(|lhs_ptr| act((lhs_ptr, lhs_ptr, rhs_ptr))).@0
+                lhs._mutate(|lhs_ptr| act((lhs_ptr, lhs_ptr, rhs_ptr)))
             )
         };
-        let (is_unique, rhs) = rhs.unsafe_is_unique;
-        if is_unique {
+        let (is_uqniue, rhs) = rhs.unsafe_is_unique;
+        if is_unique { 
             lhs._borrow(|lhs_ptr|
-                rhs._mutate(|rhs_ptr| act((rhs_ptr, lhs_ptr, rhs_ptr))).@0
+                rhs._mutate(|rhs_ptr| act((rhs_ptr, lhs_ptr, rhs_ptr)))
             )
         };
         lhs._borrow(|lhs_ptr|
             rhs._borrow(|rhs_ptr|
-                MPQ::zero._mutate(|out_ptr| act((out_ptr, lhs_ptr, rhs_ptr))).@0
+                MPQ::zero._mutate(|out_ptr| act((out_ptr, lhs_ptr, rhs_ptr)))
             )
         )
     );
@@ -171,6 +170,21 @@ namespace MPQ {
             den_z
         ))
     );
+
+    // Get the string representation of a `MPQ` value in the given base.
+    get_str : I64 -> MPQ -> String;
+    get_str = |base, num| (
+        if !(2 <= base && base <= 36) {
+            undefined("[MPQ::get_str] `base` must be in the range [2, 36]")
+        };
+        let base = base.to_CInt;        
+        num._borrow(|x_ptr| (
+            let str_ptr = FFI_CALL[Ptr __gmpq_get_str(Ptr, CInt, Ptr), nullptr, base.to_CInt, x_ptr];
+            let str = String::_unsafe_from_c_str_ptr(str_ptr);
+            FFI_CALL_IO[() free(Ptr), str_ptr];;
+            str.pure
+        ).unsafe_perform)
+    );
 }
 
 impl MPQ : Add {
@@ -178,7 +192,7 @@ impl MPQ : Add {
         MPQ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpq_add(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             lhs, rhs
-        )
+        ).@0
     );
 }
 
@@ -187,7 +201,7 @@ impl MPQ : Sub {
         MPQ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpq_sub(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             lhs, rhs
-        )
+        ).@0
     );
 }
 
@@ -196,7 +210,7 @@ impl MPQ : Mul {
         MPQ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpq_mul(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             lhs, rhs
-        )
+        ).@0
     );
 }
 
@@ -205,13 +219,13 @@ impl MPQ : Div {
         MPQ::_binary_op(
             |(out_ptr, lhs_ptr, rhs_ptr)| FFI_CALL_IO[() __gmpq_div(Ptr, Ptr, Ptr), out_ptr, lhs_ptr, rhs_ptr],
             lhs, rhs
-        )
+        ).@0
     );
 }
 
 impl MPQ : Neg {
     neg = |num| (
-        num._unary_op(|(out_ptr, in_ptr)| FFI_CALL_IO[() __gmpq_neg(Ptr, Ptr), out_ptr, in_ptr])
+        num._unary_op(|(out_ptr, in_ptr)| FFI_CALL_IO[() __gmpq_neg(Ptr, Ptr), out_ptr, in_ptr]).@0
     );
 }
 
@@ -223,4 +237,8 @@ impl MPQ : Eq {
             ))
         ))
     );
+}
+
+impl MPQ : ToString {
+    to_string = get_str(10);
 }

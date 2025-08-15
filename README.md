@@ -14,10 +14,16 @@ Most Fix functions are named by dropping the GMP prefix (e.g., `mpz_` or `mpq_`)
 
 Due to Fix's allowed naming conventions, some functions deviate from this rule. For example, `mpz_2fac_ui` is named `MPZ::fac2_ui`.
 
-For convenience, "representative" constructor functions like `MPZ::mpz : I64 -> MPZ` and `MPQ::mpq : I64 -> I64 -> MPQ` have been added.
-Additionally, constants such as `MPZ::zero : MPZ` and `MPZ::one : MPZ` have been added.
+# Additional Features
 
-# Argument Order and Idiomatic Fix
+Some functions that are not present in GMP have been added to this library.
+
+- Constructor functions like `MPZ::mpz : I64 -> MPZ` and `MPQ::mpq : I64 -> I64 -> MPQ`.
+- Constants such as `MPZ::zero : MPZ` and `MPZ::one : MPZ`
+- Implementation of traits like `Add`, `Mul` and `ToString` for GMP types.
+- `MPQ::int_set_si` and `MPQ::init_set_ui` for convenience, which do `init`, `set_(si|ui)` and `canonicalize`.
+
+# Changed Functionality
 
 The argument order of some functions has been changed to be more "Fix-like." 
 For example, while GMP's `mpz_mod` takes the number `n` as the first argument and the modulus `m` as the second, the corresponding Fix function `mod` reverses this order. 
