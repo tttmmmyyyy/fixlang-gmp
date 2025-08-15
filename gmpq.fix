@@ -113,9 +113,9 @@ namespace MPQ {
     init_set_si : I64 -> I64 -> MPQ;
     init_set_si = |num, den| (
         if num == I64::minimum && den < 0 && den != I64::minimum {
-            // In this case we cannot represent (-num)/(-den) without overflowing, 
-            // go another way to construct it.
-            MPQ::init_set(mpz(num)) / MPQ::init_set(mpz(den))
+            let num = 1_U64.shift_left(63_U64);
+            let den = (-den).to_U64;
+            MPQ::init_set_ui(num, den)
         };
         let (num, den) = if den > 0 { 
             (num, den.to_U64)
