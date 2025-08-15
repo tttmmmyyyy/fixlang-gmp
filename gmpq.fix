@@ -133,6 +133,21 @@ namespace MPQ {
         ).@0
     );
 
+    // Sets the `MPQ` value to a rational number represented by an `I64` numerator and an `U64` denominator.
+    // 
+    // # Parameters
+    // - `num`: The numerator as an `I64` value.
+    // - `den`: The denominator as an `U64` value.
+    // - `q`: The `MPQ` value to be set.
+    set_si : I64 -> U64 -> MPQ -> MPQ;
+    set_si = |num, den, q| (
+        q._mutate(|q_ptr| (
+            FFI_CALL_IO[() __gmpq_set_si(Ptr, I64, U64), q_ptr, num, den];;
+            FFI_CALL_IO[() __gmpq_canonicalize(Ptr), q_ptr];;
+            pure()
+        )).@0
+    );
+
     // Creates a new `MPQ` value from an `U64` value.
     //
     // # Parameters
@@ -148,6 +163,21 @@ namespace MPQ {
         ).@0
     );
 
+    // Sets the `MPQ` value to a rational number represented by an `U64` numerator and an `U64` denominator.
+    // 
+    // # Parameters
+    // - `num`: The numerator as an `U64` value.
+    // - `den`: The denominator as an `U64` value.
+    // - `q`: The `MPQ` value to be set.
+    set_ui : U64 -> U64 -> MPQ -> MPQ;
+    set_ui = |num, den, q| (
+        q._mutate(|q_ptr| (
+            FFI_CALL_IO[() __gmpq_set_ui(Ptr, U64, U64), q_ptr, num, den];;
+            FFI_CALL_IO[() __gmpq_canonicalize(Ptr), q_ptr];;
+            pure()
+        )).@0
+    );
+
     // Creates a `MPQ` value by an MPZ value.
     // 
     // # Parameters
@@ -157,6 +187,36 @@ namespace MPQ {
         MPQ::_init_by(|handle|
             FFI_CALL_IO[() __gmpq_init(Ptr), handle];;
             FFI_CALL_IO[() __gmpq_set_z(Ptr, Ptr), handle, val_ptr]
+        ).@0
+    );
+
+    // Sets the `MPQ` value to an `MPZ` value.
+    // 
+    // # Parameters
+    // - `z`: The `MPZ` value to be set.
+    // - `q`: The `MPQ` value to be set.
+    set_z : MPZ -> MPQ -> MPQ;
+    set_z = |z, q| (
+        z._borrow(|z_ptr|
+            q._mutate(|q_ptr| (
+                FFI_CALL_IO[() __gmpq_set_z(Ptr, Ptr), q_ptr, z_ptr];;
+                FFI_CALL_IO[() __gmpq_canonicalize(Ptr), q_ptr];;
+                pure()
+            )).@0        
+        )
+    );
+
+    // Creates a new `MPQ` value from a floating-point number.
+    // 
+    // # Parameters
+    // - `f`: The floating-point number to be converted to `MPQ`.
+    init_set_d : F64 -> MPQ;
+    init_set_d = |f| (
+        MPQ::_init_by(|handle|
+            FFI_CALL_IO[() __gmpq_init(Ptr), handle];;
+            FFI_CALL_IO[() __gmpq_set_d(Ptr, CDouble), handle, f.to_CDouble];;
+            FFI_CALL_IO[() __gmpq_canonicalize(Ptr), handle];;
+            pure()
         ).@0
     );
 

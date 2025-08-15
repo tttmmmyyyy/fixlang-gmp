@@ -52,6 +52,39 @@ test_q_special_constructor = (
 
 test_q_conversion : IO ();
 test_q_conversion = (
+    // init_set_si
+    let a = MPQ::init_set_si(-4, 6_U64);
+    assert_eq(|_|"init_set_si", a.to_string, "-2/3");;
+
+    // set_si 
+    let a = a.set_si(-8, 12_U64);
+    assert_eq(|_|"set_si", a.to_string, "-2/3");;
+
+    // init_set_ui
+    let a = MPQ::init_set_ui(4_U64, 6_U64);
+    assert_eq(|_|"init_set_ui", a.to_string, "2/3");;
+
+    // set_ui
+    let a = a.set_ui(8_U64, 12_U64);
+    assert_eq(|_|"set_ui", a.to_string, "2/3");;
+
+    // init_set_z 
+    let a = MPQ::init_set_z(MPZ::init_set_si(-4));
+    assert_eq(|_|"init_set_z", a.to_string, "-4");;
+
+    // set_z
+    let a = a.set_z(MPZ::init_set_si(-8));
+    assert_eq(|_|"set_z", a.to_string, "-8");;
+
+    // init_set_d
+    let a = MPQ::init_set_d(4.5);
+    assert_eq(|_|"init_set_d", a.to_string, "9/2");;
+
+    // set_d
+    let a = a.set_d(8.25);
+    assert_eq(|_|"set_d", a.to_string, "33/4");;
+
+    // get_d
     let z = mpq(1234, 5678);
     let f = z.MPQ::get_d;
     assert_eq(|_|"get_d", f.to_string_precision(9_U8), "4.601296596");;
