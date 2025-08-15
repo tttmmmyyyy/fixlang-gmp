@@ -437,7 +437,7 @@ test_z_conversion = (
     assert_eq(|_|"case to_F64_2exp exponent", exponent, 3);;
 
     // Test `set_MPQ`
-    let q = MPQ::init_set_si(6, 5);
+    let q = MPQ::mpq(6, 5);
     let n = MPZ::init_set_si(0);
     let m = n.set_q(q);
     assert_eq(|_|"case 0", m.to_string, "1");;

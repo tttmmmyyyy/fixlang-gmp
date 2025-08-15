@@ -102,32 +102,29 @@ namespace MPQ {
     one = MPQ::init_set_ui(1_U64, 1_U64);
 
     // Creates a new `MPQ` value from I64 numerator and denominator.
+    // 
+    // # Parameters
+    // - `num`: The numerator as an `I64` value.
+    // - `den`: The denominator as an `I64` value.
     mpq : I64 -> I64 -> MPQ;
-    mpq = MPQ::init_set_si;
+    mpq = |num, den| (
+        if den > 0 { 
+            init_set_si(num, den.to_U64)
+        };
+        let negate = |x: I64| x.to_U64.bit_not + 1_U64;
+        if num > 0 {
+            init_set_si(-num, negate(den))
+        };
+        init_set_ui(negate(num), negate(den))
+    );
 
     // Creates a new `MPQ` value from I64 numerator and denominator.
     // 
     // # Parameters
     // - `num`: The numerator as an `I64` value.
-    // - `den`: The denominator as an `I64` value.
-    init_set_si : I64 -> I64 -> MPQ;
+    // - `den`: The denominator as an `U64` value.
+    init_set_si : I64 -> U64 -> MPQ;
     init_set_si = |num, den| (
-        if num == I64::minimum && den < 0 && den != I64::minimum {
-            let num = 1_U64.shift_left(63_U64);
-            let den = (-den).to_U64;
-            MPQ::init_set_ui(num, den)
-        };
-        let (num, den) = if den > 0 { 
-            (num, den.to_U64)
-        } else if den == I64::minimum {
-            if num == I64::minimum {
-                (1, 1_U64)
-            } else {
-                (-num, 1_U64.shift_left(63_U64))
-            }
-        } else {
-            (-num, (-den).to_U64)
-        };
         MPQ::_init_by(|handle|
             FFI_CALL_IO[() __gmpq_init(Ptr), handle];;
             FFI_CALL_IO[() __gmpq_set_si(Ptr, I64, U64), handle, num, den];;
