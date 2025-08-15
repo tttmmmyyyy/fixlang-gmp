@@ -1441,7 +1441,7 @@ impl MPZ : ToString {
 }
 
 impl MPZ : FromString {
-    from_string = |s| match init_set_str(s, 10) {
+    from_string = |s| match MPZ::init_set_str(s, 10) {
         none() => err $ "Failed to parse MPZ as a decimal string",
         some(value) => ok $ value
     };

@@ -84,6 +84,14 @@ test_q_conversion = (
     let a = a.set_d(8.25);
     assert_eq(|_|"set_d", a.to_string, "33/4");;
 
+    // init_set_str
+    let a = MPQ::init_set_str("-1234/5678", 10);
+    assert_eq(|_|"init_set_str", a.to_string, "-617/2839");;
+
+    // set_str
+    let a = a.set_str("1234/5678", 10);
+    assert_eq(|_|"set_str", a.to_string, "617/2839");;
+
     // get_d
     let z = mpq(1234, 5678);
     let f = z.MPQ::get_d;

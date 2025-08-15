@@ -246,6 +246,40 @@ namespace MPQ {
             FFI_CALL[CDouble __gmpq_get_d(Ptr), num_ptr].to_F64
         ))
     );
+
+    // Creates new `MPQ` value from a string representation.
+    // 
+    // # Parameters
+    // - `str`: The string representation of the rational number.
+    // - `base`: The base of the string representation.
+    init_set_str : String -> I64 -> MPQ;
+    init_set_str = |str, base| (
+        str.borrow_c_str(|c_str_ptr|
+            MPQ::_init_by(|handle|
+                FFI_CALL_IO[() __gmpq_init(Ptr), handle];;
+                FFI_CALL_IO[() __gmpq_set_str(Ptr, Ptr, CInt), handle, c_str_ptr, base.to_CInt];;
+                FFI_CALL_IO[() __gmpq_canonicalize(Ptr), handle];;
+                pure()
+            ).@0
+        )
+    );
+
+    // Sets the `MPQ` value from a string representation.
+    // 
+    // # Parameters
+    // - `str`: The string representation of the rational number.
+    // - `base`: The base of the string representation.
+    // - `q`: The `MPQ` value to be set.
+    set_str : String -> I64 -> MPQ -> MPQ;
+    set_str = |str, base, q| (
+        str.borrow_c_str(|c_str_ptr|
+            q._mutate(|q_ptr| 
+                FFI_CALL_IO[() __gmpq_set_str(Ptr, Ptr, CInt), q_ptr, c_str_ptr, base.to_CInt];;
+                FFI_CALL_IO[() __gmpq_canonicalize(Ptr), q_ptr];;
+                pure()
+            ).@0        
+        )
+    );
     
     // Gets the numerator of the `MPQ` value.
     // 

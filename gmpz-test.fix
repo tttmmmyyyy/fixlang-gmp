@@ -541,8 +541,8 @@ test_z_root = (
 
 test_z_bit : IO ();
 test_z_bit = (
-    let x = init_set_str("101010", 2).as_some;
-    let y = init_set_str("110011", 2).as_some;
+    let x = MPZ::init_set_str("101010", 2).as_some;
+    let y = MPZ::init_set_str("110011", 2).as_some;
     let z = x.and(y);
     assert_eq(|_|"case 0", z.get_str(2), "100010");;
     let z = x.or(y);
