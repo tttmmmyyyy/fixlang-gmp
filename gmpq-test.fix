@@ -151,6 +151,26 @@ test_q_basic_arithmetic = (
 
     assert_eq(|_|"case 8", (x + -x), MPQ::zero);;
 
+    // mul_2exp
+    let a = mpq(1, 2);
+    let b = a.mul_2exp(3_U64);
+    assert_eq(|_|"mul_2exp", b.to_string, "4");;
+
+    // div_2exp
+    let a = mpq(8, 1);
+    let b = a.div_2exp(3_U64);
+    assert_eq(|_|"div_2exp", b.to_string, "1");;
+
+    // abs
+    let a = mpq(-8, 3);
+    let b = a.abs;
+    assert_eq(|_|"abs", b.to_string, "8/3");;
+
+    // inv
+    let a = mpq(-8, 3);
+    let c = a.inv;
+    assert_eq(|_|"inv", c.to_string, "-3/8");;
+
     pure()
 );
 

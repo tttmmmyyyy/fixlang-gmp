@@ -452,7 +452,7 @@ If the value is too large to fit in an I64, this function returns none.
 
 Type: `Std::I64 -> GMP.Z::MPZ -> Std::String`
 
-Converts a `MPZ` value to a string in the given base.
+Get the string representation of a `MPZ` value in the given base.
 
 ##### Parameters
 
@@ -613,7 +613,12 @@ Create a `MPZ` value from an `I64`.
 
 Type: `Std::U64 -> GMP.Z::MPZ -> GMP.Z::MPZ`
 
-Multiplication by a power of 2.
+Multiplies the `MPZ` value by `2^exp`.
+
+##### Parameters
+
+- `exp`: The exponent of 2.
+- `num`: The `MPZ` value to multiply.
 
 #### nextprime
 

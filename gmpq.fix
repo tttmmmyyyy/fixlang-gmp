@@ -324,6 +324,48 @@ namespace MPQ {
         ).unsafe_perform)
     );
 
+    // Multiplies the `MPQ` value by `2^exp`.
+    // 
+    // # Parameters
+    // - `exp`: The exponent of 2.
+    // - `num`: The `MPQ` value to be multiplied.
+    mul_2exp : U64 -> MPQ -> MPQ;
+    mul_2exp = |exp, num| (
+        num._unary_op(|(out_ptr, in_ptr)| (
+            FFI_CALL_IO[() __gmpq_mul_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, in_ptr, exp.to_CUnsignedLong]
+        )).@0
+    );
+
+    // Divides the `MPQ` value by `2^exp`.
+    //
+    // # Parameters
+    // - `exp`: The exponent of 2.
+    // - `num`: The `MPQ` value to be divided.
+    div_2exp : U64 -> MPQ -> MPQ;
+    div_2exp = |exp, num| (
+        num._unary_op(|(out_ptr, in_ptr)| (
+            FFI_CALL_IO[() __gmpq_div_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, in_ptr, exp.to_CUnsignedLong]
+        )).@0
+    );
+
+    // Returns the absolute value of the `MPQ` value.
+    // 
+    // # Parameters
+    // - `num`: The `MPQ` value to be converted to its absolute value
+    abs : MPQ -> MPQ;
+    abs = |num| (
+        num._unary_op(|(out_ptr, in_ptr)| FFI_CALL_IO[() __gmpq_abs(Ptr, Ptr), out_ptr, in_ptr]).@0
+    );
+
+    // Returns the multiplicative inverse of the `MPQ` value.
+    // 
+    // # Parameters
+    // - `num`: The `MPQ` value to be inverted.
+    inv : MPQ -> MPQ;
+    inv = |num| (
+        num._unary_op(|(out_ptr, in_ptr)| FFI_CALL_IO[() __gmpq_inv(Ptr, Ptr), out_ptr, in_ptr]).@0
+    );
+
     // Compares two `MPQ` values.
     // 
     // # Returns

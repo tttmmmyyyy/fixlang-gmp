@@ -6,7 +6,7 @@ It's currently verified to work with GMP 6.2.1.
 
 To use this library, you must have GMP installed and be able to dynamically link to it using the `-lgmp` flag.
 
-Progress: Many `mpz_` functions (though not all) and a subset of `mpq_` functions have been wrapped.
+Progress: Many `mpz_` and `mpq_` functions (though not all) functions have been covered.
 
 # Naming Conventions
 
@@ -28,6 +28,8 @@ Some functions that are not present in GMP have been added to this library.
 The argument order of some functions has been changed to be more "Fix-like." 
 For example, while GMP's `mpz_mod` takes the number `n` as the first argument and the modulus `m` as the second, the corresponding Fix function `mod` reverses this order. 
 This allows for an idiomatic use, such as `n.mod(m)`.
+
+`canonicalize` for MPQ is automatically called.
 
 # Missing Features and Limitations
 
