@@ -1,8 +1,11 @@
+// Provides multiple-precision rational number type `MPQ` and related functions.
+// 
+// Repository: https://github.com/tttmmmyyyy/fixlang-gmp
 module GMP.Q;
 
 import GMP.Z;
 
-// A pointer to struct `__mpz_struct`.
+// A pointer to struct `__mpq_struct`.
 type MPQHandle = Ptr;
 
 // Size of `__mpq_struct`.

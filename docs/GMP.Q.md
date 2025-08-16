@@ -1,6 +1,10 @@
 # GMP.Q
 
-Defined in gmp-fix@0.4.0
+Defined in gmp-fix@0.5.1
+
+Provides multiple-precision rational number type `MPQ` and related functions.
+
+Repository: https://github.com/tttmmmyyyy/fixlang-gmp
 
 ## Values
 
@@ -303,7 +307,7 @@ Type: `Std::FFI::Destructor GMP.Q::MPQHandle`
 
 Defined as: `type MPQHandle = Std::Ptr`
 
-A pointer to struct `__mpz_struct`.
+A pointer to struct `__mpq_struct`.
 
 ## Traits and aliases
 

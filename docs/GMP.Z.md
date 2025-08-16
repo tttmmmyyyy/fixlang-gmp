@@ -1,6 +1,10 @@
 # GMP.Z
 
-Defined in gmp-fix@0.4.0
+Defined in gmp-fix@0.5.1
+
+Provides multiple-precision integer type `MPZ` and related functions.
+
+Repository: https://github.com/tttmmmyyyy/fixlang-gmp
 
 ## Values
 

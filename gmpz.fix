@@ -1,3 +1,6 @@
+// Provides multiple-precision integer type `MPZ` and related functions.
+// 
+// Repository: https://github.com/tttmmmyyyy/fixlang-gmp
 module GMP.Z;
 
 import Hash;
