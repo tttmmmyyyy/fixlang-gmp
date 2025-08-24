@@ -70,7 +70,7 @@ namespace MPQ {
             num._mutate(|num_ptr| act((num_ptr, num_ptr)))
         };
         num._borrow(|num_ptr|
-            MPQ::zero._mutate(|out_ptr| act((out_ptr, num_ptr)))
+            (zero : MPQ)._mutate(|out_ptr| act((out_ptr, num_ptr)))
         )
     );
 
@@ -91,18 +91,10 @@ namespace MPQ {
         };
         lhs._borrow(|lhs_ptr|
             rhs._borrow(|rhs_ptr|
-                MPQ::zero._mutate(|out_ptr| act((out_ptr, lhs_ptr, rhs_ptr)))
+                (zero : MPQ)._mutate(|out_ptr| act((out_ptr, lhs_ptr, rhs_ptr)))
             )
         )
     );
-    
-    // The zero value.
-    zero : MPQ;
-    zero = MPQ::_init_by(|handle| FFI_CALL_IO[() __gmpq_init(Ptr), handle]).@0;
-
-    // The one value.
-    one : MPQ;
-    one = MPQ::init_set_ui(1_U64, 1_U64);
 
     // Creates a new `MPQ` value from I64 numerator and denominator.
     // 
@@ -295,7 +287,7 @@ namespace MPQ {
     get_num : MPQ -> MPZ;
     get_num = |num| (
         num._borrow(|num_ptr| (
-            let num_z = MPZ::zero._mutate(|ptr| FFI_CALL_IO[() __gmpq_get_num(Ptr, Ptr), ptr, num_ptr]).@0;
+            let num_z = (zero : MPZ)._mutate(|ptr| FFI_CALL_IO[() __gmpq_get_num(Ptr, Ptr), ptr, num_ptr]).@0;
             num_z
         ))
     );
@@ -307,7 +299,7 @@ namespace MPQ {
     get_den : MPQ -> MPZ;
     get_den = |num| (
         num._borrow(|num_ptr| (
-            let den_z = MPZ::zero._mutate(|ptr| FFI_CALL_IO[() __gmpq_get_den(Ptr, Ptr), ptr, num_ptr]).@0;
+            let den_z = (zero : MPZ)._mutate(|ptr| FFI_CALL_IO[() __gmpq_get_den(Ptr, Ptr), ptr, num_ptr]).@0;
             den_z
         ))
     );
@@ -429,7 +421,7 @@ namespace MPQ {
     // - `1` if `n > 0`
     sgn : MPQ -> I64;
     sgn = |num| (
-        let r = MPQ::cmp(num, MPQ::zero);
+        let r = MPQ::cmp(num, zero);
         if r < 0 { -1 };
         if r > 0 { 1 };
         0
@@ -493,3 +485,8 @@ impl MPQ : FromString {
 impl MPQ : ToString {
     to_string = get_str(10);
 }
+
+impl MPQ : Zero {
+    zero = MPQ::_init_by(|handle| FFI_CALL_IO[() __gmpq_init(Ptr), handle]).@0;
+}
+

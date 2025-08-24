@@ -19,8 +19,7 @@ Due to Fix's allowed naming conventions, some functions deviate from this rule. 
 Some functions that are not present in GMP have been added to this library.
 
 - Constructor functions like `MPZ::mpz : I64 -> MPZ` and `MPQ::mpq : I64 -> I64 -> MPQ`.
-- Constants such as `MPZ::zero : MPZ` and `MPZ::one : MPZ`
-- Implementation of traits like `Add`, `Mul` and `ToString` for GMP types.
+- Implementation of traits like `Zero`, `Add`, `Mul` and `ToString` for GMP types.
 - `MPQ::int_set_si` and `MPQ::init_set_ui` for convenience, which do `init`, `set_(si|ui)` and `canonicalize`.
 
 # Changed Functionality

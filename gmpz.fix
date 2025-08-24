@@ -70,7 +70,7 @@ namespace MPZ {
             num._mutate(|num_ptr| act((num_ptr, num_ptr)))
         };
         num._borrow(|num_ptr|
-            MPZ::zero._mutate(|out_ptr| act((out_ptr, num_ptr)))
+            (zero : MPZ)._mutate(|out_ptr| act((out_ptr, num_ptr)))
         )
     );
 
@@ -80,14 +80,14 @@ namespace MPZ {
         let (is_unique, num) = num.unsafe_is_unique;
         if is_unique {
             num._mutate(|num_ptr| 
-                MPZ::zero._mutate(|out2_ptr|
+                (zero : MPZ)._mutate(|out2_ptr|
                     act((num_ptr, out2_ptr, num_ptr))
                 ).pure
             ).|(x, (y, z))| (x, y, z)
         };
         num._borrow(|num_ptr|
-            MPZ::zero._mutate(|out1_ptr|
-                MPZ::zero._mutate(|out2_ptr|
+            (zero : MPZ)._mutate(|out1_ptr|
+                (zero : MPZ)._mutate(|out2_ptr|
                     act((out1_ptr, out2_ptr, num_ptr))
                 ).pure
             ).|(x, (y, z))| (x, y, z)
@@ -111,7 +111,7 @@ namespace MPZ {
         };
         lhs._borrow(|lhs_ptr|
             rhs._borrow(|rhs_ptr|
-                MPZ::zero._mutate(|out_ptr| act((out_ptr, lhs_ptr, rhs_ptr)))
+                (zero : MPZ)._mutate(|out_ptr| act((out_ptr, lhs_ptr, rhs_ptr)))
             )
         )
     );
@@ -131,7 +131,7 @@ namespace MPZ {
         if lhs_is_unique && !rhs_is_unique {
             rhs._borrow(|rhs_ptr|
                 lhs._mutate(|lhs_ptr| 
-                    MPZ::zero._mutate(|out2_ptr|
+                    (zero : MPZ)._mutate(|out2_ptr|
                         act((lhs_ptr, out2_ptr, lhs_ptr, rhs_ptr))
                     ).pure
                 ).|(x, (y, z))| (x, y, z)
@@ -140,7 +140,7 @@ namespace MPZ {
         if !lhs_is_unique && rhs_is_unique {
             lhs._borrow(|lhs_ptr|
                 rhs._mutate(|rhs_ptr| 
-                    MPZ::zero._mutate(|out2_ptr|
+                    (zero : MPZ)._mutate(|out2_ptr|
                         act((rhs_ptr, out2_ptr, lhs_ptr, rhs_ptr))
                     ).pure
                 ).|(x, (y, z))| (x, y, z)
@@ -148,8 +148,8 @@ namespace MPZ {
         };
         lhs._borrow(|lhs_ptr|
             rhs._borrow(|rhs_ptr|
-                MPZ::zero._mutate(|out1_ptr| 
-                    MPZ::zero._mutate(|out2_ptr|
+                (zero : MPZ)._mutate(|out1_ptr| 
+                    (zero : MPZ)._mutate(|out2_ptr|
                         act((out1_ptr, out2_ptr, lhs_ptr, rhs_ptr))
                     ).pure
                 ).|(x, (y, z))| (x, y, z)
@@ -165,7 +165,7 @@ namespace MPZ {
         if lhs_is_unique && rhs_is_unique {
             lhs._mutate(|lhs_ptr| 
                 rhs._mutate(|rhs_ptr|
-                    MPZ::zero._mutate(|out3_ptr|
+                    (zero : MPZ)._mutate(|out3_ptr|
                         act((lhs_ptr, rhs_ptr, out3_ptr, lhs_ptr, rhs_ptr))
                     ).pure
                 ).pure
@@ -174,8 +174,8 @@ namespace MPZ {
         if lhs_is_unique && !rhs_is_unique {
             rhs._borrow(|rhs_ptr|
                 lhs._mutate(|lhs_ptr| 
-                    MPZ::zero._mutate(|out2_ptr|
-                        MPZ::zero._mutate(|out3_ptr|
+                    (zero : MPZ)._mutate(|out2_ptr|
+                        (zero : MPZ)._mutate(|out3_ptr|
                             act((lhs_ptr, out2_ptr, out3_ptr, lhs_ptr, rhs_ptr))
                         ).pure
                     ).pure
@@ -185,8 +185,8 @@ namespace MPZ {
         if !lhs_is_unique && rhs_is_unique {
             lhs._borrow(|lhs_ptr|
                 rhs._mutate(|rhs_ptr| 
-                    MPZ::zero._mutate(|out2_ptr|
-                        MPZ::zero._mutate(|out3_ptr|
+                    (zero : MPZ)._mutate(|out2_ptr|
+                        (zero : MPZ)._mutate(|out3_ptr|
                             act((rhs_ptr, out2_ptr, out3_ptr, lhs_ptr, rhs_ptr))
                         ).pure
                     ).pure
@@ -195,9 +195,9 @@ namespace MPZ {
         };
         lhs._borrow(|lhs_ptr|
             rhs._borrow(|rhs_ptr|
-                MPZ::zero._mutate(|out1_ptr| 
-                    MPZ::zero._mutate(|out2_ptr|
-                        MPZ::zero._mutate(|out3_ptr|
+                (zero : MPZ)._mutate(|out1_ptr| 
+                    (zero : MPZ)._mutate(|out2_ptr|
+                        (zero : MPZ)._mutate(|out3_ptr|
                             act((out1_ptr, out2_ptr, out3_ptr, lhs_ptr, rhs_ptr))
                         ).pure
                     ).pure
@@ -236,7 +236,7 @@ namespace MPZ {
         op1._borrow(|op1_ptr|
             op2._borrow(|op2_ptr|
                 op3._borrow(|op3_ptr|
-                    MPZ::zero._mutate(|out_ptr| act((out_ptr, op1_ptr, op2_ptr, op3_ptr))).@0
+                    (zero : MPZ)._mutate(|out_ptr| act((out_ptr, op1_ptr, op2_ptr, op3_ptr))).@0
                 )
             )
         )
@@ -248,14 +248,6 @@ namespace MPZ {
     // - `n`: The `I64` value to convert.
     mpz : I64 -> MPZ;
     mpz = MPZ::init_set_si;
-
-    // The value `0`
-    zero : MPZ;
-    zero = MPZ::_init_by(|handle| FFI_CALL_IO[() __gmpz_init(Ptr), handle]).@0;
-
-    // The value `1`
-    one : MPZ;
-    one = MPZ::init_set_si(1);
 
     // Sets the value of a MPZ to the given string in the given base.
     // 
@@ -1047,7 +1039,7 @@ namespace MPZ {
     // - `n`: The non-negative integer to calculate the factorial of.
     fac_ui : U64 -> MPZ;
     fac_ui = |n| (
-        MPZ::zero._mutate(
+        (zero : MPZ)._mutate(
             |out_ptr| FFI_CALL_IO[() __gmpz_fac_ui(Ptr, CUnsignedLong), out_ptr, n.to_CUnsignedLong]
         ).@0
     );
@@ -1058,7 +1050,7 @@ namespace MPZ {
     // - `n`: The non-negative integer to calculate the double factorial of.
     fac2_ui : U64 -> MPZ;
     fac2_ui = |n| (
-        MPZ::zero._mutate(
+        (zero : MPZ)._mutate(
             |out_ptr| FFI_CALL_IO[() __gmpz_2fac_ui(Ptr, CUnsignedLong), out_ptr, n.to_CUnsignedLong]
         ).@0
     );
@@ -1070,7 +1062,7 @@ namespace MPZ {
     // - `n`: The non-negative integer to calculate the factorial of.
     facm_uiui : U64 -> U64 -> MPZ;
     facm_uiui = |m, n| (
-        MPZ::zero._mutate(
+        (zero : MPZ)._mutate(
             |out_ptr| FFI_CALL_IO[() __gmpz_mfac_uiui(Ptr, CUnsignedLong, CUnsignedLong), out_ptr, n.to_CUnsignedLong, m.to_CUnsignedLong]
         ).@0
     );
@@ -1081,7 +1073,7 @@ namespace MPZ {
     // - `n`
     primorial_ui : U64 -> MPZ;
     primorial_ui = |n| (
-        MPZ::zero._mutate(
+        (zero : MPZ)._mutate(
             |out_ptr| FFI_CALL_IO[() __gmpz_primorial_ui(Ptr, CUnsignedLong), out_ptr, n.to_CUnsignedLong]
         ).@0
     );
@@ -1105,7 +1097,7 @@ namespace MPZ {
     // - `n`: The position in the Fibonacci sequence.
     fib_ui : U64 -> MPZ;
     fib_ui = |n| (
-        MPZ::zero._mutate(
+        (zero : MPZ)._mutate(
             |out_ptr| FFI_CALL_IO[() __gmpz_fib_ui(Ptr, CUnsignedLong), out_ptr, n.to_CUnsignedLong]
         ).@0
     );
@@ -1116,8 +1108,8 @@ namespace MPZ {
     // - `n`: The position in the Fibonacci sequence.
     fib2_ui : U64 -> (MPZ, MPZ);
     fib2_ui = |n| (
-        MPZ::zero._mutate(|out_ptr|
-            MPZ::zero._mutate(|out_prev_ptr|
+        (zero : MPZ)._mutate(|out_ptr|
+            (zero : MPZ)._mutate(|out_prev_ptr|
                 FFI_CALL_IO[() __gmpz_fib2_ui(Ptr, Ptr, CUnsignedLong), out_ptr, out_prev_ptr, n.to_CUnsignedLong]
             ).@0.pure
         )
@@ -1129,7 +1121,7 @@ namespace MPZ {
     // - `n`: The position in the Lucas sequence.
     lucnum_ui : U64 -> MPZ;
     lucnum_ui = |n| (
-        MPZ::zero._mutate(
+        (zero : MPZ)._mutate(
             |out_ptr| FFI_CALL_IO[() __gmpz_lucnum_ui(Ptr, CUnsignedLong), out_ptr, n.to_CUnsignedLong]
         ).@0
     );
@@ -1140,8 +1132,8 @@ namespace MPZ {
     // - `n`: The position in the Lucas sequence.
     lucnum2_ui : U64 -> (MPZ, MPZ);
     lucnum2_ui = |n| (
-        MPZ::zero._mutate(|out_ptr|
-            MPZ::zero._mutate(|out_prev_ptr|
+        (zero : MPZ)._mutate(|out_ptr|
+            (zero : MPZ)._mutate(|out_prev_ptr|
                 FFI_CALL_IO[() __gmpz_lucnum2_ui(Ptr, Ptr, CUnsignedLong), out_ptr, out_prev_ptr, n.to_CUnsignedLong]
             ).@0.pure
         )
@@ -1229,7 +1221,7 @@ namespace MPZ {
     // - `1` if `n > 0`
     sgn : MPZ -> I64;
     sgn = |n| (
-        let r = MPZ::cmp(n, MPZ::zero);
+        let r = MPZ::cmp(n, (zero : MPZ));
         if r < 0 { -1 };
         if r > 0 { 1 };
         0
@@ -1456,4 +1448,8 @@ impl MPZ : FromString {
 
 impl MPZ : Hash {
     hash = to_string >> hash;
+}
+
+impl MPZ : Zero {
+    zero = MPZ::_init_by(|handle| FFI_CALL_IO[() __gmpz_init(Ptr), handle]).@0;
 }

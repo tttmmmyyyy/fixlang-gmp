@@ -16,10 +16,10 @@ test_q = (
 test_q_special_constructor : IO ();
 test_q_special_constructor = (
     // zero
-    assert_eq(|_|"zero", MPQ::zero.to_string, "0");;
+    assert_eq(|_|"zero", (zero : MPQ).to_string, "0");;
 
     // one
-    assert_eq(|_|"one", MPQ::one.to_string, "1");;
+    assert_eq(|_|"one", mpq(1, 1).to_string, "1");;
 
     // mpq
     assert_eq(|_|"mpq", mpq(-14, 12).to_string, "-7/6");;
@@ -93,9 +93,9 @@ test_q_conversion = (
     assert(|_|"init_set_str", a.is_none);;
 
     // set_str
-    let a = MPQ::zero.set_str("1234/5678", 10);
+    let a = (zero : MPQ).set_str("1234/5678", 10);
     assert_eq(|_|"set_str", a.as_some.to_string, "617/2839");;
-    let a = MPQ::zero.set_str("xyz", 10);
+    let a = (zero : MPQ).set_str("xyz", 10);
     assert(|_|"set_str", a.is_none);;
 
     // get_d
@@ -149,7 +149,7 @@ test_q_basic_arithmetic = (
     assert_eq(|_|"case 7", z.get_num.to_string, "-6");;
     assert_eq(|_|"case 7", z.get_den.to_string, "17");;
 
-    assert_eq(|_|"case 8", (x + -x), MPQ::zero);;
+    assert_eq(|_|"case 8", (x + -x), zero);;
 
     // mul_2exp
     let a = mpq(1, 2);
@@ -177,27 +177,27 @@ test_q_basic_arithmetic = (
 test_q_comparison : IO ();
 test_q_comparison = (
 
-    assert(|_|"cmp", MPQ::cmp(zero, one) < 0);;
+    assert(|_|"cmp", MPQ::cmp(zero, mpq(1, 1)) < 0);;
     assert(|_|"cmp", MPQ::cmp(zero, zero) == 0);;
-    assert(|_|"cmp", MPQ::cmp(one, zero) > 0);;
+    assert(|_|"cmp", MPQ::cmp(mpq(1, 1), zero) > 0);;
 
-    assert(|_|"cmp_z", MPQ::cmp_z(zero, one) < 0);;
+    assert(|_|"cmp_z", MPQ::cmp_z(zero, mpz(1)) < 0);;
     assert(|_|"cmp_z", MPQ::cmp_z(zero, zero) == 0);;
-    assert(|_|"cmp_z", MPQ::cmp_z(one, zero) > 0);;
+    assert(|_|"cmp_z", MPQ::cmp_z(mpq(1, 1), zero) > 0);;
 
-    // equal 
+    // equal
     assert(|_|"equal", MPQ::equal(zero, zero));;
-    assert(|_|"equal", MPQ::equal(one, one));;
-    assert(|_|"equal", MPQ::equal(zero, one) == false);;
+    assert(|_|"equal", MPQ::equal(mpq(1, 1), mpq(1, 1)));;
+    assert(|_|"equal", MPQ::equal(zero, mpq(1, 1)) == false);;
 
-    assert(|_|"==", MPQ::zero == MPQ::zero);;
-    assert(|_|"==", MPQ::one == MPQ::one);;
-    assert(|_|"!=", MPQ::zero != MPQ::one);;
-
+    assert(|_|"==", zero == (zero : MPQ));;
+    assert(|_|"==", mpq(1, 1) == mpq(1, 1));;
+    assert(|_|"!=", (zero : MPQ) != mpq(1, 1));;
+    
     // sgn 
-    assert_eq(|_|"sgn zero", MPQ::sgn(MPQ::zero), 0);;
-    assert_eq(|_|"sgn one", MPQ::sgn(MPQ::one), 1);;
-    assert_eq(|_|"sgn minus one", MPQ::sgn(-MPQ::one), -1);;
+    assert_eq(|_|"sgn zero", MPQ::sgn(zero), 0);;
+    assert_eq(|_|"sgn one", MPQ::sgn(mpq(1, 1)), 1);;
+    assert_eq(|_|"sgn minus one", MPQ::sgn(-mpq(1, 1)), -1);;
 
     pure()
 );

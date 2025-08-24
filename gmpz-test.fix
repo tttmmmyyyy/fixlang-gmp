@@ -21,8 +21,8 @@ test_z = (
 test_z_special_constructor : IO ();
 test_z_special_constructor = (
     // zero and one
-    assert_eq(|_|"zero", MPZ::zero.to_string, "0");;
-    assert_eq(|_|"one", MPZ::one.to_string, "1");;
+    assert_eq(|_|"zero", (zero : MPZ).to_string, "0");;
+    assert_eq(|_|"one", mpz(1).to_string, "1");;
 
     // constructor
     assert_eq(|_|"mpz", mpz(42).to_string, "42");;
@@ -391,7 +391,7 @@ test_z_basic_arithmetic = (
 
 test_z_conversion : IO ();
 test_z_conversion = (
-    let num = MPZ::zero;
+    let num = mpz(0);
     assert_eq(|_|"case 0", num.to_string, "0");;
 
     let num = MPZ::init_set_si(-12345);
@@ -482,9 +482,9 @@ test_z_comparison = (
     assert(|_|"case 8", x <= x);;
     assert(|_|"case 8", x >= x);;
 
-    assert(|_|"case 9", MPZ::cmp(zero, one) < 0);;
+    assert(|_|"case 9", MPZ::cmp(zero, mpz(1)) < 0);;
     assert(|_|"case 9", MPZ::cmp(zero, zero) == 0);;
-    assert(|_|"case 9", MPZ::cmp(one, zero) > 0);;
+    assert(|_|"case 9", MPZ::cmp(mpz(1), zero) > 0);;
 
     assert(|_|"case 10", cmp_d(zero, -0.5) > 0);; 
     assert(|_|"case 10", cmp_d(zero, 0.5) < 0);; 
