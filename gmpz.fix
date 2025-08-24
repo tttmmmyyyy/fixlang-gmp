@@ -1089,8 +1089,8 @@ namespace MPZ {
     // Calculates the binomial coefficient `n choose k`.
     // 
     // # Parameters
-    // - `k`: The number of items to choose.
     // - `n`: The total number of items.
+    // - `k`: The number of items to choose.
     bin_ui : MPZ -> U64 -> MPZ;
     bin_ui = |n, k| (
         MPZ::_unary_op(
