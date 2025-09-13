@@ -181,6 +181,10 @@ test_q_comparison = (
     assert(|_|"cmp", MPQ::cmp(zero, zero) == 0);;
     assert(|_|"cmp", MPQ::cmp(mpq(1, 1), zero) > 0);;
 
+    assert(|_|"<", mpq(22, 7) > mpq(31, 10));;
+    assert(|_|"<=", mpq(22, 7) >= mpq(31, 10));;
+    assert(|_|"<=", mpq(15, 10) >= mpq(3, 2));;
+
     assert(|_|"cmp_z", MPQ::cmp_z(zero, mpz(1)) < 0);;
     assert(|_|"cmp_z", MPQ::cmp_z(zero, zero) == 0);;
     assert(|_|"cmp_z", MPQ::cmp_z(mpq(1, 1), zero) > 0);;

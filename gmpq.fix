@@ -4,6 +4,7 @@
 module GMP.Q;
 
 import GMP.Z;
+import Hash::{Hash, Hash::hash};
 
 // A pointer to struct `__mpq_struct`.
 type MPQHandle = Ptr;
@@ -475,6 +476,18 @@ impl MPQ : Eq {
     eq = equal;
 }
 
+impl MPQ : LessThan {
+    less_than = |lhs, rhs| MPQ::cmp(lhs, rhs) < 0;
+}
+
+impl MPQ : LessThanOrEq {
+    less_than_or_eq = |lhs, rhs| MPQ::cmp(lhs, rhs) <= 0;
+}
+
+impl MPQ : Hash {
+    hash = to_string >> hash;
+}
+
 impl MPQ : FromString {
     from_string = |s| match MPQ::init_set_str(s, 10) {
         none() => err $ "Failed to parse MPQ as a decimal string",
@@ -489,4 +502,3 @@ impl MPQ : ToString {
 impl MPQ : Zero {
     zero = MPQ::_init_by(|handle| FFI_CALL_IO[() __gmpq_init(Ptr), handle]).@0;
 }
-
