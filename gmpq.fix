@@ -48,7 +48,8 @@ namespace MPQ {
     _init_by : (MPQHandle -> IO a) -> (MPQ, a);
     _init_by = |ctor| do {
         let (handle, res) = *MPQHandle::_construct_by(ctor);
-        pure $ (MPQ { _0 : Destructor::make(handle, MPQHandle::_destructor) }, res)
+        let dtor = *Destructor::make(handle, MPQHandle::_destructor);
+        pure $ (MPQ { _0 : dtor }, res)
     }.unsafe_perform;
 
     // Performs an action with a borrowed pointer to the internal data.

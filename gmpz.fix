@@ -47,7 +47,8 @@ namespace MPZ {
     _init_by : (MPZHandle -> IO a) -> (MPZ, a);
     _init_by = |ctor| do {
         let (handle, res) = *MPZHandle::_construct_by(ctor);
-        pure $ (MPZ { _0 : Destructor::make(handle, MPZHandle::_destructor) }, res)
+        let dtor = *Destructor::make(handle, MPZHandle::_destructor);
+        pure $ (MPZ { _0 : dtor }, res)
     }.unsafe_perform;
 
     // Performs an action with a borrowed pointer to the internal data.
