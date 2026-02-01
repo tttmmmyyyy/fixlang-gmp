@@ -1,7 +1,18 @@
 module GMP.Q.Test;
 
-import GMP.Z;
-import GMP.Q;
+import GMP.Q::{
+    MPQ, 
+    MPQ::{
+        abs, cmp, cmp_z, div_2exp, equal, get_d, get_den, get_num, init_set_d, init_set_si, init_set_str, 
+        init_set_ui, init_set_z, inv, mpq, mul_2exp, set_d, set_si, set_str, set_ui, set_z, sgn
+    }
+};
+import GMP.Z::MPZ::{init_set_si, mpz};
+import Std::{
+    ErrMsg, F64, IO, Result, Debug::{assert, assert_eq}, F64::to_string_precision, 
+    FromString::from_string, I64::minimum, Monad::pure, Option::{as_some, is_none}, 
+    Result::{as_ok, is_err}, ToString::to_string, Zero::zero
+};
 
 test_q : IO ();
 test_q = (

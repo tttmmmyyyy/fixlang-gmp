@@ -1,7 +1,8 @@
 module Test;
 
-import GMP.Q.Test;
-import GMP.Z.Test;
+import GMP.Q.Test::test_q;
+import GMP.Z.Test::test_z;
+import Std::{IO, Monad::pure};
 
 test : IO ();
 test = (

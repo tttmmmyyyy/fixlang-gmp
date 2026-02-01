@@ -3,8 +3,16 @@
 // Repository: https://github.com/tttmmmyyyy/fixlang-gmp
 module GMP.Z;
 
-import Hash;
-import GMP.Q;
+import GMP.Q::{MPQ, MPQ::_borrow};
+import Hash::{Hash, Hash::hash};
+import Std::{
+    undefined, unsafe_is_unique, Add, Bool, Div, Eq, F64, FromString, I64, IO, LessThan, LessThanOrEq, 
+    Mul, Neg, Option, Ptr, Rem, String, Sub, ToString, U64, Zero, Box::{make, @value}, F64::to_F64, 
+    FFI::{mutate_boxed, CInt, Destructor, Destructor::{borrow, make, mutate_unique}}, Functor::map, 
+    I32::{to_CInt, to_I64}, I64::{to_CInt, to_CLong, to_I64}, IO::unsafe_perform, Monad::pure, 
+    Option::{none, some}, Result::{err, ok}, String::{borrow_c_str, unsafe_from_c_str_ptr_io}, 
+    ToString::to_string, Tuple2::@0, U64::{to_CUnsignedLong, to_U64}, Zero::zero
+};
 
 // A pointer to struct `__mpz_struct`.
 type MPZHandle = Ptr;

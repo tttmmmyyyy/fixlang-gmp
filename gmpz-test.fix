@@ -1,7 +1,23 @@
 module GMP.Z.Test;
 
-import GMP.Z;
-import GMP.Q;
+import GMP.Q::MPQ::mpq;
+import GMP.Z::{
+    MPZ, 
+    MPZ::{
+        abs, addmul, and, bin_ui, cdiv_q, cdiv_q_2exp, cdiv_qr, cdiv_r, cdiv_r_2exp, clrbit, cmp, cmp_d, 
+        cmpabs, cmpabs_d, com, combit, congruent_2exp_p, congruent_p, divexact, divisible_2exp_p, 
+        divisible_p, fac2_ui, fac_ui, facm_uiui, fdiv_q, fdiv_q_2exp, fdiv_qr, fdiv_r, fdiv_r_2exp, fib2_ui, 
+        fib_ui, gcd, gcdext, get_d, get_d_exp, get_si, get_str, get_ui, hamdist, init_set_d, init_set_si, 
+        init_set_str, init_set_ui, invert, jacobi, lcm, legendre, lucnum2_ui, lucnum_ui, mod, mpz, mul_2exp, 
+        nextprime, or, perfect_power_p, perfect_square_p, popcount, pow_ui, powm, powm_sec, primorial_ui, 
+        probab_prime_p, remove, root, root_rem, scan0, scan1, set_d, set_q, set_si, set_str, set_ui, setbit, 
+        sgn, sqrt, sqrt_rem, submul, tdiv_q, tdiv_q_2exp, tdiv_qr, tdiv_r, tdiv_r_2exp, tstbit, xor
+    }
+};
+import Std::{
+    F64, IO, Debug::{assert, assert_eq}, FromString::from_string, Monad::pure, 
+    Option::{as_some, is_none, none, some}, Result::as_ok, ToString::to_string, Zero::zero
+};
 
 test_z : IO ();
 test_z = (
