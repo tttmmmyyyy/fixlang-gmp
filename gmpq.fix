@@ -313,12 +313,12 @@ namespace MPQ {
             undefined("[MPQ::get_str] `base` must be in the range [2, 36]")
         };
         let base = base.to_CInt;        
-        num._borrow(|x_ptr| (
-            let str_ptr = FFI_CALL[Ptr __gmpq_get_str(Ptr, CInt, Ptr), nullptr, base.to_CInt, x_ptr];
-            let str = String::_unsafe_from_c_str_ptr(str_ptr);
+        num._borrow(|x_ptr| do {
+            let str_ptr = *FFI_CALL_IO[Ptr __gmpq_get_str(Ptr, CInt, Ptr), nullptr, base.to_CInt, x_ptr];
+            let str = *String::unsafe_from_c_str_ptr_io(str_ptr);
             FFI_CALL_IO[() free(Ptr), str_ptr];;
             str.pure
-        ).unsafe_perform)
+        }.unsafe_perform)
     );
 
     // Multiplies the `MPQ` value by `2^exp`.
