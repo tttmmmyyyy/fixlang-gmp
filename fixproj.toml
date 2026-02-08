@@ -2,6 +2,7 @@
 name = "gmp-fix"
 version = "0.7.0"
 fix_version = "1.2.0"
+description = "GMP bindings for the Fix programming language."
 
 [build]
 files = ["gmpz.fix", "gmpq.fix"]
