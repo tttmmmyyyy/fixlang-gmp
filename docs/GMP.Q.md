@@ -1,6 +1,6 @@
 # GMP.Q
 
-Defined in gmp-fix@0.5.1
+Defined in gmp-fix@0.6.4
 
 Provides multiple-precision rational number type `MPQ` and related functions.
 
@@ -207,12 +207,6 @@ Multiplies the `MPQ` value by `2^exp`.
 - `exp`: The exponent of 2.
 - `num`: The `MPQ` value to be multiplied.
 
-#### one
-
-Type: `GMP.Q::MPQ`
-
-The one value.
-
 #### set_d
 
 Type: `Std::F64 -> GMP.Q::MPQ -> GMP.Q::MPQ`
@@ -283,12 +277,6 @@ Returns the sign of a `MPQ` value.
 - `0` if `n == 0`
 - `1` if `n > 0`
 
-#### zero
-
-Type: `GMP.Q::MPQ`
-
-The zero value.
-
 ## Types and aliases
 
 ### namespace GMP.Q
@@ -313,6 +301,8 @@ A pointer to struct `__mpq_struct`.
 
 ## Trait implementations
 
+### impl `GMP.Q::MPQ : Hash::Hash`
+
 ### impl `GMP.Q::MPQ : Std::Add`
 
 ### impl `GMP.Q::MPQ : Std::Div`
@@ -321,6 +311,10 @@ A pointer to struct `__mpq_struct`.
 
 ### impl `GMP.Q::MPQ : Std::FromString`
 
+### impl `GMP.Q::MPQ : Std::LessThan`
+
+### impl `GMP.Q::MPQ : Std::LessThanOrEq`
+
 ### impl `GMP.Q::MPQ : Std::Mul`
 
 ### impl `GMP.Q::MPQ : Std::Neg`
@@ -328,3 +322,5 @@ A pointer to struct `__mpq_struct`.
 ### impl `GMP.Q::MPQ : Std::Sub`
 
 ### impl `GMP.Q::MPQ : Std::ToString`
+
+### impl `GMP.Q::MPQ : Std::Zero`

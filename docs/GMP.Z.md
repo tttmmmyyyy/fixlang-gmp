@@ -1,6 +1,6 @@
 # GMP.Z
 
-Defined in gmp-fix@0.5.1
+Defined in gmp-fix@0.6.4
 
 Provides multiple-precision integer type `MPZ` and related functions.
 
@@ -59,8 +59,8 @@ Calculates the binomial coefficient `n choose k`.
 
 ##### Parameters
 
-- `k`: The number of items to choose.
 - `n`: The total number of items.
+- `k`: The number of items to choose.
 
 #### cdiv_q
 
@@ -634,12 +634,6 @@ Calculates (probabilistically) the next prime number greater than `x`.
 
 - `x`: The value to find the next prime of.
 
-#### one
-
-Type: `GMP.Z::MPZ`
-
-The value `1`
-
 #### or
 
 Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ`
@@ -1000,12 +994,6 @@ Logical xor operation on two `MPZ` values.
 - `lhs`: The left-hand-side value.
 - `rhs`: The right-hand-side value.
 
-#### zero
-
-Type: `GMP.Z::MPZ`
-
-The value `0`
-
 ## Types and aliases
 
 ### namespace GMP.Z
@@ -1053,3 +1041,5 @@ A pointer to struct `__mpz_struct`.
 ### impl `GMP.Z::MPZ : Std::Sub`
 
 ### impl `GMP.Z::MPZ : Std::ToString`
+
+### impl `GMP.Z::MPZ : Std::Zero`
