@@ -1,6 +1,6 @@
 # GMP.Z
 
-Defined in gmp-fix@0.6.4
+Defined in gmp-fix@0.7.0
 
 Provides multiple-precision integer type `MPZ` and related functions.
 
