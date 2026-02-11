@@ -8,6 +8,8 @@ To use this library, you must have GMP installed and be able to dynamically link
 
 Progress: Many `mpz_` and `mpq_` functions (though not all) functions have been covered.
 
+**Note:** This library provides integer (`MPZ`) and rational number (`MPQ`) types. For floating-point types (MPFR wrapper), please refer to [fixlang-mpfr](https://github.com/tttmmmyyyy/fixlang-mpfr).
+
 # Naming Conventions
 
 Most Fix functions are named by dropping the GMP prefix (e.g., `mpz_` or `mpq_`) and are placed within a corresponding namespace (e.g., `MPZ::` or `MPQ::`).
