@@ -8,24 +8,24 @@ import Hash::{Hash, Hash::hash};
 import Std::{
     undefined, unsafe_is_unique, Add, Bool, Div, Eq, F64, FromString, I64, IO, LessThan, LessThanOrEq, 
     Mul, Neg, Option, Ptr, Rem, String, Sub, ToString, U64, Zero, Box::{make, @value}, F64::to_F64, 
-    FFI::{mutate_boxed, CInt, Destructor, Destructor::{borrow, make, mutate_unique}}, Functor::map, 
+    FFI::{mutate_boxed, CSizeT, Destructor, Destructor::{borrow, make, mutate_unique}}, Functor::map, 
     I32::{to_CInt, to_I64}, I64::{to_CInt, to_CLong, to_I64}, IO::unsafe_perform, Monad::pure, 
     Option::{none, some}, Result::{err, ok}, String::{borrow_c_str, unsafe_from_c_str_ptr_io}, 
-    ToString::to_string, Tuple2::@0, U64::{to_CUnsignedLong, to_U64}, Zero::zero
+    ToCSizeT::c_size_t, ToString::to_string, Tuple2::@0, U64::{to_CUnsignedLong, to_U64}, Zero::zero
 };
 
 // A pointer to struct `__mpz_struct`.
 type MPZHandle = Ptr;
 
 // Size of `__mpz_struct`.
-c_SiZE_OF_MPZ : CInt;
-c_SiZE_OF_MPZ = 16.to_CInt;
+c_SiZE_OF_MPZ : CSizeT;
+c_SiZE_OF_MPZ = 16.c_size_t;
 
 namespace MPZHandle {
     // Construct MPZHandle by GMP's initialization function, e.g., `mpz_init`.
     _construct_by : (MPZHandle -> IO a) -> IO (MPZHandle, a);
     _construct_by = |ctor| (
-        let handle = *FFI_CALL_IO[Ptr malloc(CInt), c_SiZE_OF_MPZ];
+        let handle = *FFI_CALL_IO[Ptr malloc(CSizeT), c_SiZE_OF_MPZ];
         let res = *ctor(handle);
         pure $ (handle, res)
     );
@@ -33,7 +33,7 @@ namespace MPZHandle {
     // Calls `mpz_init_set`.
     _copy_constructor : MPZHandle -> IO MPZHandle;
     _copy_constructor = |handle| (
-        let new_handle = *FFI_CALL_IO[Ptr malloc(CInt), c_SiZE_OF_MPZ];
+        let new_handle = *FFI_CALL_IO[Ptr malloc(CSizeT), c_SiZE_OF_MPZ];
         FFI_CALL_IO[() __gmpz_init_set(Ptr, Ptr), new_handle, handle];;
         pure $ new_handle
     );
