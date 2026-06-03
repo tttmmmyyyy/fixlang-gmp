@@ -6,12 +6,12 @@ module GMP.Q;
 import GMP.Z::{c_SiZE_OF_MPZ, MPZ, MPZ::{_borrow, _mutate}};
 import Hash::{Hash, Hash::hash};
 import Std::{
-    undefined, unsafe_is_unique, Add, Bool, Div, Eq, F64, FromString, I64, IO, LessThan, LessThanOrEq, 
-    Mul, Neg, Option, Ptr, String, Sub, ToString, U64, Zero, F64::{to_CDouble, to_F64}, 
-    FFI::{CSizeT, Destructor, Destructor::{borrow, make, mutate_unique}}, I32::{to_CInt, to_I64}, 
-    I64::{to_CInt, to_U64}, IO::unsafe_perform, Monad::pure, Option::{none, some}, Result::{err, ok}, 
-    String::{borrow_c_str, unsafe_from_c_str_ptr_io}, ToCSizeT::c_size_t, ToString::to_string, 
-    Tuple2::@0, U64::{bit_not, to_CUnsignedLong}, Zero::zero
+    undefined, unsafe_is_unique, Add, Bool, Div, Eq, F64, FromString, I64, IO, LessThan, LessThanOrEq,
+    Mul, Neg, Option, Ptr, String, Sub, ToString, U64, Zero,
+    FFI::{CSizeT, Destructor, Destructor::{borrow, make, mutate_unique}}, IO::unsafe_perform, Monad::pure,
+    Option::{none, some}, Result::{err, ok}, String::{borrow_c_str, unsafe_from_c_str_ptr_io},
+    ToCDouble::c_double, ToCInt::c_int, ToCSizeT::c_size_t, ToCUnsignedLong::c_unsigned_long,
+    ToF64::f64, ToI64::i64, ToString::to_string, ToU64::u64, Tuple2::@0, U64::bit_not, Zero::zero
 };
 
 // A pointer to struct `__mpq_struct`.
@@ -114,9 +114,9 @@ namespace MPQ {
     mpq : I64 -> I64 -> MPQ;
     mpq = |num, den| (
         if den > 0 { 
-            init_set_si(num, den.to_U64)
+            init_set_si(num, den.u64)
         };
-        let negate = |x: I64| x.to_U64.bit_not + 1_U64;
+        let negate = |x: I64| x.u64.bit_not + 1_U64;
         if num > 0 {
             init_set_si(-num, negate(den))
         };
@@ -219,7 +219,7 @@ namespace MPQ {
     init_set_d = |f| (
         MPQ::_init_by(|handle|
             FFI_CALL_IO[() __gmpq_init(Ptr), handle];;
-            FFI_CALL_IO[() __gmpq_set_d(Ptr, CDouble), handle, f.to_CDouble];;
+            FFI_CALL_IO[() __gmpq_set_d(Ptr, CDouble), handle, f.c_double];;
             FFI_CALL_IO[() __gmpq_canonicalize(Ptr), handle];;
             pure()
         ).@0
@@ -233,7 +233,7 @@ namespace MPQ {
     set_d : F64 -> MPQ -> MPQ;
     set_d = |f, q| (
         q._mutate(|q_ptr| (
-            let f = f.to_CDouble;
+            let f = f.c_double;
             FFI_CALL_IO[() __gmpq_set_d(Ptr, CDouble), q_ptr, f];;
             pure()
         )).@0
@@ -248,7 +248,7 @@ namespace MPQ {
     get_d : MPQ -> F64;
     get_d = |num| (
         num._borrow(|num_ptr| (
-            FFI_CALL[CDouble __gmpq_get_d(Ptr), num_ptr].to_F64
+            FFI_CALL[CDouble __gmpq_get_d(Ptr), num_ptr].f64
         ))
     );
 
@@ -262,11 +262,11 @@ namespace MPQ {
         str.borrow_c_str(|c_str_ptr|
             let (num, res) = MPQ::_init_by(|handle|
                 FFI_CALL_IO[() __gmpq_init(Ptr), handle];;
-                let res = *FFI_CALL_IO[CInt __gmpq_set_str(Ptr, Ptr, CInt), handle, c_str_ptr, base.to_CInt];
+                let res = *FFI_CALL_IO[CInt __gmpq_set_str(Ptr, Ptr, CInt), handle, c_str_ptr, base.c_int];
                 FFI_CALL_IO[() __gmpq_canonicalize(Ptr), handle];;
                 res.pure
             );
-            if res == -1.to_CInt { Option::none() };
+            if res == -1.c_int { Option::none() };
             Option::some $ num
         )
     );
@@ -281,11 +281,11 @@ namespace MPQ {
     set_str = |str, base, q| (
         str.borrow_c_str(|c_str_ptr|
             let (num, res) = q._mutate(|q_ptr| 
-                let res = *FFI_CALL_IO[CInt __gmpq_set_str(Ptr, Ptr, CInt), q_ptr, c_str_ptr, base.to_CInt];
+                let res = *FFI_CALL_IO[CInt __gmpq_set_str(Ptr, Ptr, CInt), q_ptr, c_str_ptr, base.c_int];
                 FFI_CALL_IO[() __gmpq_canonicalize(Ptr), q_ptr];;
                 res.pure
             );
-            if res == -1.to_CInt { Option::none() };
+            if res == -1.c_int { Option::none() };
             Option::some $ num
         )
     );
@@ -320,9 +320,9 @@ namespace MPQ {
         if !(2 <= base && base <= 36) {
             undefined("[MPQ::get_str] `base` must be in the range [2, 36]")
         };
-        let base = base.to_CInt;        
+        let base = base.c_int;        
         num._borrow(|x_ptr| do {
-            let str_ptr = *FFI_CALL_IO[Ptr __gmpq_get_str(Ptr, CInt, Ptr), nullptr, base.to_CInt, x_ptr];
+            let str_ptr = *FFI_CALL_IO[Ptr __gmpq_get_str(Ptr, CInt, Ptr), nullptr, base.c_int, x_ptr];
             let str = *String::unsafe_from_c_str_ptr_io(str_ptr);
             FFI_CALL_IO[() free(Ptr), str_ptr];;
             str.pure
@@ -337,7 +337,7 @@ namespace MPQ {
     mul_2exp : U64 -> MPQ -> MPQ;
     mul_2exp = |exp, num| (
         num._unary_op(|(out_ptr, in_ptr)| (
-            FFI_CALL_IO[() __gmpq_mul_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, in_ptr, exp.to_CUnsignedLong]
+            FFI_CALL_IO[() __gmpq_mul_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, in_ptr, exp.c_unsigned_long]
         )).@0
     );
 
@@ -349,7 +349,7 @@ namespace MPQ {
     div_2exp : U64 -> MPQ -> MPQ;
     div_2exp = |exp, num| (
         num._unary_op(|(out_ptr, in_ptr)| (
-            FFI_CALL_IO[() __gmpq_div_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, in_ptr, exp.to_CUnsignedLong]
+            FFI_CALL_IO[() __gmpq_div_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, in_ptr, exp.c_unsigned_long]
         )).@0
     );
 
@@ -385,7 +385,7 @@ namespace MPQ {
     cmp = |lhs, rhs| (
         lhs._borrow(|lhs_ptr| (
             rhs._borrow(|rhs_ptr| (
-                FFI_CALL[CInt __gmpq_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr].to_I64
+                FFI_CALL[CInt __gmpq_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr].i64
             ))
         ))
     );
@@ -404,7 +404,7 @@ namespace MPQ {
     cmp_z = |lhs, rhs| (
         lhs._borrow(|lhs_ptr| (
             rhs._borrow(|rhs_ptr| (
-                FFI_CALL[CInt __gmpq_cmp_z(Ptr, Ptr), lhs_ptr, rhs_ptr].to_I64
+                FFI_CALL[CInt __gmpq_cmp_z(Ptr, Ptr), lhs_ptr, rhs_ptr].i64
             ))
         ))
     );

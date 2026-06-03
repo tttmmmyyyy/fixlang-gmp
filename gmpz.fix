@@ -6,12 +6,13 @@ module GMP.Z;
 import GMP.Q::{MPQ, MPQ::_borrow};
 import Hash::{Hash, Hash::hash};
 import Std::{
-    undefined, unsafe_is_unique, Add, Bool, Div, Eq, F64, FromString, I64, IO, LessThan, LessThanOrEq, 
-    Mul, Neg, Option, Ptr, Rem, String, Sub, ToString, U64, Zero, Box::{make, @value}, F64::to_F64, 
-    FFI::{mutate_boxed, CSizeT, Destructor, Destructor::{borrow, make, mutate_unique}}, Functor::map, 
-    I32::{to_CInt, to_I64}, I64::{to_CInt, to_CLong, to_I64}, IO::unsafe_perform, Monad::pure, 
-    Option::{none, some}, Result::{err, ok}, String::{borrow_c_str, unsafe_from_c_str_ptr_io}, 
-    ToCSizeT::c_size_t, ToString::to_string, Tuple2::@0, U64::{to_CUnsignedLong, to_U64}, Zero::zero
+    undefined, unsafe_is_unique, Add, Bool, Div, Eq, F64, FromString, I64, IO, LessThan, LessThanOrEq,
+    Mul, Neg, Option, Ptr, Rem, String, Sub, ToString, U64, Zero, Box::{make, @value},
+    FFI::{mutate_boxed, CSizeT, Destructor, Destructor::{borrow, make, mutate_unique}}, Functor::map,
+    IO::unsafe_perform, Monad::pure, Option::{none, some}, Result::{err, ok},
+    String::{borrow_c_str, unsafe_from_c_str_ptr_io}, ToCInt::c_int, ToCLong::c_long,
+    ToCSizeT::c_size_t, ToCUnsignedLong::c_unsigned_long, ToF64::f64, ToI64::i64,
+    ToString::to_string, ToU64::u64, Tuple2::@0, Zero::zero
 };
 
 // A pointer to struct `__mpz_struct`.
@@ -271,9 +272,9 @@ namespace MPZ {
     set_str = |str, base, x| (
         str.borrow_c_str(|str_c_str| (
             let (x, res) = x._mutate(|ptr| 
-                FFI_CALL_IO[CInt __gmpz_set_str(Ptr, Ptr, CInt), ptr, str_c_str, base.to_CInt]
+                FFI_CALL_IO[CInt __gmpz_set_str(Ptr, Ptr, CInt), ptr, str_c_str, base.c_int]
             );
-            if res == -1.to_CInt { Option::none() };
+            if res == -1.c_int { Option::none() };
             Option::some $ x
         ))
     );
@@ -290,9 +291,9 @@ namespace MPZ {
     init_set_str = |str, base| (
         str.borrow_c_str(|str_c_str| (
             let (num, res) = MPZ::_init_by(|ptr| 
-                FFI_CALL_IO[CInt __gmpz_init_set_str(Ptr, Ptr, CInt), ptr, str_c_str, base.to_CInt]
+                FFI_CALL_IO[CInt __gmpz_init_set_str(Ptr, Ptr, CInt), ptr, str_c_str, base.c_int]
             );
-            if res == -1.to_CInt { Option::none() };
+            if res == -1.c_int { Option::none() };
             Option::some $ num
         ))
     );
@@ -365,9 +366,9 @@ namespace MPZ {
     get_si = |num| (
         num._borrow(|num_ptr| (
             let fits = FFI_CALL[CInt __gmpz_fits_slong_p(Ptr), num_ptr];
-            if fits == 0.to_CInt { Option::none() };
+            if fits == 0.c_int { Option::none() };
             let res = FFI_CALL[CLong __gmpz_get_si(Ptr), num_ptr];
-            Option::some $ res.to_I64
+            Option::some $ res.i64
         ))
     );
 
@@ -378,7 +379,7 @@ namespace MPZ {
     get_ui = |num| (
         num._borrow(|num_ptr| (
             let fits = FFI_CALL[CInt __gmpz_fits_ulong_p(Ptr), num_ptr];
-            if fits == 0.to_CInt { Option::none() };
+            if fits == 0.c_int { Option::none() };
             let res = FFI_CALL[CUnsignedLong __gmpz_get_ui(Ptr), num_ptr];
             Option::some $ res
         ))
@@ -390,7 +391,7 @@ namespace MPZ {
     get_d : MPZ -> F64;
     get_d = |num| (
         num._borrow(|num_ptr| (
-            FFI_CALL[CDouble __gmpz_get_d(Ptr), num_ptr].to_F64
+            FFI_CALL[CDouble __gmpz_get_d(Ptr), num_ptr].f64
         ))
     );
 
@@ -399,11 +400,11 @@ namespace MPZ {
     // For details, see the document of `mpz_get_d_2exp` in GMP.
     get_d_exp : MPZ -> (F64, I64);
     get_d_exp = |num| (
-        let exp = Box::make(0.to_CLong);
+        let exp = Box::make(0.c_long);
         let (exp, man) = num._borrow(|num_ptr| exp.mutate_boxed(|exp_ptr| 
             FFI_CALL_IO[CDouble __gmpz_get_d_2exp(Ptr, Ptr), exp_ptr, num_ptr]
         ));
-        (man, exp.@value.to_I64)
+        (man, exp.@value.i64)
     );
 
     // Get the string representation of a `MPZ` value in the given base.
@@ -416,9 +417,9 @@ namespace MPZ {
         if !(-36 <= base && base <= -2 || 2 <= base && base <= 62) {
             undefined("[MPZ::get_str] `base` must be in the range [-36, -2] or [2, 62]")
         };
-        let base = base.to_CInt;        
+        let base = base.c_int;        
         num._borrow(|x_ptr| do {
-            let str_ptr = *FFI_CALL_IO[Ptr __gmpz_get_str(Ptr, CInt, Ptr), nullptr, base.to_CInt, x_ptr];
+            let str_ptr = *FFI_CALL_IO[Ptr __gmpz_get_str(Ptr, CInt, Ptr), nullptr, base.c_int, x_ptr];
             let str = *String::unsafe_from_c_str_ptr_io(str_ptr);
             FFI_CALL_IO[() free(Ptr), str_ptr];;
             str.pure
@@ -439,7 +440,7 @@ namespace MPZ {
     // - `num`: The `MPZ` value to multiply.
     mul_2exp : U64 -> MPZ -> MPZ;
     mul_2exp = |exp, num| (
-        num._unary_op(|(out_ptr, num_ptr)| FFI_CALL_IO[() __gmpz_mul_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, num_ptr, exp.to_CUnsignedLong]).@0
+        num._unary_op(|(out_ptr, num_ptr)| FFI_CALL_IO[() __gmpz_mul_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, num_ptr, exp.c_unsigned_long]).@0
     );
 
     // Exact Divisions
@@ -453,7 +454,7 @@ namespace MPZ {
     divisible_p = |d, n| (
         d._borrow(|d_ptr| (
             n._borrow(|n_ptr| (
-                FFI_CALL[CInt __gmpz_divisible_p(Ptr, Ptr), n_ptr, d_ptr] != 0.to_CInt
+                FFI_CALL[CInt __gmpz_divisible_p(Ptr, Ptr), n_ptr, d_ptr] != 0.c_int
             ))
         ))
     );
@@ -466,7 +467,7 @@ namespace MPZ {
     divisible_2exp_p : U64 -> MPZ -> Bool;
     divisible_2exp_p = |bit, n| (
         n._borrow(|n_ptr| (
-            FFI_CALL[CInt __gmpz_divisible_2exp_p(Ptr, CUnsignedLong), n_ptr, bit.to_CUnsignedLong] != 0.to_CInt
+            FFI_CALL[CInt __gmpz_divisible_2exp_p(Ptr, CUnsignedLong), n_ptr, bit.c_unsigned_long] != 0.c_int
         ))
     );
 
@@ -511,7 +512,7 @@ namespace MPZ {
         a._borrow(|a_ptr| (
             b._borrow(|b_ptr| (
                 m._borrow(|m_ptr| (
-                    FFI_CALL[CInt __gmpz_congruent_p(Ptr, Ptr, Ptr), a_ptr, b_ptr, m_ptr] != 0.to_CInt
+                    FFI_CALL[CInt __gmpz_congruent_p(Ptr, Ptr, Ptr), a_ptr, b_ptr, m_ptr] != 0.c_int
                 ))
             ))
         ))
@@ -527,7 +528,7 @@ namespace MPZ {
     congruent_2exp_p = |bit, a, b| (
         a._borrow(|a_ptr| (
             b._borrow(|b_ptr| (
-                FFI_CALL[CInt __gmpz_congruent_2exp_p(Ptr, Ptr, CUnsignedLong), a_ptr, b_ptr, bit.to_CUnsignedLong] != 0.to_CInt
+                FFI_CALL[CInt __gmpz_congruent_2exp_p(Ptr, Ptr, CUnsignedLong), a_ptr, b_ptr, bit.c_unsigned_long] != 0.c_int
             ))
         ))
     );
@@ -589,7 +590,7 @@ namespace MPZ {
     tdiv_q_2exp : U64 -> MPZ -> MPZ;
     tdiv_q_2exp = |bit, n| (
         MPZ::_unary_op(
-            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_tdiv_q_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.to_CUnsignedLong],
+            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_tdiv_q_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.c_unsigned_long],
             n
         ).@0
     );
@@ -604,7 +605,7 @@ namespace MPZ {
     tdiv_r_2exp : U64 -> MPZ -> MPZ;
     tdiv_r_2exp = |bit, n| (
         MPZ::_unary_op(
-            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_tdiv_r_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.to_CUnsignedLong],
+            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_tdiv_r_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.c_unsigned_long],
             n
         ).@0
     );
@@ -664,7 +665,7 @@ namespace MPZ {
     fdiv_q_2exp : U64 -> MPZ -> MPZ;
     fdiv_q_2exp = |bit, n| (
         MPZ::_unary_op(
-            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_fdiv_q_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.to_CUnsignedLong],
+            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_fdiv_q_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.c_unsigned_long],
             n
         ).@0
     );
@@ -679,7 +680,7 @@ namespace MPZ {
     fdiv_r_2exp : U64 -> MPZ -> MPZ;
     fdiv_r_2exp = |bit, n| (
         MPZ::_unary_op(
-            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_fdiv_r_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.to_CUnsignedLong],
+            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_fdiv_r_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.c_unsigned_long],
             n
         ).@0
     );
@@ -739,7 +740,7 @@ namespace MPZ {
     cdiv_q_2exp : U64 -> MPZ -> MPZ;
     cdiv_q_2exp = |bit, n| (
         MPZ::_unary_op(
-            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_cdiv_q_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.to_CUnsignedLong],
+            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_cdiv_q_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.c_unsigned_long],
             n
         ).@0
     );
@@ -754,7 +755,7 @@ namespace MPZ {
     cdiv_r_2exp : U64 -> MPZ -> MPZ;
     cdiv_r_2exp = |bit, n| (
         MPZ::_unary_op(
-            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_cdiv_r_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.to_CUnsignedLong],
+            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_cdiv_r_2exp(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, bit.c_unsigned_long],
             n
         ).@0
     );
@@ -833,7 +834,7 @@ namespace MPZ {
     pow_ui : U64 -> MPZ -> MPZ;
     pow_ui = |exp, base| (
         MPZ::_unary_op(
-            |(out_ptr, base_ptr)| FFI_CALL_IO[() __gmpz_pow_ui(Ptr, Ptr, CUnsignedLong), out_ptr, base_ptr, exp.to_CUnsignedLong],
+            |(out_ptr, base_ptr)| FFI_CALL_IO[() __gmpz_pow_ui(Ptr, Ptr, CUnsignedLong), out_ptr, base_ptr, exp.c_unsigned_long],
             base
         ).@0
     );
@@ -848,7 +849,7 @@ namespace MPZ {
     root : U64 -> MPZ -> MPZ;
     root = |n, x| (
         MPZ::_unary_op(
-            |(out_ptr, op_ptr)| FFI_CALL_IO[() __gmpz_root(Ptr, Ptr, CUnsignedLong), out_ptr, op_ptr, n.to_CUnsignedLong],
+            |(out_ptr, op_ptr)| FFI_CALL_IO[() __gmpz_root(Ptr, Ptr, CUnsignedLong), out_ptr, op_ptr, n.c_unsigned_long],
             x
         ).@0
     );
@@ -864,7 +865,7 @@ namespace MPZ {
     root_rem : U64 -> MPZ -> (MPZ, MPZ);
     root_rem = |n, x| (
         MPZ::_unary_op2(
-            |(out_ptr, rem_ptr, op_ptr)| FFI_CALL_IO[() __gmpz_rootrem(Ptr, Ptr, Ptr, CUnsignedLong), out_ptr, rem_ptr, op_ptr, n.to_CUnsignedLong],
+            |(out_ptr, rem_ptr, op_ptr)| FFI_CALL_IO[() __gmpz_rootrem(Ptr, Ptr, Ptr, CUnsignedLong), out_ptr, rem_ptr, op_ptr, n.c_unsigned_long],
             x
         ).|(x, y, _)| (x, y)
     );
@@ -900,7 +901,7 @@ namespace MPZ {
     perfect_power_p : MPZ -> Bool;
     perfect_power_p = |x| (
         x._borrow(|x_ptr| (
-            FFI_CALL[CInt __gmpz_perfect_power_p(Ptr), x_ptr] != 0.to_CInt
+            FFI_CALL[CInt __gmpz_perfect_power_p(Ptr), x_ptr] != 0.c_int
         ))
     );
 
@@ -908,7 +909,7 @@ namespace MPZ {
     perfect_square_p : MPZ -> Bool;
     perfect_square_p = |x| (
         x._borrow(|x_ptr| (
-            FFI_CALL[CInt __gmpz_perfect_square_p(Ptr), x_ptr] != 0.to_CInt
+            FFI_CALL[CInt __gmpz_perfect_square_p(Ptr), x_ptr] != 0.c_int
         ))
     );
 
@@ -925,7 +926,7 @@ namespace MPZ {
     probab_prime_p : I64 -> MPZ -> I64;
     probab_prime_p = |k, x| (
         x._borrow(|x_ptr| (
-            FFI_CALL[CInt __gmpz_probab_prime_p(Ptr, CInt), x_ptr, k.to_CInt].to_I64
+            FFI_CALL[CInt __gmpz_probab_prime_p(Ptr, CInt), x_ptr, k.c_int].i64
         ))
     );
 
@@ -991,7 +992,7 @@ namespace MPZ {
             |(inv_ptr, n_ptr, m_ptr)| FFI_CALL_IO[CInt __gmpz_invert(Ptr, Ptr, Ptr), inv_ptr, n_ptr, m_ptr],
             n, m
         );
-        if flag == 0.to_CInt {
+        if flag == 0.c_int {
             Option::none()
         } else {
             Option::some(inv)
@@ -1007,7 +1008,7 @@ namespace MPZ {
     jacobi = |b, a| (
         b._borrow(|b_ptr| (
             a._borrow(|a_ptr| (
-                FFI_CALL[CInt __gmpz_jacobi(Ptr, Ptr), a_ptr, b_ptr].to_I64
+                FFI_CALL[CInt __gmpz_jacobi(Ptr, Ptr), a_ptr, b_ptr].i64
             ))
         ))
     );
@@ -1021,7 +1022,7 @@ namespace MPZ {
     legendre = |a, p| (
         a._borrow(|a_ptr| (
             p._borrow(|p_ptr| (
-                FFI_CALL[CInt __gmpz_legendre(Ptr, Ptr), a_ptr, p_ptr].to_I64
+                FFI_CALL[CInt __gmpz_legendre(Ptr, Ptr), a_ptr, p_ptr].i64
             ))
         ))
     );
@@ -1037,7 +1038,7 @@ namespace MPZ {
     remove : MPZ -> MPZ -> (MPZ, U64);
     remove = |f, n| (
         MPZ::_binary_op(
-            |(out_ptr, n_ptr, f_ptr)| FFI_CALL_IO[CUnsignedLong __gmpz_remove(Ptr, Ptr, Ptr), out_ptr, n_ptr, f_ptr].map(to_U64),
+            |(out_ptr, n_ptr, f_ptr)| FFI_CALL_IO[CUnsignedLong __gmpz_remove(Ptr, Ptr, Ptr), out_ptr, n_ptr, f_ptr].map(u64),
             n, f
         )
     );
@@ -1049,7 +1050,7 @@ namespace MPZ {
     fac_ui : U64 -> MPZ;
     fac_ui = |n| (
         (zero : MPZ)._mutate(
-            |out_ptr| FFI_CALL_IO[() __gmpz_fac_ui(Ptr, CUnsignedLong), out_ptr, n.to_CUnsignedLong]
+            |out_ptr| FFI_CALL_IO[() __gmpz_fac_ui(Ptr, CUnsignedLong), out_ptr, n.c_unsigned_long]
         ).@0
     );
 
@@ -1060,7 +1061,7 @@ namespace MPZ {
     fac2_ui : U64 -> MPZ;
     fac2_ui = |n| (
         (zero : MPZ)._mutate(
-            |out_ptr| FFI_CALL_IO[() __gmpz_2fac_ui(Ptr, CUnsignedLong), out_ptr, n.to_CUnsignedLong]
+            |out_ptr| FFI_CALL_IO[() __gmpz_2fac_ui(Ptr, CUnsignedLong), out_ptr, n.c_unsigned_long]
         ).@0
     );
 
@@ -1072,7 +1073,7 @@ namespace MPZ {
     facm_uiui : U64 -> U64 -> MPZ;
     facm_uiui = |m, n| (
         (zero : MPZ)._mutate(
-            |out_ptr| FFI_CALL_IO[() __gmpz_mfac_uiui(Ptr, CUnsignedLong, CUnsignedLong), out_ptr, n.to_CUnsignedLong, m.to_CUnsignedLong]
+            |out_ptr| FFI_CALL_IO[() __gmpz_mfac_uiui(Ptr, CUnsignedLong, CUnsignedLong), out_ptr, n.c_unsigned_long, m.c_unsigned_long]
         ).@0
     );
 
@@ -1083,7 +1084,7 @@ namespace MPZ {
     primorial_ui : U64 -> MPZ;
     primorial_ui = |n| (
         (zero : MPZ)._mutate(
-            |out_ptr| FFI_CALL_IO[() __gmpz_primorial_ui(Ptr, CUnsignedLong), out_ptr, n.to_CUnsignedLong]
+            |out_ptr| FFI_CALL_IO[() __gmpz_primorial_ui(Ptr, CUnsignedLong), out_ptr, n.c_unsigned_long]
         ).@0
     );
 
@@ -1095,7 +1096,7 @@ namespace MPZ {
     bin_ui : MPZ -> U64 -> MPZ;
     bin_ui = |n, k| (
         MPZ::_unary_op(
-            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_bin_ui(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, k.to_CUnsignedLong],
+            |(out_ptr, n_ptr)| FFI_CALL_IO[() __gmpz_bin_ui(Ptr, Ptr, CUnsignedLong), out_ptr, n_ptr, k.c_unsigned_long],
             n
         ).@0
     );
@@ -1107,7 +1108,7 @@ namespace MPZ {
     fib_ui : U64 -> MPZ;
     fib_ui = |n| (
         (zero : MPZ)._mutate(
-            |out_ptr| FFI_CALL_IO[() __gmpz_fib_ui(Ptr, CUnsignedLong), out_ptr, n.to_CUnsignedLong]
+            |out_ptr| FFI_CALL_IO[() __gmpz_fib_ui(Ptr, CUnsignedLong), out_ptr, n.c_unsigned_long]
         ).@0
     );
 
@@ -1119,7 +1120,7 @@ namespace MPZ {
     fib2_ui = |n| (
         (zero : MPZ)._mutate(|out_ptr|
             (zero : MPZ)._mutate(|out_prev_ptr|
-                FFI_CALL_IO[() __gmpz_fib2_ui(Ptr, Ptr, CUnsignedLong), out_ptr, out_prev_ptr, n.to_CUnsignedLong]
+                FFI_CALL_IO[() __gmpz_fib2_ui(Ptr, Ptr, CUnsignedLong), out_ptr, out_prev_ptr, n.c_unsigned_long]
             ).@0.pure
         )
     );
@@ -1131,7 +1132,7 @@ namespace MPZ {
     lucnum_ui : U64 -> MPZ;
     lucnum_ui = |n| (
         (zero : MPZ)._mutate(
-            |out_ptr| FFI_CALL_IO[() __gmpz_lucnum_ui(Ptr, CUnsignedLong), out_ptr, n.to_CUnsignedLong]
+            |out_ptr| FFI_CALL_IO[() __gmpz_lucnum_ui(Ptr, CUnsignedLong), out_ptr, n.c_unsigned_long]
         ).@0
     );
 
@@ -1143,7 +1144,7 @@ namespace MPZ {
     lucnum2_ui = |n| (
         (zero : MPZ)._mutate(|out_ptr|
             (zero : MPZ)._mutate(|out_prev_ptr|
-                FFI_CALL_IO[() __gmpz_lucnum2_ui(Ptr, Ptr, CUnsignedLong), out_ptr, out_prev_ptr, n.to_CUnsignedLong]
+                FFI_CALL_IO[() __gmpz_lucnum2_ui(Ptr, Ptr, CUnsignedLong), out_ptr, out_prev_ptr, n.c_unsigned_long]
             ).@0.pure
         )
     );
@@ -1164,7 +1165,7 @@ namespace MPZ {
     cmp = |lhs, rhs| (
         lhs._borrow(|lhs_ptr| (
             rhs._borrow(|rhs_ptr| (
-                FFI_CALL[CInt __gmpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr].to_I64
+                FFI_CALL[CInt __gmpz_cmp(Ptr, Ptr), lhs_ptr, rhs_ptr].i64
             ))
         ))
     );
@@ -1182,7 +1183,7 @@ namespace MPZ {
     cmp_d : MPZ -> F64 -> I64;
     cmp_d = |lhs, rhs| (
         lhs._borrow(|lhs_ptr| (
-            FFI_CALL[CInt __gmpz_cmp_d(Ptr, CDouble), lhs_ptr, rhs].to_I64
+            FFI_CALL[CInt __gmpz_cmp_d(Ptr, CDouble), lhs_ptr, rhs].i64
         ))
     );
 
@@ -1200,7 +1201,7 @@ namespace MPZ {
     cmpabs = |lhs, rhs| (
         lhs._borrow(|lhs_ptr| (
             rhs._borrow(|rhs_ptr| (
-                FFI_CALL[CInt __gmpz_cmpabs(Ptr, Ptr), lhs_ptr, rhs_ptr].to_I64
+                FFI_CALL[CInt __gmpz_cmpabs(Ptr, Ptr), lhs_ptr, rhs_ptr].i64
             ))
         ))
     );
@@ -1218,7 +1219,7 @@ namespace MPZ {
     cmpabs_d : MPZ -> F64 -> I64;
     cmpabs_d = |lhs, rhs| (
         lhs._borrow(|lhs_ptr| (
-            FFI_CALL[CInt __gmpz_cmpabs_d(Ptr, CDouble), lhs_ptr, rhs].to_I64
+            FFI_CALL[CInt __gmpz_cmpabs_d(Ptr, CDouble), lhs_ptr, rhs].i64
         ))
     );
 
@@ -1298,7 +1299,7 @@ namespace MPZ {
     popcount : MPZ -> U64;
     popcount = |n| (
         n._borrow(|n_ptr| (
-            FFI_CALL[CUnsignedLong __gmpz_popcount(Ptr), n_ptr].to_U64
+            FFI_CALL[CUnsignedLong __gmpz_popcount(Ptr), n_ptr].u64
         ))
     );
 
@@ -1313,7 +1314,7 @@ namespace MPZ {
     hamdist = |lhs, rhs| (
         lhs._borrow(|lhs_ptr| (
             rhs._borrow(|rhs_ptr| (
-                FFI_CALL[CUnsignedLong __gmpz_hamdist(Ptr, Ptr), lhs_ptr, rhs_ptr].to_U64
+                FFI_CALL[CUnsignedLong __gmpz_hamdist(Ptr, Ptr), lhs_ptr, rhs_ptr].u64
             ))
         ))
     );
@@ -1326,7 +1327,7 @@ namespace MPZ {
     scan0 : U64 -> MPZ -> U64;
     scan0 = |bit, n| (
         n._borrow(|n_ptr| (
-            FFI_CALL[CUnsignedLong __gmpz_scan0(Ptr, CUnsignedLong), n_ptr, bit.to_CUnsignedLong].to_U64
+            FFI_CALL[CUnsignedLong __gmpz_scan0(Ptr, CUnsignedLong), n_ptr, bit.c_unsigned_long].u64
         ))
     );
 
@@ -1338,7 +1339,7 @@ namespace MPZ {
     scan1 : U64 -> MPZ -> U64;
     scan1 = |bit, n| (
         n._borrow(|n_ptr| (
-            FFI_CALL[CUnsignedLong __gmpz_scan1(Ptr, CUnsignedLong), n_ptr, bit.to_CUnsignedLong].to_U64
+            FFI_CALL[CUnsignedLong __gmpz_scan1(Ptr, CUnsignedLong), n_ptr, bit.c_unsigned_long].u64
         ))
     );
 
@@ -1350,7 +1351,7 @@ namespace MPZ {
     setbit : U64 -> MPZ -> MPZ;
     setbit = |bit, n| (
         n._mutate(|n_ptr| (
-            FFI_CALL_IO[() __gmpz_setbit(Ptr, CUnsignedLong), n_ptr, bit.to_CUnsignedLong]
+            FFI_CALL_IO[() __gmpz_setbit(Ptr, CUnsignedLong), n_ptr, bit.c_unsigned_long]
         )).@0
     );
 
@@ -1362,7 +1363,7 @@ namespace MPZ {
     clrbit : U64 -> MPZ -> MPZ;
     clrbit = |bit, n| (
         n._mutate(|n_ptr| (
-            FFI_CALL_IO[() __gmpz_clrbit(Ptr, CUnsignedLong), n_ptr, bit.to_CUnsignedLong]
+            FFI_CALL_IO[() __gmpz_clrbit(Ptr, CUnsignedLong), n_ptr, bit.c_unsigned_long]
         )).@0
     );
 
@@ -1374,7 +1375,7 @@ namespace MPZ {
     combit : U64 -> MPZ -> MPZ;
     combit = |bit, n| (
         n._mutate(|n_ptr| (
-            FFI_CALL_IO[() __gmpz_combit(Ptr, CUnsignedLong), n_ptr, bit.to_CUnsignedLong]
+            FFI_CALL_IO[() __gmpz_combit(Ptr, CUnsignedLong), n_ptr, bit.c_unsigned_long]
         )).@0
     );
 
@@ -1386,7 +1387,7 @@ namespace MPZ {
     tstbit : U64 -> MPZ -> Bool;
     tstbit = |bit, n| (
         n._borrow(|n_ptr| (
-            FFI_CALL[CInt __gmpz_tstbit(Ptr, CUnsignedLong), n_ptr, bit.to_CUnsignedLong] != 0.to_CInt
+            FFI_CALL[CInt __gmpz_tstbit(Ptr, CUnsignedLong), n_ptr, bit.c_unsigned_long] != 0.c_int
         ))
     );
 }
