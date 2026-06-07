@@ -1,6 +1,6 @@
 # GMP.Z
 
-Defined in gmp-fix@0.7.0
+Defined in gmp-fix@0.9.0
 
 Provides multiple-precision integer type `MPZ` and related functions.
 
@@ -12,7 +12,7 @@ Repository: https://github.com/tttmmmyyyy/fixlang-gmp
 
 #### c_SiZE_OF_MPZ
 
-Type: `Std::FFI::CInt`
+Type: `Std::FFI::CSizeT`
 
 Size of `__mpz_struct`.
 
@@ -1004,10 +1004,6 @@ Defined as: `type MPZ = unbox struct { ...fields... }`
 
 Integer type with arbitrary precision.
 
-##### field `_0`
-
-Type: `Std::FFI::Destructor GMP.Z::MPZHandle`
-
 #### MPZHandle
 
 Defined as: `type MPZHandle = Std::Ptr`
@@ -1035,6 +1031,8 @@ A pointer to struct `__mpz_struct`.
 ### impl `GMP.Z::MPZ : Std::Mul`
 
 ### impl `GMP.Z::MPZ : Std::Neg`
+
+### impl `GMP.Z::MPZ : Std::One`
 
 ### impl `GMP.Z::MPZ : Std::Rem`
 

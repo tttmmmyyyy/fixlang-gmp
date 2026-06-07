@@ -10,7 +10,7 @@ import GMP.Q::{
 import GMP.Z::MPZ::{init_set_si, mpz};
 import Std::{
     ErrMsg, F64, IO, Result, Debug::{assert, assert_eq}, F64::to_string_precision, 
-    FromString::from_string, I64::minimum, Monad::pure, Option::{as_some, is_none}, 
+    FromString::from_string, I64::minimum, Monad::pure, One::one, Option::{as_some, is_none}, 
     Result::{as_ok, is_err}, ToString::to_string, Zero::zero
 };
 
@@ -31,6 +31,7 @@ test_q_special_constructor = (
 
     // one
     assert_eq(|_|"one", mpq(1, 1).to_string, "1");;
+    assert_eq(|_|"one trait", (one : MPQ).to_string, "1");;
 
     // mpq
     assert_eq(|_|"mpq", mpq(-14, 12).to_string, "-7/6");;

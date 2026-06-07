@@ -6,12 +6,13 @@ module GMP.Q;
 import GMP.Z::{c_SiZE_OF_MPZ, MPZ, MPZ::{_borrow, _mutate}};
 import Hash::{Hash, Hash::hash};
 import Std::{
-    undefined, unsafe_is_unique, Add, Bool, Div, Eq, F64, FromString, I64, IO, LessThan, LessThanOrEq,
-    Mul, Neg, Option, Ptr, String, Sub, ToString, U64, Zero,
-    FFI::{CSizeT, Destructor, Destructor::{borrow, make, mutate_unique}}, IO::unsafe_perform, Monad::pure,
-    Option::{none, some}, Result::{err, ok}, String::{borrow_c_str, unsafe_from_c_str_ptr_io},
-    ToCDouble::c_double, ToCInt::c_int, ToCSizeT::c_size_t, ToCUnsignedLong::c_unsigned_long,
-    ToF64::f64, ToI64::i64, ToString::to_string, ToU64::u64, Tuple2::@0, U64::bit_not, Zero::zero
+    undefined, unsafe_is_unique, Add, Bool, Div, Eq, F64, FromString, I64, IO, LessThan, LessThanOrEq, 
+    Mul, Neg, One, Option, Ptr, String, Sub, ToString, U64, Zero, 
+    FFI::{CSizeT, Destructor, Destructor::{borrow, make, mutate_unique}}, IO::unsafe_perform, 
+    Monad::pure, Option::{none, some}, Result::{err, ok}, 
+    String::{borrow_c_str, unsafe_from_c_str_ptr_io}, ToCDouble::c_double, ToCInt::c_int, 
+    ToCSizeT::c_size_t, ToCUnsignedLong::c_unsigned_long, ToF64::f64, ToI64::i64, ToString::to_string, 
+    ToU64::u64, Tuple2::@0, U64::bit_not, Zero::zero
 };
 
 // A pointer to struct `__mpq_struct`.
@@ -510,4 +511,8 @@ impl MPQ : ToString {
 
 impl MPQ : Zero {
     zero = MPQ::_init_by(|handle| FFI_CALL_IO[() __gmpq_init(Ptr), handle]).@0;
+}
+
+impl MPQ : One {
+    one = MPQ::init_set_ui(1_U64, 1_U64);
 }

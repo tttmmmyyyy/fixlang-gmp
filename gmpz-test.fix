@@ -15,7 +15,7 @@ import GMP.Z::{
     }
 };
 import Std::{
-    F64, IO, Debug::{assert, assert_eq}, FromString::from_string, Monad::pure, 
+    F64, IO, Debug::{assert, assert_eq}, FromString::from_string, Monad::pure, One::one, 
     Option::{as_some, is_none, none, some}, Result::as_ok, ToString::to_string, Zero::zero
 };
 
@@ -39,6 +39,7 @@ test_z_special_constructor = (
     // zero and one
     assert_eq(|_|"zero", (zero : MPZ).to_string, "0");;
     assert_eq(|_|"one", mpz(1).to_string, "1");;
+    assert_eq(|_|"one trait", (one : MPZ).to_string, "1");;
 
     // constructor
     assert_eq(|_|"mpz", mpz(42).to_string, "42");;

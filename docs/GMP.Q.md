@@ -1,6 +1,6 @@
 # GMP.Q
 
-Defined in gmp-fix@0.7.0
+Defined in gmp-fix@0.9.0
 
 Provides multiple-precision rational number type `MPQ` and related functions.
 
@@ -12,7 +12,7 @@ Repository: https://github.com/tttmmmyyyy/fixlang-gmp
 
 #### c_SiZE_OF_MPQ
 
-Type: `Std::FFI::CInt`
+Type: `Std::FFI::CSizeT`
 
 Size of `__mpq_struct`.
 
@@ -287,10 +287,6 @@ Defined as: `type MPQ = unbox struct { ...fields... }`
 
 Rational number type, represented by a pair of `MPZ` values (numerator and denominator).
 
-##### field `_0`
-
-Type: `Std::FFI::Destructor GMP.Q::MPQHandle`
-
 #### MPQHandle
 
 Defined as: `type MPQHandle = Std::Ptr`
@@ -318,6 +314,8 @@ A pointer to struct `__mpq_struct`.
 ### impl `GMP.Q::MPQ : Std::Mul`
 
 ### impl `GMP.Q::MPQ : Std::Neg`
+
+### impl `GMP.Q::MPQ : Std::One`
 
 ### impl `GMP.Q::MPQ : Std::Sub`
 

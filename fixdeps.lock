@@ -2,9 +2,9 @@ proj_file_hash = "130e257004fd483d2f2c848f7b5135e3"
 
 [[dependencies]]
 name = "hash"
-version = "1.1.0"
-path = ".fixlang/deps/hash_1.1.0"
+version = "1.1.2"
+path = ".fixlang/deps/hash_1.1.2"
 
 [dependencies.git]
 repo = "https://github.com/tttmmmyyyy/fixlang-hash.git"
-rev = "40d5d04e9b5f5a11c46151d00a98acb6dfdb4e48"
+rev = "dbf95379b6ee7b26ec4858116f24c0251467cb83"
