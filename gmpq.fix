@@ -74,12 +74,10 @@ namespace MPQ {
     );
 
     // Whether the MPQ's underlying resource is uniquely owned, paired with the MPQ itself.
-    // An MPQ value is unboxed, so its uniqueness is that of the boxed `Destructor` it holds.
+    // An MPQ value is unboxed, so its uniqueness is that of the boxed `Destructor` it holds, tested by
+    // acting on the field with `unsafe_is_unique` (the `(Bool, _)` functor).
     _is_unique : MPQ -> (Bool, MPQ);
-    _is_unique = |num| (
-        let (is_unique, dtor) = num.@_0.unsafe_is_unique;
-        (is_unique, MPQ { _0 : dtor })
-    );
+    _is_unique = |num| num.act__0(|dtor| dtor.unsafe_is_unique);
 
     // Apply a unary operation of GMP (taking (out, in) as arguments) to a `MPQ` value.
     _unary_op : ((MPQHandle, MPQHandle) -> IO a) -> MPQ -> (MPQ, a);

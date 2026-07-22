@@ -73,12 +73,10 @@ namespace MPZ {
     );
 
     // Whether the MPZ's underlying resource is uniquely owned, paired with the MPZ itself.
-    // An MPZ value is unboxed, so its uniqueness is that of the boxed `Destructor` it holds.
+    // An MPZ value is unboxed, so its uniqueness is that of the boxed `Destructor` it holds, tested by
+    // acting on the field with `unsafe_is_unique` (the `(Bool, _)` functor).
     _is_unique : MPZ -> (Bool, MPZ);
-    _is_unique = |num| (
-        let (is_unique, dtor) = num.@_0.unsafe_is_unique;
-        (is_unique, MPZ { _0 : dtor })
-    );
+    _is_unique = |num| num.act__0(|dtor| dtor.unsafe_is_unique);
 
     // Apply a unary operation of GMP (taking (out, in) as arguments) to a `MPZ` value.
     _unary_op : ((MPZHandle, MPZHandle) -> IO a) -> MPZ -> (MPZ, a);
