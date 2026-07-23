@@ -1,6 +1,6 @@
 [general]
 name = "gmp-fix"
-version = "0.9.0"
+version = "0.10.0"
 fix_version = "1.5.0"
 description = "GMP bindings for the Fix programming language."
 
