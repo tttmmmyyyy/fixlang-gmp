@@ -72,10 +72,16 @@ namespace MPZ {
         (MPZ { _0 : dtor }, res)
     );
 
+    // Whether the MPZ's underlying resource is uniquely owned, paired with the MPZ itself.
+    // An MPZ value is unboxed, so its uniqueness is that of the boxed `Destructor` it holds, tested by
+    // acting on the field with `unsafe_is_unique` (the `(Bool, _)` functor).
+    _is_unique : MPZ -> (Bool, MPZ);
+    _is_unique = |num| num.act__0(unsafe_is_unique);
+
     // Apply a unary operation of GMP (taking (out, in) as arguments) to a `MPZ` value.
     _unary_op : ((MPZHandle, MPZHandle) -> IO a) -> MPZ -> (MPZ, a);
     _unary_op = |act, num| (
-        let (is_unique, num) = num.unsafe_is_unique;
+        let (is_unique, num) = num._is_unique;
         if is_unique {
             num._mutate(|num_ptr| act((num_ptr, num_ptr)))
         };
@@ -87,7 +93,7 @@ namespace MPZ {
     // Apply a unary operation of GMP (taking (out1, out2, in) as arguments) to a `MPZ` value.
     _unary_op2 : ((MPZHandle, MPZHandle, MPZHandle) -> IO a) -> MPZ -> (MPZ, MPZ, a);
     _unary_op2 = |act, num| (
-        let (is_unique, num) = num.unsafe_is_unique;
+        let (is_unique, num) = num._is_unique;
         if is_unique {
             num._mutate(|num_ptr| 
                 (zero : MPZ)._mutate(|out2_ptr|
@@ -107,13 +113,13 @@ namespace MPZ {
     // Apply a binary operation of GMP (taking (out, lhs, rhs) as arguments) to two `MPZ` values.
     _binary_op : ((MPZHandle, MPZHandle, MPZHandle) -> IO a) -> MPZ -> MPZ -> (MPZ, a);
     _binary_op = |act, lhs, rhs| (
-        let (is_unique, lhs) = lhs.unsafe_is_unique;
+        let (is_unique, lhs) = lhs._is_unique;
         if is_unique { 
             rhs._borrow(|rhs_ptr|
                 lhs._mutate(|lhs_ptr| act((lhs_ptr, lhs_ptr, rhs_ptr)))
             )
         };
-        let (is_uqniue, rhs) = rhs.unsafe_is_unique;
+        let (is_uqniue, rhs) = rhs._is_unique;
         if is_unique { 
             lhs._borrow(|lhs_ptr|
                 rhs._mutate(|rhs_ptr| act((rhs_ptr, lhs_ptr, rhs_ptr)))
@@ -129,8 +135,8 @@ namespace MPZ {
     // Apply a binary operation which returns two values of GMP (taking (out0, out1, lhs, rhs) as arguments) to two `MPZ` values.
     _binary_op2 : ((MPZHandle, MPZHandle, MPZHandle, MPZHandle) -> IO a) -> MPZ -> MPZ -> (MPZ, MPZ, a);
     _binary_op2 = |act, lhs, rhs| (
-        let (lhs_is_unique, lhs) = lhs.unsafe_is_unique;
-        let (rhs_is_unique, rhs) = rhs.unsafe_is_unique;
+        let (lhs_is_unique, lhs) = lhs._is_unique;
+        let (rhs_is_unique, rhs) = rhs._is_unique;
         if lhs_is_unique && rhs_is_unique {
             lhs._mutate(|lhs_ptr| 
                 rhs._mutate(|rhs_ptr|
@@ -170,8 +176,8 @@ namespace MPZ {
     // Apply a binary operation of GMP (taking (out1, out2, out3, op1, op2) as arguments) to two `MPZ` values.
     _binary_op3 : ((MPZHandle, MPZHandle, MPZHandle, MPZHandle, MPZHandle) -> IO a) -> MPZ -> MPZ -> (MPZ, MPZ, MPZ, a);
     _binary_op3 = |act, lhs, rhs| (
-        let (lhs_is_unique, lhs) = lhs.unsafe_is_unique;
-        let (rhs_is_unique, rhs) = rhs.unsafe_is_unique;
+        let (lhs_is_unique, lhs) = lhs._is_unique;
+        let (rhs_is_unique, rhs) = rhs._is_unique;
         if lhs_is_unique && rhs_is_unique {
             lhs._mutate(|lhs_ptr| 
                 rhs._mutate(|rhs_ptr|
@@ -219,7 +225,7 @@ namespace MPZ {
     // Apply a tertiary operation of GMP (taking (out, op1, op2, op3) as arguments) to two `MPZ` values.
     _tertiary_op : ((MPZHandle, MPZHandle, MPZHandle, MPZHandle) -> IO ()) -> MPZ -> MPZ -> MPZ -> MPZ;
     _tertiary_op = |act, op1, op2, op3| (
-        let (is_unique, op1) = op1.unsafe_is_unique;
+        let (is_unique, op1) = op1._is_unique;
         if is_unique {
             op2._borrow(|op2_ptr|
                 op3._borrow(|op3_ptr|
@@ -227,7 +233,7 @@ namespace MPZ {
                 )
             )
         };
-        let (is_unique, op2) = op2.unsafe_is_unique;
+        let (is_unique, op2) = op2._is_unique;
         if is_unique {
             op1._borrow(|op1_ptr|
                 op3._borrow(|op3_ptr|
@@ -235,7 +241,7 @@ namespace MPZ {
                 )
             )
         };
-        let (is_unique, op3) = op3.unsafe_is_unique;
+        let (is_unique, op3) = op3._is_unique;
         if is_unique {
             op1._borrow(|op1_ptr|
                 op2._borrow(|op2_ptr|
