@@ -818,7 +818,9 @@ namespace MPZ {
 
     // Calculates `b^e mod m`.
     // 
-    // This is a secure version of `powm`. For details, see the document of `mpz_powm_sec` in GMP.
+    // This is a secure version of `powm`: it takes the same time and accesses the same memory
+    // pattern for any base, to resist side-channel attacks. It requires `e > 0` and an odd `m`.
+    // For details, see the document of `mpz_powm_sec` in GMP.
     // 
     // # Parameters
     // - `e`: The exponent.
@@ -827,7 +829,7 @@ namespace MPZ {
     powm_sec : MPZ -> MPZ -> MPZ -> MPZ;
     powm_sec = |exp, mod, base| (
         MPZ::_tertiary_op(
-            |(out_ptr, base_ptr, exp_ptr, mod_ptr)| FFI_CALL_IO[() __gmpz_powm(Ptr, Ptr, Ptr, Ptr), out_ptr, base_ptr, exp_ptr, mod_ptr],
+            |(out_ptr, base_ptr, exp_ptr, mod_ptr)| FFI_CALL_IO[() __gmpz_powm_sec(Ptr, Ptr, Ptr, Ptr), out_ptr, base_ptr, exp_ptr, mod_ptr],
             base, exp, mod
         )
     );    
@@ -1005,11 +1007,11 @@ namespace MPZ {
         }
     );
 
-    // Calculates the Jacobi symbol (a/b) for two `MPZ` values.
+    // Calculates the Jacobi symbol (a/b) for two `MPZ` values. `a.jacobi(b)` is (a/b).
     // 
     // # Parameters
-    // - `a`
-    // - `b`
+    // - `b`: The odd positive number below the line.
+    // - `a`: The number above the line.
     jacobi : MPZ -> MPZ -> I64;
     jacobi = |b, a| (
         b._borrow(|b_ptr| (
@@ -1019,13 +1021,14 @@ namespace MPZ {
         ))
     );
 
-    // Calculates the Legendre symbol (a/p) for an `MPZ` value `a` and a prime `p`.
+    // Calculates the Legendre symbol (a/p) for an `MPZ` value `a` and a prime `p`. `a.legendre(p)` is
+    // (a/p).
     // 
     // # Parameters
+    // - `p`: The odd prime number.
     // - `a`: The value to calculate the Legendre symbol for.
-    // - `p`: The prime number.
     legendre : MPZ -> MPZ -> I64;
-    legendre = |a, p| (
+    legendre = |p, a| (
         a._borrow(|a_ptr| (
             p._borrow(|p_ptr| (
                 FFI_CALL[CInt __gmpz_legendre(Ptr, Ptr), a_ptr, p_ptr].i64

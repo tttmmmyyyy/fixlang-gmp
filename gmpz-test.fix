@@ -525,8 +525,8 @@ test_z_pow = (
     let z = mpz(2).powm(mpz(10), mpz(1000));
     assert_eq(|_|"case 0", z.to_string, "24");;
 
-    let z = mpz(2).powm_sec(mpz(10), mpz(1000));
-    assert_eq(|_|"case 1", z.to_string, "24");;
+    let z = mpz(2).powm_sec(mpz(10), mpz(1001));
+    assert_eq(|_|"case 1", z.to_string, "23");;
 
     let z = mpz(2).pow_ui(10_U64);
     assert_eq(|_|"case 2", z.to_string, "1024");;
@@ -613,11 +613,13 @@ test_z_number_theory = (
     assert_eq(|_|"invert", mpz(3).invert(mpz(11)), some(mpz(4)));;
     assert_eq(|_|"invert", mpz(2).invert(mpz(6)), none());;
 
-    // jacobi 
+    // jacobi: (3/7) = -1, while (7/3) = 1.
     assert_eq(|_|"jacobi", mpz(5).jacobi(mpz(3)), -1);;
+    assert_eq(|_|"jacobi order", mpz(3).jacobi(mpz(7)), -1);;
 
-    // legendre
+    // legendre: (3/7) = -1, while (7/3) = 1.
     assert_eq(|_|"legendre", mpz(5).legendre(mpz(3)), -1);;
+    assert_eq(|_|"legendre order", mpz(3).legendre(mpz(7)), -1);;
 
     // remove 
     assert_eq(|_|"remove", mpz(48).remove(mpz(2)), (mpz(3), 4_U64));;
