@@ -1,5 +1,19 @@
 // Provides multiple-precision integer type `MPZ` and related functions.
 // 
+// Create an `MPZ` by `mpz` from an `I64`, or by `init_set_str` from a string. `MPZ` implements
+// `Add`, `Sub`, `Mul`, `Div`, `Rem`, `Eq`, `LessThan` and `ToString`, so the usual operators work.
+// Most functions of GMP's `mpz_` family are in the namespace `MPZ` with the prefix dropped.
+// They take the value they act on as the last argument, so that they are called as methods like `n.mod(m)`.
+// 
+// ```fix
+// let n = fac_ui(25_U64);
+// assert_eq(|_|"", n.to_string, "15511210043330985984000000");;
+// let m = init_set_str("ffffffffffffffffffff", 16).as_some;
+// assert_eq(|_|"", (m + mpz(1)).get_str(16), "100000000000000000000");;
+// assert_eq(|_|"", n / fac_ui(24_U64), mpz(25));;
+// assert(|_|"", m < n)
+// ```
+// 
 // Repository: https://github.com/tttmmmyyyy/fixlang-gmp
 module GMP.Z;
 
@@ -293,6 +307,13 @@ namespace MPZ {
     // # Parameters
     // - `str`: The string representation of the integer.
     // - `base`: The base of the string representation.
+    // 
+    // # Examples
+    // ```fix
+    // assert_eq(|_|"", init_set_str("-123456789012345678901234567890", 10).as_some.to_string, "-123456789012345678901234567890");;
+    // assert_eq(|_|"", init_set_str("0x1F", 0).as_some, mpz(31));;
+    // assert(|_|"", init_set_str("12a", 10).is_none)
+    // ```
     init_set_str : String -> I64 -> Option MPZ;
     init_set_str = |str, base| (
         str.borrow_c_str(|str_c_str| (
@@ -496,9 +517,16 @@ namespace MPZ {
 
     // Calculates the remainder of `n` divided by `d`.
     // 
+    // The result is non-negative whatever the signs of `n` and `d` are, as in `mpz_mod` of GMP.
+    // 
     // # Parameters
     // - `d`: The divisor.
     // - `n`: The dividend.
+    // 
+    // # Examples
+    // ```fix
+    // assert_eq(|_|"", mpz(-7).mod(mpz(3)), mpz(2))
+    // ```
     mod : MPZ -> MPZ -> MPZ;
     mod = |d, n| (
         MPZ::_binary_op(
@@ -513,6 +541,12 @@ namespace MPZ {
     // - `m`: The modulus.
     // - `a`: The first value.
     // - `b`: The second value.
+    // 
+    // # Examples
+    // ```fix
+    // // 17 and 5 are congruent modulo 4.
+    // assert(|_|"", congruent_p(mpz(4), mpz(17), mpz(5)))
+    // ```
     congruent_p : MPZ -> MPZ -> MPZ -> Bool;
     congruent_p = |m, a, b| (
         a._borrow(|a_ptr| (
@@ -548,6 +582,11 @@ namespace MPZ {
     // # Parameters
     // - `d`: The divisor.
     // - `n`: The dividend.
+    // 
+    // # Examples
+    // ```fix
+    // assert_eq(|_|"", mpz(-7).tdiv_qr(mpz(2)), (mpz(-3), mpz(-1)))
+    // ```
     tdiv_qr : MPZ -> MPZ -> (MPZ, MPZ);
     tdiv_qr = |d, n| (
         MPZ::_binary_op2(
@@ -623,6 +662,11 @@ namespace MPZ {
     // # Parameters
     // - `d`: The divisor.
     // - `n`: The dividend.
+    // 
+    // # Examples
+    // ```fix
+    // assert_eq(|_|"", mpz(-7).fdiv_qr(mpz(2)), (mpz(-4), mpz(1)))
+    // ```
     fdiv_qr : MPZ -> MPZ -> (MPZ, MPZ);
     fdiv_qr = |d, n| (
         MPZ::_binary_op2(
@@ -698,6 +742,11 @@ namespace MPZ {
     // # Parameters
     // - `d`: The divisor.
     // - `n`: The dividend.
+    // 
+    // # Examples
+    // ```fix
+    // assert_eq(|_|"", mpz(7).cdiv_qr(mpz(2)), (mpz(4), mpz(-1)))
+    // ```
     cdiv_qr : MPZ -> MPZ -> (MPZ, MPZ);
     cdiv_qr = |d, n| (
         MPZ::_binary_op2(
@@ -772,6 +821,12 @@ namespace MPZ {
     // - `a`
     // - `b`
     // - `x`
+    // 
+    // # Examples
+    // ```fix
+    // // 10 + 3 * 4
+    // assert_eq(|_|"", mpz(10).addmul(mpz(3), mpz(4)), mpz(22))
+    // ```
     addmul : MPZ -> MPZ -> MPZ -> MPZ;
     addmul = |op1, op2, rop| (
         op1._borrow(|op1_ptr| (
@@ -808,6 +863,12 @@ namespace MPZ {
     // - `e`: The exponent.
     // - `m`: The modulus.
     // - `b`: The base.
+    // 
+    // # Examples
+    // ```fix
+    // // 2^100 mod 1000000007
+    // assert_eq(|_|"", mpz(2).powm(mpz(100), mpz(1000000007)), mpz(976371285))
+    // ```
     powm : MPZ -> MPZ -> MPZ -> MPZ;
     powm = |exp, mod, base| (
         MPZ::_tertiary_op(
@@ -929,6 +990,12 @@ namespace MPZ {
     // # Parameters
     // - `k`: The number of iterations to perform for the probabilistic test.
     // - `x`: The value to check.
+    // 
+    // # Examples
+    // ```fix
+    // assert(|_|"", mpz(1000000007).probab_prime_p(25) > 0);;
+    // assert_eq(|_|"", mpz(1000000005).probab_prime_p(25), 0)
+    // ```
     probab_prime_p : I64 -> MPZ -> I64;
     probab_prime_p = |k, x| (
         x._borrow(|x_ptr| (
@@ -966,6 +1033,13 @@ namespace MPZ {
     // # Parameters
     // - `n`: The first value.
     // - `m`: The second value.
+    // 
+    // # Examples
+    // ```fix
+    // let (g, s, t) = gcdext(mpz(240), mpz(46));
+    // assert_eq(|_|"", g, mpz(2));;
+    // assert_eq(|_|"", mpz(240) * s + mpz(46) * t, g)
+    // ```
     gcdext : MPZ -> MPZ -> (MPZ, MPZ, MPZ);
     gcdext = |n, m| (
         MPZ::_binary_op3(
@@ -992,6 +1066,14 @@ namespace MPZ {
     // # Parameters
     // - `m`: The modulus.
     // - `n`: The value to invert.
+    // 
+    // # Examples
+    // ```fix
+    // // 3 * 5 = 15 = 1 (mod 7)
+    // assert_eq(|_|"", mpz(3).invert(mpz(7)), some(mpz(5)));;
+    // // 4 has no inverse modulo 6
+    // assert(|_|"", mpz(4).invert(mpz(6)).is_none)
+    // ```
     invert : MPZ -> MPZ -> Option MPZ;
     invert = |m, n| (
         let (inv, flag) = MPZ::_binary_op(
@@ -1041,6 +1123,12 @@ namespace MPZ {
     // # Parameters
     // - `f`: The factor to remove.
     // - `n`: The value to remove the factor from.
+    // 
+    // # Examples
+    // ```fix
+    // // 360 = 2^3 * 45
+    // assert_eq(|_|"", mpz(360).remove(mpz(2)), (mpz(45), 3_U64))
+    // ```
     remove : MPZ -> MPZ -> (MPZ, U64);
     remove = |f, n| (
         MPZ::_binary_op(
@@ -1076,6 +1164,12 @@ namespace MPZ {
     // # Parameters
     // - `m`
     // - `n`: The non-negative integer to calculate the factorial of.
+    // 
+    // # Examples
+    // ```fix
+    // // 10 * 7 * 4 * 1
+    // assert_eq(|_|"", 10_U64.facm_uiui(3_U64), mpz(280))
+    // ```
     facm_uiui : U64 -> U64 -> MPZ;
     facm_uiui = |m, n| (
         (zero : MPZ)._mutate(
