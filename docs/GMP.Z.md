@@ -1,6 +1,6 @@
 # GMP.Z
 
-Defined in gmp-fix@0.10.0
+Defined in gmp-fix@0.11.0
 
 Provides multiple-precision integer type `MPZ` and related functions.
 
@@ -615,12 +615,12 @@ assert(|_|"", mpz(4).invert(mpz(6)).is_none)
 
 Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> Std::I64`
 
-Calculates the Jacobi symbol (a/b) for two `MPZ` values.
+Calculates the Jacobi symbol (a/b) for two `MPZ` values. `a.jacobi(b)` is (a/b).
 
 ##### Parameters
 
-- `a`
-- `b`
+- `b`: The odd positive number below the line.
+- `a`: The number above the line.
 
 #### lcm
 
@@ -637,12 +637,13 @@ Calculates the least common multiple of two `MPZ` values.
 
 Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> Std::I64`
 
-Calculates the Legendre symbol (a/p) for an `MPZ` value `a` and a prime `p`.
+Calculates the Legendre symbol (a/p) for an `MPZ` value `a` and a prime `p`. `a.legendre(p)` is
+(a/p).
 
 ##### Parameters
 
+- `p`: The odd prime number.
 - `a`: The value to calculate the Legendre symbol for.
-- `p`: The prime number.
 
 #### lucnum2_ui
 
@@ -785,7 +786,9 @@ Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ`
 
 Calculates `b^e mod m`.
 
-This is a secure version of `powm`. For details, see the document of `mpz_powm_sec` in GMP.
+This is a secure version of `powm`: it takes the same time and accesses the same memory
+pattern for any base, to resist side-channel attacks. It requires `e > 0` and an odd `m`.
+For details, see the document of `mpz_powm_sec` in GMP.
 
 ##### Parameters
 

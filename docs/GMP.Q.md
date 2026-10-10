@@ -1,6 +1,6 @@
 # GMP.Q
 
-Defined in gmp-fix@0.10.0
+Defined in gmp-fix@0.11.0
 
 Provides multiple-precision rational number type `MPQ` and related functions.
 
