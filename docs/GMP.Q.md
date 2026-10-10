@@ -4,6 +4,22 @@ Defined in gmp-fix@0.11.0
 
 Provides multiple-precision rational number type `MPQ` and related functions.
 
+Create an `MPQ` by `mpq` from an `I64` numerator and denominator, by `init_set_str` from a string, or
+by `init_set_z` from an `MPZ`. To make the ratio of two `MPZ` values, make each an `MPQ` and divide.
+Every function returns an `MPQ` in canonical form: the numerator and the denominator have no common
+factor, and the denominator is positive.
+`MPQ` implements `Add`, `Sub`, `Mul`, `Div`, `Eq`, `LessThan` and `ToString`, so the usual operators work.
+
+```fix
+let x = mpq(1, 3) + mpq(1, 6);
+assert_eq(|_|"", x, mpq(1, 2));;
+assert_eq(|_|"", x.to_string, "1/2");;
+assert_eq(|_|"", mpq(4, -6).to_string, "-2/3");;
+assert_eq(|_|"", (x / mpq(3, 4)).get_num, mpz(2));;
+assert_eq(|_|"", init_set_z(mpz(6)) / init_set_z(mpz(4)), mpq(3, 2));;
+assert(|_|"", mpq(2, 3) < mpq(3, 4))
+```
+
 Repository: https://github.com/tttmmmyyyy/fixlang-gmp
 
 ## Values
@@ -153,6 +169,14 @@ Creates new `MPQ` value from a string representation.
 
 - `str`: The string representation of the rational number.
 - `base`: The base of the string representation.
+
+##### Examples
+
+```fix
+assert_eq(|_|"", init_set_str("6/4", 10).as_some, mpq(3, 2));;
+assert_eq(|_|"", init_set_str("-5", 10).as_some, mpq(-5, 1));;
+assert(|_|"", init_set_str("1/2/3", 10).is_none)
+```
 
 #### init_set_ui
 

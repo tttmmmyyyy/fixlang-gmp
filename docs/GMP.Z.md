@@ -4,6 +4,20 @@ Defined in gmp-fix@0.11.0
 
 Provides multiple-precision integer type `MPZ` and related functions.
 
+Create an `MPZ` by `mpz` from an `I64`, or by `init_set_str` from a string. `MPZ` implements
+`Add`, `Sub`, `Mul`, `Div`, `Rem`, `Eq`, `LessThan` and `ToString`, so the usual operators work.
+Most functions of GMP's `mpz_` family are in the namespace `MPZ` with the prefix dropped.
+They take the value they act on as the last argument, so that they are called as methods like `n.mod(m)`.
+
+```fix
+let n = fac_ui(25_U64);
+assert_eq(|_|"", n.to_string, "15511210043330985984000000");;
+let m = init_set_str("ffffffffffffffffffff", 16).as_some;
+assert_eq(|_|"", (m + mpz(1)).get_str(16), "100000000000000000000");;
+assert_eq(|_|"", n / fac_ui(24_U64), mpz(25));;
+assert(|_|"", m < n)
+```
+
 Repository: https://github.com/tttmmmyyyy/fixlang-gmp
 
 ## Values
@@ -39,6 +53,13 @@ Calculates `x + a * b`.
 - `a`
 - `b`
 - `x`
+
+##### Examples
+
+```fix
+// 10 + 3 * 4
+assert_eq(|_|"", mpz(10).addmul(mpz(3), mpz(4)), mpz(22))
+```
 
 #### and
 
@@ -100,6 +121,12 @@ Divides `n` by `d` and returns the quotient and remainder.
 
 - `d`: The divisor.
 - `n`: The dividend.
+
+##### Examples
+
+```fix
+assert_eq(|_|"", mpz(7).cdiv_qr(mpz(2)), (mpz(4), mpz(-1)))
+```
 
 #### cdiv_r
 
@@ -251,6 +278,13 @@ Checks if two values `a`, `b` are congruent modulo `m`.
 - `a`: The first value.
 - `b`: The second value.
 
+##### Examples
+
+```fix
+// 17 and 5 are congruent modulo 4.
+assert(|_|"", congruent_p(mpz(4), mpz(17), mpz(5)))
+```
+
 #### divexact
 
 Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ`
@@ -317,6 +351,13 @@ Calculates the factorial of `n!^(m)`
 - `m`
 - `n`: The non-negative integer to calculate the factorial of.
 
+##### Examples
+
+```fix
+// 10 * 7 * 4 * 1
+assert_eq(|_|"", 10_U64.facm_uiui(3_U64), mpz(280))
+```
+
 #### fdiv_q
 
 Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ`
@@ -355,6 +396,12 @@ Divides `n` by `d` and returns the quotient and remainder.
 
 - `d`: The divisor.
 - `n`: The dividend.
+
+##### Examples
+
+```fix
+assert_eq(|_|"", mpz(-7).fdiv_qr(mpz(2)), (mpz(-4), mpz(1)))
+```
 
 #### fdiv_r
 
@@ -427,6 +474,14 @@ A tuple `(gcd, s, t)`
 
 - `n`: The first value.
 - `m`: The second value.
+
+##### Examples
+
+```fix
+let (g, s, t) = gcdext(mpz(240), mpz(46));
+assert_eq(|_|"", g, mpz(2));;
+assert_eq(|_|"", mpz(240) * s + mpz(46) * t, g)
+```
 
 #### get_d
 
@@ -518,6 +573,14 @@ See document of `mpz_set_str` in GMP for details.
 - `str`: The string representation of the integer.
 - `base`: The base of the string representation.
 
+##### Examples
+
+```fix
+assert_eq(|_|"", init_set_str("-123456789012345678901234567890", 10).as_some.to_string, "-123456789012345678901234567890");;
+assert_eq(|_|"", init_set_str("0x1F", 0).as_some, mpz(31));;
+assert(|_|"", init_set_str("12a", 10).is_none)
+```
+
 #### init_set_ui
 
 Type: `Std::U64 -> GMP.Z::MPZ`
@@ -538,6 +601,15 @@ Calculates the modular inverse of `n` modulo `m`.
 
 - `m`: The modulus.
 - `n`: The value to invert.
+
+##### Examples
+
+```fix
+// 3 * 5 = 15 = 1 (mod 7)
+assert_eq(|_|"", mpz(3).invert(mpz(7)), some(mpz(5)));;
+// 4 has no inverse modulo 6
+assert(|_|"", mpz(4).invert(mpz(6)).is_none)
+```
 
 #### jacobi
 
@@ -599,10 +671,18 @@ Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ`
 
 Calculates the remainder of `n` divided by `d`.
 
+The result is non-negative whatever the signs of `n` and `d` are, as in `mpz_mod` of GMP.
+
 ##### Parameters
 
 - `d`: The divisor.
 - `n`: The dividend.
+
+##### Examples
+
+```fix
+assert_eq(|_|"", mpz(-7).mod(mpz(3)), mpz(2))
+```
 
 #### mpz
 
@@ -693,6 +773,13 @@ Calculates `b^e mod m`.
 - `m`: The modulus.
 - `b`: The base.
 
+##### Examples
+
+```fix
+// 2^100 mod 1000000007
+assert_eq(|_|"", mpz(2).powm(mpz(100), mpz(1000000007)), mpz(976371285))
+```
+
 #### powm_sec
 
 Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ -> GMP.Z::MPZ`
@@ -734,6 +821,13 @@ Checks if `x` is a prime number.
 - `k`: The number of iterations to perform for the probabilistic test.
 - `x`: The value to check.
 
+##### Examples
+
+```fix
+assert(|_|"", mpz(1000000007).probab_prime_p(25) > 0);;
+assert_eq(|_|"", mpz(1000000005).probab_prime_p(25), 0)
+```
+
 #### remove
 
 Type: `GMP.Z::MPZ -> GMP.Z::MPZ -> (GMP.Z::MPZ, Std::U64)`
@@ -748,6 +842,13 @@ A tuple `(m, count)` where `m` is the result and `count` is the number of times 
 
 - `f`: The factor to remove.
 - `n`: The value to remove the factor from.
+
+##### Examples
+
+```fix
+// 360 = 2^3 * 45
+assert_eq(|_|"", mpz(360).remove(mpz(2)), (mpz(45), 3_U64))
+```
 
 #### root
 
@@ -948,6 +1049,12 @@ Divides `n` by `d` and returns the quotient and remainder.
 
 - `d`: The divisor.
 - `n`: The dividend.
+
+##### Examples
+
+```fix
+assert_eq(|_|"", mpz(-7).tdiv_qr(mpz(2)), (mpz(-3), mpz(-1)))
+```
 
 #### tdiv_r
 
