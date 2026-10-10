@@ -4,7 +4,8 @@ Defined in gmp-fix@0.10.0
 
 Provides multiple-precision rational number type `MPQ` and related functions.
 
-Create an `MPQ` by `mpq` from an `I64` numerator and denominator, or by `init_set_str` from a string.
+Create an `MPQ` by `mpq` from an `I64` numerator and denominator, by `init_set_str` from a string, or
+by `init_set_z` from an `MPZ`. To make the ratio of two `MPZ` values, make each an `MPQ` and divide.
 Every function returns an `MPQ` in canonical form: the numerator and the denominator have no common
 factor, and the denominator is positive.
 `MPQ` implements `Add`, `Sub`, `Mul`, `Div`, `Eq`, `LessThan` and `ToString`, so the usual operators work.
@@ -15,6 +16,7 @@ assert_eq(|_|"", x, mpq(1, 2));;
 assert_eq(|_|"", x.to_string, "1/2");;
 assert_eq(|_|"", mpq(4, -6).to_string, "-2/3");;
 assert_eq(|_|"", (x / mpq(3, 4)).get_num, mpz(2));;
+assert_eq(|_|"", init_set_z(mpz(6)) / init_set_z(mpz(4)), mpq(3, 2));;
 assert(|_|"", mpq(2, 3) < mpq(3, 4))
 ```
 
