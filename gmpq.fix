@@ -4,7 +4,8 @@
 // by `init_set_z` from an `MPZ`. To make the ratio of two `MPZ` values, make each an `MPQ` and divide.
 // Every function returns an `MPQ` in canonical form: the numerator and the denominator have no common
 // factor, and the denominator is positive.
-// `MPQ` implements `Add`, `Sub`, `Mul`, `Div`, `Eq`, `LessThan` and `ToString`, so the usual operators work.
+// `MPQ` implements `Add`, `Sub`, `Mul`, `Div`, `Eq`, `LessThan`, `ToString` and `Format`, so the usual
+// operators work and `format` writes it as `to_string` does.
 // 
 // ```fix
 // # import GMP.Z;
@@ -12,6 +13,7 @@
 // assert_eq(|_|"", x, mpq(1, 2));;
 // assert_eq(|_|"", x.to_string, "1/2");;
 // assert_eq(|_|"", mpq(4, -6).to_string, "-2/3");;
+// assert_eq(|_|"", "x = {}".format((x,)), "x = 1/2");;
 // assert_eq(|_|"", (x / mpq(3, 4)).get_num, mpz(2));;
 // assert_eq(|_|"", init_set_z(mpz(6)) / init_set_z(mpz(4)), mpq(3, 2));;
 // assert(|_|"", mpq(2, 3) < mpq(3, 4))
@@ -23,10 +25,10 @@ module GMP.Q;
 import GMP.Z::{c_SiZE_OF_MPZ, MPZ, MPZ::{_borrow, _mutate}};
 import Hash::{Hash, Hash::hash};
 import Std::{
-    undefined, unsafe_is_unique, Add, Bool, Div, Eq, F64, FromString, I64, IO, LessThan, LessThanOrEq, 
-    Mul, Neg, One, Option, Ptr, String, Sub, ToString, U64, Zero, 
-    FFI::{CSizeT, Destructor, Destructor::{borrow, make, mutate_unique}}, IO::unsafe_perform, 
-    Monad::pure, Option::{none, some}, Result::{err, ok}, 
+    undefined, unsafe_is_unique, Add, Bool, Div, Eq, F64, Format, FromString, I64, IO, LessThan, 
+    LessThanOrEq, Mul, Neg, One, Option, Ptr, String, Sub, ToString, U64, Zero, 
+    FFI::{CSizeT, Destructor, Destructor::{borrow, make, mutate_unique}}, Format::write_text, 
+    IO::unsafe_perform, Monad::pure, Option::{none, some}, Result::{err, ok}, 
     String::{borrow_c_str, unsafe_from_c_str_ptr_io}, ToCDouble::c_double, ToCInt::c_int, 
     ToCSizeT::c_size_t, ToCUnsignedLong::c_unsigned_long, ToF64::f64, ToI64::i64, ToString::to_string, 
     ToU64::u64, Tuple2::@0, U64::bit_not, Zero::zero
@@ -537,6 +539,11 @@ impl MPQ : FromString {
 
 impl MPQ : ToString {
     to_string = get_str(10);
+}
+
+// Writes the decimal text, such as `-2/3`, as `to_string` does.
+impl MPQ : Format {
+    write_text = |num, out| out.write_text(num.to_string);
 }
 
 impl MPQ : Zero {

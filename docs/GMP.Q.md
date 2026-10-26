@@ -1,6 +1,6 @@
 # GMP.Q
 
-Defined in gmp-fix@0.11.0
+Defined in gmp-fix@0.12.0
 
 Provides multiple-precision rational number type `MPQ` and related functions.
 
@@ -8,13 +8,15 @@ Create an `MPQ` by `mpq` from an `I64` numerator and denominator, by `init_set_s
 by `init_set_z` from an `MPZ`. To make the ratio of two `MPZ` values, make each an `MPQ` and divide.
 Every function returns an `MPQ` in canonical form: the numerator and the denominator have no common
 factor, and the denominator is positive.
-`MPQ` implements `Add`, `Sub`, `Mul`, `Div`, `Eq`, `LessThan` and `ToString`, so the usual operators work.
+`MPQ` implements `Add`, `Sub`, `Mul`, `Div`, `Eq`, `LessThan`, `ToString` and `Format`, so the usual
+operators work and `format` writes it as `to_string` does.
 
 ```fix
 let x = mpq(1, 3) + mpq(1, 6);
 assert_eq(|_|"", x, mpq(1, 2));;
 assert_eq(|_|"", x.to_string, "1/2");;
 assert_eq(|_|"", mpq(4, -6).to_string, "-2/3");;
+assert_eq(|_|"", "x = {}".format((x,)), "x = 1/2");;
 assert_eq(|_|"", (x / mpq(3, 4)).get_num, mpz(2));;
 assert_eq(|_|"", init_set_z(mpz(6)) / init_set_z(mpz(4)), mpq(3, 2));;
 assert(|_|"", mpq(2, 3) < mpq(3, 4))
@@ -328,6 +330,10 @@ A pointer to struct `__mpq_struct`.
 ### impl `GMP.Q::MPQ : Std::Div`
 
 ### impl `GMP.Q::MPQ : Std::Eq`
+
+### impl `GMP.Q::MPQ : Std::Format`
+
+Writes the decimal text, such as `-2/3`, as `to_string` does.
 
 ### impl `GMP.Q::MPQ : Std::FromString`
 

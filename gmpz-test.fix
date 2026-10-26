@@ -15,8 +15,9 @@ import GMP.Z::{
     }
 };
 import Std::{
-    F64, IO, Debug::{assert, assert_eq}, FromString::from_string, Monad::pure, One::one, 
-    Option::{as_some, is_none, none, some}, Result::as_ok, ToString::to_string, Zero::zero
+    F64, IO, Debug::{assert, assert_eq}, Format::{right_aligned_to, zero_padded_to}, 
+    FromString::from_string, Monad::pure, One::one, Option::{as_some, is_none, none, some}, 
+    Result::as_ok, String::format, ToString::to_string, Zero::zero
 };
 
 test_z : IO ();
@@ -24,6 +25,7 @@ test_z = (
     test_z_special_constructor;;
     test_z_memory;;
     test_z_conversion;;
+    test_z_format;;
     test_z_basic_arithmetic;;
     test_z_comparison;;
     test_z_pow;;
@@ -650,6 +652,18 @@ test_z_number_theory = (
 
     // lucnum2_ui
     assert_eq(|_|"lucnum2_ui", lucnum2_ui(10_U64), (mpz(123), mpz(76)));;
+
+    pure()
+);
+
+test_z_format : IO ();
+test_z_format = (
+    assert_eq(|_|"format", "{}".format((mpz(-12345),)), "-12345");;
+    assert_eq(|_|"format zero", "{}".format((mpz(0),)), "0");;
+    assert_eq(|_|"format large", "{}".format((fac_ui(25_U64),)), "15511210043330985984000000");;
+    assert_eq(|_|"format in a template", "{} < {}".format((mpz(1), mpz(2))), "1 < 2");;
+    assert_eq(|_|"format right aligned", "[{}]".format((mpz(-42).right_aligned_to(5),)), "[  -42]");;
+    assert_eq(|_|"format zero padded", "{}".format((mpz(-42).zero_padded_to(5),)), "-0042");;
 
     pure()
 );

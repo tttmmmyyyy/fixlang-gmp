@@ -1,17 +1,19 @@
 # GMP.Z
 
-Defined in gmp-fix@0.11.0
+Defined in gmp-fix@0.12.0
 
 Provides multiple-precision integer type `MPZ` and related functions.
 
 Create an `MPZ` by `mpz` from an `I64`, or by `init_set_str` from a string. `MPZ` implements
-`Add`, `Sub`, `Mul`, `Div`, `Rem`, `Eq`, `LessThan` and `ToString`, so the usual operators work.
+`Add`, `Sub`, `Mul`, `Div`, `Rem`, `Eq`, `LessThan`, `ToString` and `Format`, so the usual operators
+work and `format` writes it in decimal.
 Most functions of GMP's `mpz_` family are in the namespace `MPZ` with the prefix dropped.
 They take the value they act on as the last argument, so that they are called as methods like `n.mod(m)`.
 
 ```fix
 let n = fac_ui(25_U64);
 assert_eq(|_|"", n.to_string, "15511210043330985984000000");;
+assert_eq(|_|"", "25! = {}".format((n,)), "25! = 15511210043330985984000000");;
 let m = init_set_str("ffffffffffffffffffff", 16).as_some;
 assert_eq(|_|"", (m + mpz(1)).get_str(16), "100000000000000000000");;
 assert_eq(|_|"", n / fac_ui(24_U64), mpz(25));;
@@ -1131,6 +1133,10 @@ A pointer to struct `__mpz_struct`.
 ### impl `GMP.Z::MPZ : Std::Div`
 
 ### impl `GMP.Z::MPZ : Std::Eq`
+
+### impl `GMP.Z::MPZ : Std::Format`
+
+Writes the decimal text, as `to_string` does.
 
 ### impl `GMP.Z::MPZ : Std::FromString`
 
